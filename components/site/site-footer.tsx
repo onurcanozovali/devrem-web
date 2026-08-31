@@ -7,7 +7,7 @@ type FooterLink = { label: string; href: string | null };
 
 const footerGroups: { title: string; links: FooterLink[] }[] = [
   { title: 'Devrem', links: [{ label: 'Hakkımızda', href: null }, { label: 'Uygulama', href: '/#uygulama' }, { label: 'İletişim', href: 'mailto:iletisim@devrem.co' }] },
-  { title: 'Askerlik', links: [{ label: 'Birlikler', href: '/#birlikler' }, { label: 'Celp Dönemleri', href: '/#devreler' }, { label: 'Bedelli Askerlik', href: '/#bedelli' }, { label: 'Askerlik Rehberi', href: '/#rehberler' }] },
+  { title: 'Askerlik', links: [{ label: 'Birlikler', href: '/#birlikler' }, { label: 'Celp Dönemleri', href: '/#devreler' }, { label: 'Bedelli Askerlik', href: '/bedelli' }, { label: 'Askerlik Rehberi', href: '/#rehberler' }] },
   { title: 'İçerik', links: [{ label: 'Haberler', href: '/#gundem' }, { label: 'Rehberler', href: '/#rehberler' }, { label: 'Araçlar', href: '/#araclar' }] },
   { title: 'Kurumsal', links: [{ label: 'Reklam & İş Birlikleri', href: 'mailto:iletisim@devrem.co?subject=Reklam%20ve%20iş%20birliği' }, { label: 'Gizlilik', href: null }, { label: 'Kullanım Koşulları', href: null }] },
 ];

@@ -76,7 +76,7 @@ export function HomeHero() {
           <div className="current-info-panel">
             <div className="flex items-center gap-3 border-b border-border px-5 py-4 lg:border-b-0 lg:border-r lg:px-6">
               <span className="status-pulse-danger size-2 rounded-full bg-danger" />
-              <div><p id="current-info-title" className="text-sm font-bold">Askerlik gündeminde</p><p className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-secondary-foreground">Demo içerik</p></div>
+              <div><p id="current-info-title" className="text-sm font-bold">Askerlik gündeminde</p><p className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-secondary-foreground">Canlı + demo özet</p></div>
             </div>
             {currentMilitaryInfo.map((item) => (
               <div className="current-info-item" key={item.label}>

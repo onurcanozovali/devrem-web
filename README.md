@@ -1,4 +1,4 @@
-# Devrem web platformu — Stage 1
+# Devrem web platformu
 
 Devrem'in ürün temeli, görsel sistemi, global yerleşimi ve ana sayfası. Bu aşama; bilgi mimarisini, tekrar kullanılabilir arayüz parçalarını ve sonraki ürün aşamalarına uygun tipli demo veri katmanını kurar.
 
@@ -8,12 +8,12 @@ Devrem'in ürün temeli, görsel sistemi, global yerleşimi ve ana sayfası. Bu 
 - Hero ve mevcut askerlik bilgisi özeti
 - Birlik keşfi ve istemci tarafında çalışan demo arama
 - Celp dönemi topluluk özeti
-- Bedelli askerlik bilgi alanı
+- Ayrı `/bedelli` sayfasında resmî tutar, canlı çevirici ve geçmiş yıl alım gücü karşılaştırması
 - Araçlar, rehberler, askerlik gündemi ve uygulama tanıtımı
 - Kontrollü sponsor yerleşimi ve final CTA
 - SEO metadata, Open Graph görseli, favicon ve erişilebilirlik temeli
 
-Stage 2'ye bırakılan özellikler: kullanıcı hesabı, mesajlaşma, gerçek birlik sayfaları, canlı döviz/altın verileri, CMS, veritabanı, ödeme veya aktif sponsor entegrasyonu.
+Sonraki aşamalara bırakılan özellikler: kullanıcı hesabı, mesajlaşma, gerçek birlik sayfaları, CMS, ödeme veya aktif sponsor entegrasyonu.
 
 ## Teknoloji
 
@@ -21,6 +21,8 @@ Stage 2'ye bırakılan özellikler: kullanıcı hesabı, mesajlaşma, gerçek bi
 - Next.js App Router uyumlu Vinext proje yapısı
 - Tailwind CSS 4
 - shadcn/ui ve Lucide ikonları
+- Recharts veri görselleştirmeleri
+- Cloudflare D1 günlük EVDS cache’i
 - pnpm
 
 ## Marka ve tema
@@ -36,6 +38,14 @@ pnpm dev
 
 Uygulama varsayılan olarak `http://localhost:3000` adresinde açılır.
 
+EVDS entegrasyonu için `.env.example` dosyasındaki alanı `.env.local` içinde tanımlayın:
+
+```bash
+EVDS_API_KEY=
+```
+
+Anahtar yalnızca sunucu tarafında kullanılır ve Git'e eklenmez. Üretim ortamında aynı değer çalışma zamanı secret'ı olarak tanımlanmalıdır.
+
 ## Kalite kontrolleri
 
 ```bash
@@ -48,12 +58,15 @@ pnpm build
 
 - `app/`: sayfa, metadata ve global stil katmanı
 - `components/home/`: ana sayfa modülleri
+- `components/bedelli/`: çevirici, karşılaştırma kartları ve piyasa grafiği
 - `components/site/`: global yerleşim ve ortak arayüz parçaları
 - `components/ui/`: shadcn/ui parçaları
+- `db/`: günlük EVDS cache şeması
+- `lib/evds.ts`: güvenli EVDS isteği, günlük kilit ve veri normalizasyonu
 - `src/config/`: navigasyon ve site ayarları
 - `src/fixtures/`: tipli Stage 1 demo verileri
 - `public/`: favicon ve sosyal paylaşım görseli
 
 ## Veri notu
 
-Dinamik görünen askerlik tarihi, celp sayıları, bedelli tutarı, döviz/altın karşılıkları ve gündem kayıtları Stage 1'de açıkça `Demo veri` veya `Örnek` olarak işaretlenir. Bunlar resmî ya da canlı kaynak değildir.
+Bedelli tutarları MSB duyurularından alınır. Dolar ve euro TCMB alış kurları, gram altın ise BİST altın kapanış TL/kg serisinin 1.000'e bölünmüş değeridir. Aynı veri grubundaki seriler EVDS'den tek istekte alınır ve gün başına bir kez D1'e yazılır. Çeyrek altın hesabı 1,6065 gram saf altın üzerinden yaklaşık metal değeridir; kuyumcu perakende fiyatı değildir. Celpler, birlikler ve gündem gibi diğer örnek kayıtlar arayüzde `Demo` veya `Örnek` olarak işaretlenmeye devam eder.

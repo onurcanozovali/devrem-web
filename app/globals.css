@@ -457,70 +457,6 @@
   font-weight: 800;
 }
 
-.bedelli-price-card,
-.bedelli-chart-card {
-  border: 1px solid var(--border);
-  border-radius: 1.5rem;
-  background: var(--surface);
-  padding: clamp(1.25rem, 3vw, 2rem);
-  box-shadow: 0 16px 44px rgb(0 0 0 / 10%);
-}
-
-.bedelli-price-card {
-  background:
-    radial-gradient(circle at 94% 12%, rgb(85 200 157 / 9%), transparent 12rem),
-    var(--surface);
-}
-
-.chart-placeholder {
-  display: flex;
-  height: 230px;
-  align-items: flex-end;
-  gap: clamp(0.45rem, 2vw, 1rem);
-  border-bottom: 1px solid var(--border);
-  background-image: linear-gradient(to bottom, var(--border) 1px, transparent 1px);
-  background-size: 100% 25%;
-  padding: 0 0.25rem;
-}
-
-.chart-column {
-  display: flex;
-  height: 100%;
-  flex: 1;
-  flex-direction: column;
-  justify-content: flex-end;
-  gap: 0.65rem;
-  text-align: center;
-}
-
-.chart-column p {
-  margin-bottom: -1.5rem;
-  color: var(--secondary-foreground);
-  font-size: 0.55rem;
-  font-weight: 650;
-}
-
-.chart-bar {
-  position: relative;
-  min-height: 12%;
-  border-radius: 0.65rem 0.65rem 0.2rem 0.2rem;
-  background: linear-gradient(180deg, var(--primary), var(--primary-hover));
-  box-shadow: inset 0 1px rgb(245 246 245 / 18%);
-  transition: filter 160ms ease, transform 160ms ease;
-}
-
-.chart-bar:hover { filter: saturate(1.15); transform: translateY(-2px); }
-
-.chart-bar span {
-  position: absolute;
-  left: 50%;
-  top: -1.3rem;
-  transform: translateX(-50%);
-  color: var(--primary-dark);
-  font-size: 0.55rem;
-  font-weight: 750;
-}
-
 .tool-card {
   min-height: 300px;
   border: 1px solid var(--border);
@@ -867,6 +803,99 @@
 .final-cta-pill-a { left: 8%; bottom: 31%; }
 .final-cta-pill-b { right: 4%; top: 26%; }
 
+.bedelli-page {
+  min-height: 100vh;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 86% 8%, rgb(85 200 157 / 13%), transparent 27rem),
+    linear-gradient(180deg, #fbfdfc 0%, var(--background) 34rem);
+  padding-bottom: clamp(5rem, 10vw, 8rem);
+}
+
+.bedelli-page-intro { padding: clamp(2rem, 4vw, 3.5rem) 0 clamp(2.25rem, 4vw, 3.5rem); }
+
+.bedelli-workspace {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1.12fr) minmax(340px, 0.88fr);
+}
+
+.bedelli-fee-panel,
+.bedelli-converter-panel,
+.bedelli-trend-panel {
+  border: 1px solid var(--border);
+  border-radius: 2rem;
+}
+
+.bedelli-fee-panel {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 92% 12%, rgb(85 200 157 / 15%), transparent 15rem),
+    var(--surface);
+  padding: clamp(1.5rem, 4vw, 3rem);
+  box-shadow: 0 22px 60px rgb(24 33 30 / 8%);
+}
+
+.bedelli-fee-panel::after {
+  position: absolute;
+  right: -4rem;
+  bottom: -5rem;
+  width: 15rem;
+  height: 15rem;
+  border: 1px solid rgb(85 200 157 / 18%);
+  border-radius: 50%;
+  content: '';
+  pointer-events: none;
+}
+
+.bedelli-converter-panel {
+  background: var(--surface-elevated);
+  padding: clamp(1.5rem, 3vw, 2.25rem);
+}
+
+.bedelli-conversion-result {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: var(--surface);
+  padding: 1rem;
+  transition: border-color 220ms ease, transform 220ms ease, box-shadow 220ms ease;
+}
+
+.bedelli-conversion-result:hover {
+  transform: translateY(-2px);
+  border-color: rgb(85 200 157 / 48%);
+  box-shadow: 0 14px 30px rgb(24 33 30 / 7%);
+}
+
+.bedelli-conversion-result > span { color: var(--primary-ink); font-size: 0.65rem; font-weight: 800; text-transform: uppercase; }
+.bedelli-conversion-result > p { margin-top: 0.35rem; overflow: hidden; font-size: clamp(1rem, 2.1vw, 1.3rem); font-weight: 800; letter-spacing: -0.035em; text-overflow: ellipsis; white-space: nowrap; }
+.bedelli-conversion-result > small { display: block; margin-top: 0.15rem; color: var(--secondary-foreground); font-size: 0.62rem; }
+
+.bedelli-comparison-card {
+  border: 1px solid var(--border);
+  border-radius: 1.5rem;
+  background: var(--surface);
+  padding: 1.25rem;
+  transition: border-color 240ms ease, transform 240ms ease, box-shadow 240ms ease;
+}
+
+.bedelli-comparison-card:hover {
+  transform: translateY(-3px);
+  border-color: rgb(85 200 157 / 44%);
+  box-shadow: 0 18px 42px rgb(24 33 30 / 8%);
+}
+
+.bedelli-trend-panel {
+  background:
+    radial-gradient(circle at 90% 0%, rgb(85 200 157 / 10%), transparent 20rem),
+    var(--surface-elevated);
+  padding: clamp(1.35rem, 4vw, 2.75rem);
+}
+
 @keyframes reveal-up {
   from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }
@@ -890,7 +919,12 @@
   .sponsored-placement { flex-direction: row; align-items: center; }
 }
 
+@media (max-width: 1023px) {
+  .bedelli-workspace { grid-template-columns: minmax(0, 1fr); }
+}
+
 @media (max-width: 767px) {
+  .bedelli-fee-panel, .bedelli-converter-panel, .bedelli-trend-panel { border-radius: 1.5rem; }
   .hero-title { max-width: 100%; font-size: clamp(2.75rem, 12.2vw, 3.35rem); letter-spacing: -0.06em; }
   .hero-product { min-height: 550px; margin-top: 0.5rem; }
   .hero-product-glow { inset: 5% -16% 3%; }

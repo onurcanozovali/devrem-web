@@ -1,5 +1,4 @@
 import { AppShowcase } from '@/components/home/app-showcase';
-import { BedelliOverview } from '@/components/home/bedelli-overview';
 import { CommunityDiscovery } from '@/components/home/community-discovery';
 import { EditorialGuides } from '@/components/home/editorial-guides';
 import { FinalCTA } from '@/components/home/final-cta';
@@ -15,7 +14,6 @@ export default function HomePage() {
       <HomeHero />
       <UnitDiscovery />
       <CommunityDiscovery />
-      <BedelliOverview />
       <ToolsGrid />
       <EditorialGuides />
       <MilitaryUpdates />

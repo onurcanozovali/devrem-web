@@ -26,7 +26,7 @@ export type EditorialFixture = {
 };
 
 export const currentMilitaryInfo = [
-  { label: 'Bedelli askerlik', value: 'Demo ücret verisi', meta: 'CMS bağlantısı sonraki aşamada' },
+  { label: 'Bedelli askerlik', value: '472.653,60 TL', meta: 'Temmuz–Aralık 2026 · MSB' },
   { label: 'Yaklaşan celp dönemi', value: 'Demo dönem bilgisi', meta: 'Takvim verisi henüz canlı değil' },
   { label: 'Son sevk duyurusu', value: 'Demo duyuru başlığı', meta: 'Resmî kaynak bağlantısı eklenecek' },
 ] as const;
@@ -45,22 +45,9 @@ export const conscriptionCommunity = {
   forces: ['Kara Kuvvetleri', 'Hava Kuvvetleri', 'Deniz Kuvvetleri', 'Jandarma'],
 } as const;
 
-export const bedelliOverview = {
-  amount: '000.000 TL',
-  period: 'Örnek dönem',
-  change: '+0,0%',
-  equivalents: [
-    { label: 'ABD doları', value: '0.000 USD' },
-    { label: 'Euro', value: '0.000 EUR' },
-    { label: 'Gram altın', value: '00,0 gram' },
-  ],
-  history: [32, 42, 38, 54, 49, 67, 78],
-  isMock: true,
-} as const;
-
 export const tools: ToolFixture[] = [
   { title: 'Askerlik Geri Sayacı', description: 'Teslim tarihine kaç gün kaldığını hesapla.', href: '#uygulama', icon: 'countdown', accent: 'mint' },
-  { title: 'Bedelli Hesaplama', description: 'Güncel ve geçmiş bedelli ücretlerini karşılaştır.', href: '#bedelli', icon: 'calculator', accent: 'amber' },
+  { title: 'Bedelli Hesaplama', description: 'Güncel ve geçmiş bedelli ücretlerini karşılaştır.', href: '/bedelli', icon: 'calculator', accent: 'amber' },
   { title: 'Hazırlık Listesi', description: 'Askere gitmeden önce gerekenleri tamamla.', href: '#uygulama', icon: 'checklist', accent: 'sage' },
   { title: 'Birlik Bul', description: 'Birliğini bul ve hakkında bilgi edin.', href: '#birlikler', icon: 'unit', accent: 'slate' },
 ];

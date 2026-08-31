@@ -19,7 +19,7 @@ export const siteConfig = {
 export const mainNavigation = [
   { href: '/#birlikler', label: 'Birlikler' },
   { href: '/#rehberler', label: 'Askerlik Rehberi' },
-  { href: '/#bedelli', label: 'Bedelli' },
+  { href: '/bedelli', label: 'Bedelli' },
   { href: '/#araclar', label: 'Araçlar' },
   { href: '/#gundem', label: 'Haberler' },
 ] as const;
