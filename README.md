@@ -8,7 +8,7 @@ Devrem'in ürün temeli, görsel sistemi, global yerleşimi ve ana sayfası. Bu 
 - Hero ve mevcut askerlik bilgisi özeti
 - Birlik keşfi ve istemci tarafında çalışan demo arama
 - Celp dönemi topluluk özeti
-- Ayrı `/bedelli` sayfasında resmî tutar, canlı çevirici ve geçmiş yıl alım gücü karşılaştırması
+- Ayrı `/bedelli` sayfasında resmî tutar, canlı çevirici ve 2022–2026 alım gücü karşılaştırması
 - Araçlar, rehberler, askerlik gündemi ve uygulama tanıtımı
 - Kontrollü sponsor yerleşimi ve final CTA
 - SEO metadata, Open Graph görseli, favicon ve erişilebilirlik temeli
@@ -58,7 +58,7 @@ pnpm build
 
 - `app/`: sayfa, metadata ve global stil katmanı
 - `components/home/`: ana sayfa modülleri
-- `components/bedelli/`: çevirici, karşılaştırma kartları ve piyasa grafiği
+- `components/bedelli/`: çevirici, beş yıllık karşılaştırma tablosu ve piyasa grafiği
 - `components/site/`: global yerleşim ve ortak arayüz parçaları
 - `components/ui/`: shadcn/ui parçaları
 - `db/`: günlük EVDS cache şeması
@@ -69,4 +69,4 @@ pnpm build
 
 ## Veri notu
 
-Bedelli tutarları MSB duyurularından alınır. Dolar ve euro TCMB alış kurları, gram altın ise BİST altın kapanış TL/kg serisinin 1.000'e bölünmüş değeridir. Aynı veri grubundaki seriler EVDS'den tek istekte alınır ve gün başına bir kez D1'e yazılır. Çeyrek altın hesabı 1,6065 gram saf altın üzerinden yaklaşık metal değeridir; kuyumcu perakende fiyatı değildir. Celpler, birlikler ve gündem gibi diğer örnek kayıtlar arayüzde `Demo` veya `Örnek` olarak işaretlenmeye devam eder.
+Bedelli tutarları MSB duyurularından, 2022 dönemi ise Hazine ve Maliye Bakanlığı genelgesindeki katsayıdan alınır. Dolar ve euro TCMB alış kurları, gram altın ise BİST altın kapanış TL/kg serisinin 1.000'e bölünmüş değeridir. Beş yıllık seri EVDS'nin aylık bitiş dönüşümüyle tek istekte alınır ve gün başına bir kez D1'e yazılır. Çeyrek altın hesabı 1,6065 gram saf altın üzerinden yaklaşık metal değeridir; kuyumcu perakende fiyatı değildir. Celpler, birlikler ve gündem gibi diğer örnek kayıtlar arayüzde `Demo` veya `Örnek` olarak işaretlenmeye devam eder.

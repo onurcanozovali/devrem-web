@@ -16,6 +16,7 @@ const SERIES_FIELDS = {
 
 const ISTANBUL_TIME_ZONE = 'Europe/Istanbul';
 const LOCK_TIMEOUT_MS = 10 * 60 * 1000;
+const CACHE_VERSION = 2;
 
 type WorkerBindings = {
   DB?: D1Database;
@@ -46,7 +47,15 @@ export type MarketHistoryPoint = {
   gold: number;
 };
 
+export type AnnualMarketPoint = {
+  year: number;
+  usd: MarketValue;
+  eur: MarketValue;
+  gold: MarketValue;
+};
+
 export type MarketSnapshot = {
+  version: 2;
   cacheDate: string;
   fetchedAt: string;
   source: 'live' | 'stale';
@@ -55,11 +64,7 @@ export type MarketSnapshot = {
     eur: MarketValue;
     gold: MarketValue;
   };
-  previousYear: {
-    usd: MarketValue;
-    eur: MarketValue;
-    gold: MarketValue;
-  };
+  annual: AnnualMarketPoint[];
   history: MarketHistoryPoint[];
 };
 
@@ -97,6 +102,10 @@ function toEvdsDate(date: Date) {
 }
 
 function parseEvdsDate(value: string) {
+  if (/^\d{4}-\d{1,2}$/.test(value)) {
+    const [year, month] = value.split('-').map(Number);
+    return new Date(Date.UTC(year, month - 1, 1));
+  }
   const [day, month, year] = value.split('-').map(Number);
   return new Date(Date.UTC(year, month - 1, day));
 }
@@ -119,21 +128,23 @@ function getLatestValue(
   throw new Error(`EVDS serisinde kullanılabilir güncel değer bulunamadı: ${field}`);
 }
 
-function getPreviousYearValue(
+function getValueForYear(
   observations: EvdsObservation[],
   field: keyof Pick<EvdsObservation, 'TP_DK_USD_A_YTL' | 'TP_DK_EUR_A_YTL' | 'TP_ALTINPIYASA_KAP02'>,
-  currentDate: string,
+  year: number,
+  referenceDate: string,
   transform: (value: number) => number = (value) => value,
 ): MarketValue {
-  const target = parseEvdsDate(currentDate);
-  target.setUTCFullYear(target.getUTCFullYear() - 1);
+  const reference = parseEvdsDate(referenceDate);
+  const target = new Date(Date.UTC(year, reference.getUTCMonth(), 1));
 
   for (let index = observations.length - 1; index >= 0; index -= 1) {
-    if (parseEvdsDate(observations[index].Tarih) > target) continue;
+    const observationDate = parseEvdsDate(observations[index].Tarih);
+    if (observationDate.getUTCFullYear() !== year || observationDate > target) continue;
     const parsed = parseValue(observations[index][field]);
     if (parsed !== null) return { date: observations[index].Tarih, value: transform(parsed) };
   }
-  throw new Error(`EVDS serisinde geçen yıl değeri bulunamadı: ${field}`);
+  throw new Error(`EVDS serisinde ${year} değeri bulunamadı: ${field}`);
 }
 
 function buildHistory(observations: EvdsObservation[]): MarketHistoryPoint[] {
@@ -151,7 +162,20 @@ function buildHistory(observations: EvdsObservation[]): MarketHistoryPoint[] {
     monthly.set(key, { date: observation.Tarih, label, usd, eur, gold: goldKg / 1000 });
   }
 
-  return Array.from(monthly.values()).slice(-13);
+  return Array.from(monthly.values()).slice(-61);
+}
+
+function buildAnnualHistory(
+  observations: EvdsObservation[],
+  current: MarketSnapshot['current'],
+): AnnualMarketPoint[] {
+  const currentYear = parseEvdsDate(current.usd.date).getUTCFullYear();
+  return Array.from({ length: 5 }, (_, index) => currentYear - 4 + index).map((year) => ({
+    year,
+    usd: getValueForYear(observations, SERIES_FIELDS.usd, year, current.usd.date),
+    eur: getValueForYear(observations, SERIES_FIELDS.eur, year, current.eur.date),
+    gold: getValueForYear(observations, SERIES_FIELDS.gold, year, current.gold.date, (value) => value / 1000),
+  }));
 }
 
 function buildSnapshot(observations: EvdsObservation[], cacheDate: string): MarketSnapshot {
@@ -161,16 +185,15 @@ function buildSnapshot(observations: EvdsObservation[], cacheDate: string): Mark
   const currentEur = getLatestValue(observations, SERIES_FIELDS.eur);
   const currentGold = getLatestValue(observations, SERIES_FIELDS.gold, (value) => value / 1000);
 
+  const current = { usd: currentUsd, eur: currentEur, gold: currentGold };
+
   return {
+    version: CACHE_VERSION,
     cacheDate,
     fetchedAt: new Date().toISOString(),
     source: 'live',
-    current: { usd: currentUsd, eur: currentEur, gold: currentGold },
-    previousYear: {
-      usd: getPreviousYearValue(observations, SERIES_FIELDS.usd, currentUsd.date),
-      eur: getPreviousYearValue(observations, SERIES_FIELDS.eur, currentEur.date),
-      gold: getPreviousYearValue(observations, SERIES_FIELDS.gold, currentGold.date, (value) => value / 1000),
-    },
+    current,
+    annual: buildAnnualHistory(observations, current),
     history: buildHistory(observations),
   };
 }
@@ -183,10 +206,11 @@ async function fetchEvdsSnapshot(cacheDate: string): Promise<MarketSnapshot> {
   const { year, month, day } = getIstanbulDateParts();
   const endDate = new Date(Date.UTC(year, month - 1, day));
   const startDate = new Date(endDate);
-  startDate.setUTCDate(startDate.getUTCDate() - 390);
+  startDate.setUTCFullYear(startDate.getUTCFullYear() - 5);
+  startDate.setUTCDate(1);
 
   const series = Object.values(SERIES).join('-');
-  const url = `${EVDS_BASE_URL}/series=${series}&startDate=${toEvdsDate(startDate)}&endDate=${toEvdsDate(endDate)}&type=json`;
+  const url = `${EVDS_BASE_URL}/series=${series}&startDate=${toEvdsDate(startDate)}&endDate=${toEvdsDate(endDate)}&type=json&aggregationTypes=last-last-last&formulas=0-0-0&frequency=5`;
   const response = await fetch(url, { headers: { key: apiKey } });
 
   if (!response.ok) throw new Error(`EVDS isteği başarısız oldu (${response.status}).`);
@@ -205,12 +229,13 @@ async function readCachedSnapshot(db: D1Database, cacheDate: string) {
     .first<CachedRow>();
 
   if (row?.status !== 'ready' || !row.payload) return null;
-  return JSON.parse(row.payload) as MarketSnapshot;
+  const snapshot = JSON.parse(row.payload) as MarketSnapshot;
+  return snapshot.version === CACHE_VERSION ? snapshot : null;
 }
 
 async function readLatestSnapshot(db: D1Database) {
   const row = await db
-    .prepare("SELECT status, payload FROM evds_daily_cache WHERE status = 'ready' ORDER BY cache_date DESC LIMIT 1")
+    .prepare("SELECT status, payload FROM evds_daily_cache WHERE status = 'ready' AND cache_date LIKE 'v2:%' ORDER BY fetched_at DESC LIMIT 1")
     .first<CachedRow>();
 
   if (!row?.payload) return null;
@@ -226,9 +251,9 @@ async function waitForLeader(db: D1Database, cacheDate: string) {
   return readLatestSnapshot(db);
 }
 
-async function loadWithD1(db: D1Database, cacheDate: string): Promise<MarketSnapshot> {
+async function loadWithD1(db: D1Database, cacheKey: string, cacheDate: string): Promise<MarketSnapshot> {
   await ensureCacheTable(db);
-  const cached = await readCachedSnapshot(db, cacheDate);
+  const cached = await readCachedSnapshot(db, cacheKey);
   if (cached) return cached;
 
   const staleBefore = new Date(Date.now() - LOCK_TIMEOUT_MS).toISOString();
@@ -240,11 +265,11 @@ async function loadWithD1(db: D1Database, cacheDate: string): Promise<MarketSnap
   const now = new Date().toISOString();
   const claim = await db
     .prepare("INSERT OR IGNORE INTO evds_daily_cache (cache_date, status, payload, fetched_at, updated_at) VALUES (?, 'pending', NULL, NULL, ?)")
-    .bind(cacheDate, now)
+    .bind(cacheKey, now)
     .run();
 
   if ((claim.meta.changes ?? 0) === 0) {
-    const leaderResult = await waitForLeader(db, cacheDate);
+    const leaderResult = await waitForLeader(db, cacheKey);
     if (leaderResult) return leaderResult;
     throw new Error('Günlük EVDS yenilemesi devam ediyor.');
   }
@@ -253,11 +278,11 @@ async function loadWithD1(db: D1Database, cacheDate: string): Promise<MarketSnap
     const snapshot = await fetchEvdsSnapshot(cacheDate);
     await db
       .prepare("UPDATE evds_daily_cache SET status = 'ready', payload = ?, fetched_at = ?, updated_at = ? WHERE cache_date = ?")
-      .bind(JSON.stringify(snapshot), snapshot.fetchedAt, snapshot.fetchedAt, cacheDate)
+      .bind(JSON.stringify(snapshot), snapshot.fetchedAt, snapshot.fetchedAt, cacheKey)
       .run();
     return snapshot;
   } catch (error) {
-    await db.prepare('DELETE FROM evds_daily_cache WHERE cache_date = ?').bind(cacheDate).run();
+    await db.prepare('DELETE FROM evds_daily_cache WHERE cache_date = ?').bind(cacheKey).run();
     const stale = await readLatestSnapshot(db);
     if (stale) return stale;
     throw error;
@@ -266,17 +291,18 @@ async function loadWithD1(db: D1Database, cacheDate: string): Promise<MarketSnap
 
 export async function getDailyMarketSnapshot(): Promise<MarketSnapshot> {
   const cacheDate = toCacheDate();
-  if (memoryCache?.cacheDate === cacheDate) return memoryCache.snapshot;
+  const cacheKey = `v${CACHE_VERSION}:${cacheDate}`;
+  if (memoryCache?.cacheDate === cacheKey) return memoryCache.snapshot;
   if (inFlightRequest) return inFlightRequest;
 
   const runtimeEnv = env as unknown as WorkerBindings;
   inFlightRequest = runtimeEnv.DB
-    ? loadWithD1(runtimeEnv.DB, cacheDate)
+    ? loadWithD1(runtimeEnv.DB, cacheKey, cacheDate)
     : fetchEvdsSnapshot(cacheDate);
 
   try {
     const snapshot = await inFlightRequest;
-    memoryCache = { cacheDate, snapshot };
+    memoryCache = { cacheDate: cacheKey, snapshot };
     return snapshot;
   } finally {
     inFlightRequest = null;
