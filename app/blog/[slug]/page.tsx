@@ -22,13 +22,14 @@ export async function generateMetadata({
   const { slug } = await params;
   const post = getBlogPost(slug);
   if (!post) return {};
+  const metadataTitle = post.seoTitle ?? post.title;
   return {
-    title: post.title,
+    title: metadataTitle,
     description: post.excerpt,
     alternates: { canonical: `/blog/${post.slug}` },
     openGraph: {
       type: 'article',
-      title: `${post.title} | Devrem`,
+      title: `${metadataTitle} | Devrem`,
       description: post.excerpt,
       publishedTime: post.publishedIso,
       modifiedTime: post.updatedIso ?? post.publishedIso,
@@ -37,7 +38,7 @@ export async function generateMetadata({
     },
     twitter: {
       card: 'summary',
-      title: `${post.title} | Devrem`,
+      title: `${metadataTitle} | Devrem`,
       description: post.excerpt,
       images: [],
     },
