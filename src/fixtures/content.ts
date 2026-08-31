@@ -1,7 +1,32 @@
+export type ArticleBlock =
+  | { type: 'paragraph'; text: string }
+  | { type: 'bullet-list'; items: string[] }
+  | { type: 'numbered-list'; items: string[] }
+  | {
+      type: 'table';
+      caption?: string;
+      headers: string[];
+      rows: string[][];
+    }
+  | {
+      type: 'callout';
+      tone: 'info' | 'warning' | 'note';
+      title: string;
+      body: string;
+    };
+
+export type ArticleSubsection = {
+  heading: string;
+  blocks: ArticleBlock[];
+};
+
 export type ArticleSection = {
   heading: string;
-  paragraphs: string[];
+  /** Legacy fields remain supported so existing article fixtures keep rendering. */
+  paragraphs?: string[];
   bullets?: string[];
+  blocks?: ArticleBlock[];
+  subsections?: ArticleSubsection[];
 };
 
 export type EditorialSource = {
@@ -14,14 +39,27 @@ export type BlogPost = {
   category: 'Rehber' | 'Bedelli' | 'Deneyim';
   title: string;
   excerpt: string;
+  standfirst?: [string, string];
+  quickSummary?: string[];
   publishedAt: string;
+  publishedIso: string;
   updatedAt?: string;
+  updatedIso?: string;
   readingTime: string;
   author: string;
   tone: 'mint' | 'amber' | 'slate' | 'sand';
   featured?: boolean;
+  coverImage?: { src: string; alt: string; caption?: string };
   sections: ArticleSection[];
   sources?: EditorialSource[];
+  faqs?: { question: string; answer: string }[];
+  relatedSlugs?: string[];
+  endCta?: {
+    title: string;
+    description: string;
+    label: string;
+    href: string;
+  };
 };
 
 export const blogPosts: BlogPost[] = [
@@ -31,7 +69,18 @@ export const blogPosts: BlogPost[] = [
     title: 'Sevk belgesi nedir, nasıl alınır?',
     excerpt:
       'Belgede hangi bilgiler yer alır, ne zaman alınır ve teslim gününde neden önemlidir? Resmî kaynaklarla kısa ve net bir rehber.',
+    standfirst: [
+      'Sevk belgesi, birliğe teslim sürecindeki temel tarih ve yer bilgilerini tek belgede toplar.',
+      'Belgeyi nereden alacağını ve teslimden önce hangi alanları kontrol etmen gerektiğini adım adım öğren.',
+    ],
+    quickSummary: [
+      'Belge e-Devlet üzerinden veya askerlik şubesinden alınabilir.',
+      'Sevk tarihi ile birliğe son katılış tarihi aynı şey değildir.',
+      'Barkodlu PDF’yi indir; mümkünse basılı bir kopyasını da yanında tut.',
+      'Birlik, tarih ve yol süresi bilgilerini yola çıkmadan önce yeniden doğrula.',
+    ],
     publishedAt: '31 Ağustos 2026',
+    publishedIso: '2026-08-31',
     readingTime: '6 dk',
     author: 'Devrem Editör',
     tone: 'mint',
@@ -39,32 +88,99 @@ export const blogPosts: BlogPost[] = [
     sections: [
       {
         heading: 'Sevk belgesi ne işe yarar?',
-        paragraphs: [
-          'Sevk belgesi; kimlik, askerlik statüsü, sınıflandırma sonucu, eğitim birliği, sevk tarihi, katılış tarihi ile yol ve iaşe bilgilerini bir araya getiren resmî belgedir.',
-          'Birliğe teslim olmadan önce belgedeki tarihleri ve birlik bilgisini dikkatle kontrol etmek gerekir. Ekran görüntüsü yerine barkodlu belgenin kendisini indirmek ve güvenli bir kopyasını saklamak en sağlıklı yaklaşımdır.',
+        blocks: [
+          {
+            type: 'paragraph',
+            text: 'Sevk belgesi; kimlik, askerlik statüsü, sınıflandırma sonucu, eğitim birliği, sevk tarihi, katılış tarihi ile yol ve iaşe bilgilerini bir araya getiren resmî belgedir.',
+          },
+          {
+            type: 'paragraph',
+            text: 'Birliğe teslim olmadan önce belgedeki tarihleri ve birlik bilgisini dikkatle kontrol etmek gerekir. Ekran görüntüsü yerine barkodlu belgenin kendisini indirmek ve güvenli bir kopyasını saklamak en sağlıklı yaklaşımdır.',
+          },
+          {
+            type: 'callout',
+            tone: 'info',
+            title: 'Kısa cevap',
+            body: 'Sevk belgesi, nereye ve hangi tarihler arasında teslim olacağını gösteren barkodlu resmî belgedir.',
+          },
         ],
       },
       {
         heading: 'Nereden alınır?',
-        paragraphs: [
-          'MSB’nin Askerliğim hizmetindeki “Celp ve Sevk Dönemi” alanından sevk başvurusu başlatılabilir. Belge e-Devlet üzerinden alınabildiği gibi T.C. kimlik kartıyla askerlik şubesinden de temin edilebilir.',
+        blocks: [
+          {
+            type: 'paragraph',
+            text: 'MSB’nin Askerliğim hizmetindeki “Celp ve Sevk Dönemi” alanından sevk başvurusu başlatılabilir. Belge e-Devlet üzerinden alınabildiği gibi T.C. kimlik kartıyla askerlik şubesinden de temin edilebilir.',
+          },
+          {
+            type: 'numbered-list',
+            items: [
+              'e-Devlet’te MSB hizmetleri içinden Askerliğim ekranını aç.',
+              'Celp ve sevk dönemi alanındaki sevk başvurusunu tamamla.',
+              'Barkodlu belgeyi PDF olarak indir ve bilgileri kontrol et.',
+            ],
+          },
         ],
-        bullets: [
-          'Belgedeki sevk ve katılış tarihlerini ayrı ayrı kontrol et.',
-          'Yol süresi ile birliğe son katılış tarihini karıştırma.',
-          'Barkodlu PDF’yi telefonuna indir; mümkünse basılı kopyasını da yanında bulundur.',
+        subsections: [
+          {
+            heading: 'Belgeyi aldıktan sonra',
+            blocks: [
+              {
+                type: 'bullet-list',
+                items: [
+                  'Belgedeki sevk ve katılış tarihlerini ayrı ayrı kontrol et.',
+                  'Yol süresi ile birliğe son katılış tarihini karıştırma.',
+                  'PDF’yi telefonuna indir; mümkünse basılı kopyasını da yanında bulundur.',
+                ],
+              },
+            ],
+          },
         ],
       },
       {
         heading: 'Belgedeki temel alanlar',
-        paragraphs: [
-          'Eğitim merkezi, kuvvet, sınıf, hizmet şekli ve hizmet süresi senin askerlik planının ana çerçevesini oluşturur. Yol ve iaşe bedelleri de aynı belgede görülebilir.',
+        blocks: [
+          {
+            type: 'paragraph',
+            text: 'Eğitim merkezi, kuvvet, sınıf, hizmet şekli ve hizmet süresi senin askerlik planının ana çerçevesini oluşturur. Yol ve iaşe bedelleri de aynı belgede görülebilir.',
+          },
+          {
+            type: 'table',
+            caption: 'Sevk belgesinde sık karıştırılan alanlar',
+            headers: ['Alan', 'Ne anlatır?', 'Kontrol'],
+            rows: [
+              [
+                'Sevk tarihi',
+                'Yola çıkış sürecinin başlangıcını',
+                'Yol süresiyle birlikte oku',
+              ],
+              [
+                'Katılış tarihi',
+                'Birliğe son teslim gününü',
+                'Ulaşım planına esas al',
+              ],
+              [
+                'Eğitim birliği',
+                'Teslim olacağın birliği',
+                'Adres ve şehir bilgisini doğrula',
+              ],
+            ],
+          },
         ],
       },
       {
         heading: 'Son kontrol',
-        paragraphs: [
-          'Teslim yolculuğunu planlamadan önce belgedeki birlik adresini, katılış tarihini ve yol süresini resmî ekrandan yeniden doğrula. Devrem rehberleri süreci anlamanı kolaylaştırır; resmî işlemlerde her zaman MSB ve e-Devlet bilgileri esas alınır.',
+        blocks: [
+          {
+            type: 'paragraph',
+            text: 'Teslim yolculuğunu planlamadan önce belgedeki birlik adresini, katılış tarihini ve yol süresini resmî ekrandan yeniden doğrula. Devrem rehberleri süreci anlamanı kolaylaştırır; resmî işlemlerde her zaman MSB ve e-Devlet bilgileri esas alınır.',
+          },
+          {
+            type: 'callout',
+            tone: 'warning',
+            title: 'Resmî bilgiyi esas al',
+            body: 'Tarih veya birlik bilgisiyle ilgili bir çelişki görürsen blog içerikleri yerine e-Devlet kaydını ve askerlik şubesinin yönlendirmesini takip et.',
+          },
         ],
       },
     ],
@@ -78,6 +194,34 @@ export const blogPosts: BlogPost[] = [
         href: 'https://www.turkiye.gov.tr/milli-savunma-bakanligi',
       },
     ],
+    faqs: [
+      {
+        question: 'Sevk belgesi telefondan gösterilebilir mi?',
+        answer:
+          'Barkodlu PDF’yi telefonuna indirmek faydalıdır; ancak teslim sürecinde bağlantı veya pil sorunu yaşamamak için basılı bir kopya taşımak da güvenli bir önlemdir.',
+      },
+      {
+        question: 'Sevk tarihi ile katılış tarihi aynı mı?',
+        answer:
+          'Hayır. Sevk tarihi yolculuk sürecinin başlangıcını, katılış tarihi ise birliğe teslim için belirtilen son günü ifade eder. Kendi belgendeki tarihleri birlikte kontrol et.',
+      },
+      {
+        question: 'Belgedeki birlik bilgisi değişebilir mi?',
+        answer:
+          'Resmî kayıtlarda değişiklik olabileceği için yola çıkmadan önce güncel e-Devlet ekranını yeniden kontrol etmek en doğru yaklaşımdır.',
+      },
+    ],
+    relatedSlugs: [
+      'acemi-birliginde-ilk-gun',
+      'askere-giderken-canta-nasil-sadelesir',
+    ],
+    endCta: {
+      title: 'Hazırlık sürecini sadeleştir',
+      description:
+        'Devrem’de rehberleri oku, güncel verileri takip et ve uygulama yayınlandığında aynı dönemdeki devrelerinle tanış.',
+      label: 'Devrem uygulamasını keşfet',
+      href: '/#uygulama',
+    },
   },
   {
     slug: 'bedelli-ucretinin-bes-yillik-alim-gucu',
@@ -85,7 +229,18 @@ export const blogPosts: BlogPost[] = [
     title: 'Bedelli ücretinin beş yıllık alım gücü',
     excerpt:
       'Sadece TL artışına bakmak yerine bedelin dolar, euro ve gram altın karşılığını aynı aylar üzerinden karşılaştırdık.',
+    standfirst: [
+      'Bedelli ücretinin TL tutarı tek başına yıllar arasındaki ekonomik farkı anlatmaz.',
+      'Aynı bedelin dolar, euro ve altın karşılığını birlikte okuyarak alım gücündeki değişimi daha net görebilirsin.',
+    ],
+    quickSummary: [
+      'Karşılaştırma 2022–2026 arasındaki ikinci yarı bedellerini kapsar.',
+      'Döviz ve altın verileri aynı dönemlere hizalanır.',
+      'EVDS verileri tek günlük önbellekle günde bir kez yenilenir.',
+      'Çeyrek altın sonucu kuyumcu satış fiyatı değil, yaklaşık saf altın karşılığıdır.',
+    ],
     publishedAt: '31 Ağustos 2026',
+    publishedIso: '2026-08-31',
     readingTime: '5 dk',
     author: 'Devrem Veri',
     tone: 'amber',
@@ -127,7 +282,18 @@ export const blogPosts: BlogPost[] = [
     title: 'Acemi birliğinde ilk gün: belirsizliği azaltan notlar',
     excerpt:
       'Teslim kapısından ilk akşama kadar süreç nasıl ilerleyebilir? Kesin kurallar yerine işe yarayan bir hazırlık çerçevesi.',
+    standfirst: [
+      'İlk günün akışı birliğe ve teslim yoğunluğuna göre değişebilir.',
+      'Yine de belge düzeni, ulaşım planı ve gerçekçi beklentiler süreci belirgin biçimde kolaylaştırır.',
+    ],
+    quickSummary: [
+      'Kimlik ve sevk belgesini kolay erişilen bir yerde taşı.',
+      'Ulaşım planına gecikmelere karşı zaman payı ekle.',
+      'İlk saatlerde kayıt ve yerleşim işlemlerinin uzayabileceğini hesaba kat.',
+      'Birlik içindeki resmî yönlendirmeleri esas al.',
+    ],
     publishedAt: '29 Ağustos 2026',
+    publishedIso: '2026-08-29',
     readingTime: '7 dk',
     author: 'Devrem Editör',
     tone: 'slate',
@@ -164,7 +330,18 @@ export const blogPosts: BlogPost[] = [
     title: 'Askere giderken çanta nasıl sadeleşir?',
     excerpt:
       '“Her ihtimale karşı” doldurulan bir çanta yerine, gerçekten işine yarayacak eşyaları seçmenin pratik yöntemi.',
+    standfirst: [
+      'İyi hazırlanmış bir asker çantası, mümkün olan en fazla eşyayı değil doğru eşyayı taşır.',
+      'Basit bir gruplama yöntemiyle ilk gün ihtiyaçlarını ayırabilir ve gereksiz yükü azaltabilirsin.',
+    ],
+    quickSummary: [
+      'Belge ve değerli eşyaları ayrı, kolay erişilen bir bölümde tut.',
+      'İlk gün kullanacaklarını küçük ve kompakt ürünlerden seç.',
+      'Sonradan temin edilebilecek ürünleri çantaya doldurma.',
+      'Birliğe göre değişebilen kuralları resmî bilgilendirmeden doğrula.',
+    ],
     publishedAt: '27 Ağustos 2026',
+    publishedIso: '2026-08-27',
     readingTime: '4 dk',
     author: 'Devrem Editör',
     tone: 'sand',
