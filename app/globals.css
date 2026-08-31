@@ -236,7 +236,7 @@
 }
 
 .hero-title {
-  font-size: clamp(3.45rem, 7.5vw, 6.75rem);
+  font-size: clamp(3.45rem, 7.5vw, 5.75rem);
   font-weight: 720;
   letter-spacing: -0.075em;
   line-height: 0.93;
@@ -631,7 +631,7 @@
 .store-placeholder {
   display: flex;
   min-height: 58px;
-  cursor: not-allowed;
+  cursor: pointer;
   align-items: center;
   justify-content: center;
   gap: 0.7rem;

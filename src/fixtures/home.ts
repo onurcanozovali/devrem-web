@@ -43,6 +43,12 @@ export const conscriptionCommunity = {
   memberCount: 12483,
   isMock: true,
   forces: ['Kara Kuvvetleri', 'Hava Kuvvetleri', 'Deniz Kuvvetleri', 'Jandarma'],
+  logos: [
+    '/public/kuvvetler/kara.png',
+    '/public/kuvvetler/hava.png',
+    '/public/kuvvetler/deniz.png',
+    '/public/kuvvetler/jandarma.png',
+  ],
 } as const;
 
 export const tools: ToolFixture[] = [

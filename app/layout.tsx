@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   description:
     'Askere gitmeden önce devrelerini bul, birliğin hakkında bilgi edin, hazırlığını tamamla ve güncel askerlik rehberlerine ulaş.',
   alternates: { canonical: '/' },
-  icons: { icon: '/devrem-favicon.svg' },
+  icons: { icon: '/devrem-favicon.png' },
   openGraph: {
     type: 'website',
     locale: 'tr_TR',

@@ -27,19 +27,14 @@ export function SiteHeader() {
           ))}
         </nav>
         <div className="hidden items-center gap-2 lg:flex">
-          <button
-            aria-label="Giriş özelliği yakında"
-            className="h-10 cursor-not-allowed rounded-full px-4 text-sm font-semibold text-secondary-foreground opacity-70"
-            disabled
-            title="Giriş özelliği sonraki aşamada eklenecek"
-            type="button"
-          >
-            Giriş <span className="ml-1 text-[9px] font-semibold text-primary-ink">YAKINDA</span>
-          </button>
           <ButtonLink href="/#uygulama" size="sm">
             <Download aria-hidden="true" /> Devrem&apos;i İndir
           </ButtonLink>
+            <ButtonLink href="/#uygulama" size="sm">
+            <Download aria-hidden="true" /> Devrem&apos;i İndir
+          </ButtonLink>
         </div>
+        
         <Sheet>
           <SheetTrigger
             aria-label="Menüyü aç"
