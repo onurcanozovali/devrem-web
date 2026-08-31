@@ -1,24 +1,24 @@
-import type { Metadata } from "next";
-import { ArrowLeft, BadgeTurkishLira, DatabaseZap } from "lucide-react";
-import Link from "next/link";
-import { BedelliCalculator } from "@/components/bedelli/bedelli-calculator";
-import { Container } from "@/components/site/container";
-import { getDailyMarketSnapshot } from "@/lib/evds";
+import type { Metadata } from 'next';
+import { ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
+import { BedelliCalculator } from '@/components/bedelli/bedelli-calculator';
+import { Container } from '@/components/site/container';
+import { getDailyMarketSnapshot } from '@/lib/evds';
 
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: "Bedelli Askerlik Ücreti ve Karşılaştırma",
+  title: 'Bedelli Askerlik Ücreti ve Karşılaştırma',
   description:
-    "Bedelli askerlik ücretinin son beş yıldaki dolar, euro, gram altın ve yaklaşık çeyrek altın karşılığını karşılaştır.",
-  alternates: { canonical: "/bedelli" },
+    'Bedelli askerlik ücretinin son beş yıldaki dolar, euro, gram altın ve yaklaşık çeyrek altın karşılığını karşılaştır.',
+  alternates: { canonical: '/bedelli' },
   openGraph: {
-    title: "Bedelli Askerlik Ücreti ve Karşılaştırma | Devrem",
+    title: 'Bedelli Askerlik Ücreti ve Karşılaştırma | Devrem',
     description:
-      "Bedelli askerlik ücretinin 2022–2026 arasındaki alım gücünü EVDS verileriyle karşılaştır.",
+      'Bedelli askerlik ücretinin 2022–2026 arasındaki alım gücünü EVDS verileriyle karşılaştır.',
     images: [],
   },
-  twitter: { card: "summary", images: [] },
+  twitter: { card: 'summary', images: [] },
 };
 
 export default async function BedelliPage() {

@@ -1,79 +1,73 @@
-import { ArrowRight, Shield, UsersRound } from "lucide-react";
-import { conscriptionCommunity } from "@/src/fixtures/home";
-import { ButtonLink } from "@/components/site/button-link";
-import { Container } from "@/components/site/container";
+import { BookOpenCheck, MessageCircleMore, UsersRound } from 'lucide-react';
+import { Container } from '@/components/site/container';
 
-const forceAbbreviations = ["KK", "HK", "DK", "JG"] as const;
+const benefits = [
+  {
+    icon: UsersRound,
+    number: '01',
+    title: 'Doğru insanlarla eşleş',
+    description:
+      'Celp dönemi ve birlik bilgine göre aynı yolculuğa çıkacak devrelerini keşfet.',
+  },
+  {
+    icon: MessageCircleMore,
+    number: '02',
+    title: 'Yola çıkmadan konuş',
+    description:
+      'Teslim, ulaşım ve ilk gün hakkındaki sorularını aynı süreçteki insanlarla paylaş.',
+  },
+  {
+    icon: BookOpenCheck,
+    number: '03',
+    title: 'Bilgiyi sade biçimde bul',
+    description:
+      'Karmaşık resmî bilgileri anlaşılır rehberler ve güncel veri araçlarıyla takip et.',
+  },
+] as const;
 
 export function CommunityDiscovery() {
   return (
     <section
-      className="community-section overflow-hidden py-20 sm:py-24"
-      id="devreler"
+      className="landing-benefits py-20 sm:py-24"
+      aria-labelledby="benefits-title"
     >
-      <Container className="grid items-center gap-12 lg:grid-cols-[1fr_0.92fr]">
-        <div>
+      <Container>
+        <div className="max-w-3xl">
           <p className="text-xs font-bold uppercase tracking-[0.14em] text-primary-ink">
-            Celp topluluğu · Demo veri
+            Devrem neyi değiştiriyor?
           </p>
-          <h2 className="section-title mt-4 max-w-2xl text-balance text-foreground">
-            {conscriptionCommunity.period} devreleri burada.
+          <h2 className="section-title mt-4 text-balance" id="benefits-title">
+            Belirsizliği azaltır.
+            <br />
+            İnsanları yakınlaştırır.
           </h2>
-          <div className="mt-7 flex items-baseline gap-3">
-            <span className="text-5xl font-bold tracking-[-0.06em] text-foreground sm:text-6xl">
-              {new Intl.NumberFormat("tr-TR").format(
-                conscriptionCommunity.memberCount,
-              )}
-            </span>
-            <span className="text-base font-semibold text-secondary-foreground">
-              kişi · örnek sayaç
-            </span>
-          </div>
-          <p className="mt-5 max-w-xl text-base leading-7 text-secondary-foreground sm:text-lg">
-            Bu dönem askere gidecek devrelerini bul, teslim olmadan önce tanış.
+          <p className="mt-5 max-w-2xl text-base leading-7 text-secondary-foreground">
+            Devrem bir araç listesi değil; askere gitmeden önce bilgi, veri ve
+            topluluğu anlamlı bir akışta buluşturan yol arkadaşın.
           </p>
-          <div className="mt-8">
-            <ButtonLink href="#uygulama" size="lg" variant="light">
-              Devrelerini Bul <ArrowRight aria-hidden="true" />
-            </ButtonLink>
-          </div>
         </div>
-        <div className="community-visual">
-          <div className="community-core">
-            <span className="flex size-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
-              <UsersRound className="size-6" aria-hidden="true" />
-            </span>
-            <div>
-              <p className="text-xs font-bold text-foreground">
-                Devre topluluğun
-              </p>
-              <p className="mt-1 text-[10px] text-secondary-foreground">
-                Aynı dönem · aynı birlik · aynı tür
-              </p>
-            </div>
-            <span className="status-pulse-success ml-auto size-2 rounded-full bg-success" />
-          </div>
-          <div className="mt-3 grid grid-cols-2 gap-3">
-            {conscriptionCommunity.forces.map((force, index) => (
-              <div className="force-card" key={force}>
-                <span className="force-placeholder" aria-hidden="true">
-                  <img
-                    className="force-logo"
-                    src={conscriptionCommunity.logos[index]}
-                    alt={`${force} logo`}
-                    width={40}
-                    height={40}
-                  />
-                </span>
-
-                <div>
-                  <p className="text-[11px] font-bold text-foreground">
-                    {force}
-                  </p>
+        <div className="mt-12 grid gap-px overflow-hidden rounded-[2rem] border border-border bg-border md:grid-cols-3">
+          {benefits.map((benefit) => {
+            const Icon = benefit.icon;
+            return (
+              <article className="landing-benefit-card" key={benefit.number}>
+                <div className="flex items-center justify-between">
+                  <span className="flex size-12 items-center justify-center rounded-2xl bg-primary-subtle text-primary-ink">
+                    <Icon className="size-5" aria-hidden="true" />
+                  </span>
+                  <span className="text-xs font-bold text-muted-foreground">
+                    {benefit.number}
+                  </span>
                 </div>
-              </div>
-            ))}
-          </div>
+                <h3 className="mt-9 text-xl font-bold tracking-[-0.04em]">
+                  {benefit.title}
+                </h3>
+                <p className="mt-3 text-sm leading-6 text-secondary-foreground">
+                  {benefit.description}
+                </p>
+              </article>
+            );
+          })}
         </div>
       </Container>
     </section>

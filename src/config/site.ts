@@ -2,7 +2,7 @@ export const siteConfig = {
   name: 'Devrem',
   url: 'https://devrem.co',
   description:
-    'Askere gitmeden önce devrelerini bul, birliğin hakkında bilgi edin, hazırlığını tamamla ve güncel askerlik rehberlerine ulaş.',
+    'Aynı celp döneminde aynı birliğe gidecek devrelerinle tanış; Bedelli verilerini karşılaştır ve sade askerlik rehberlerine ulaş.',
   contactEmail: 'iletisim@devrem.co',
   operatorName: 'Onurcan Özovalı ve Muhammet Şen',
   dataControllerName: 'Onurcan Özovalı ve Muhammet Şen',
@@ -17,9 +17,8 @@ export const siteConfig = {
 };
 
 export const mainNavigation = [
-  { href: '/#birlikler', label: 'Birlikler' },
-  { href: '/#rehberler', label: 'Askerlik Rehberi' },
+  { href: '/', label: 'Ana Sayfa' },
   { href: '/bedelli', label: 'Bedelli' },
-  { href: '/#araclar', label: 'Araçlar' },
-  { href: '/#gundem', label: 'Haberler' },
+  { href: '/blog', label: 'Blog' },
+  { href: '/#uygulama', label: 'Devrem Uygulaması' },
 ] as const;

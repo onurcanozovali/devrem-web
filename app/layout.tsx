@@ -13,27 +13,34 @@ const poppins = Poppins({
 export const metadata: Metadata = {
   metadataBase: new URL('https://devrem.co'),
   title: {
-    default: 'Devrem | Askere Hazırlanmanın Tek Platformu',
+    default: 'Devrem | Askere Gitmeden Önce Devrelerinle Tanış',
     template: '%s | Devrem',
   },
   description:
-    'Askere gitmeden önce devrelerini bul, birliğin hakkında bilgi edin, hazırlığını tamamla ve güncel askerlik rehberlerine ulaş.',
+    'Aynı celp döneminde aynı birliğe gidecek devrelerinle tanış; Bedelli verilerini karşılaştır ve sade askerlik rehberlerine ulaş.',
   alternates: { canonical: '/' },
   icons: { icon: '/devrem-favicon.png' },
   openGraph: {
     type: 'website',
     locale: 'tr_TR',
     siteName: 'Devrem',
-    title: 'Devrem | Askere Hazırlanmanın Tek Platformu',
+    title: 'Devrem | Askere Gitmeden Önce Devrelerinle Tanış',
     description:
-      'Devrelerini bul, birliğin hakkında bilgi edin ve askere gitmeden önce hazırlığını tamamla.',
-    images: [{ url: '/og.png', width: 1200, height: 630, alt: 'Devrem — Askere hazırlanmanın tek platformu' }],
+      'Aynı dönem ve birlikteki devrelerinle tanış; Bedelli verilerini ve askerlik rehberlerini keşfet.',
+    images: [
+      {
+        url: '/og.png',
+        width: 1200,
+        height: 630,
+        alt: 'Devrem — Askere gitmeden önce devrelerinle tanış',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Devrem | Askere Hazırlanmanın Tek Platformu',
+    title: 'Devrem | Askere Gitmeden Önce Devrelerinle Tanış',
     description:
-      'Devrelerini bul, birliğin hakkında bilgi edin ve askere gitmeden önce hazırlığını tamamla.',
+      'Aynı dönem ve birlikteki devrelerinle tanış; Bedelli verilerini ve askerlik rehberlerini keşfet.',
     images: ['/og.png'],
   },
 };

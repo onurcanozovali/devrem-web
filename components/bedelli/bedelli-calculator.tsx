@@ -1,32 +1,31 @@
-"use client";
+'use client';
 
-import { useMemo, useState } from "react";
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import { useMemo, useState } from 'react';
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 import {
   ArrowDownRight,
   ArrowUpRight,
   Coins,
   Euro,
-  Info,
   Landmark,
   Scale,
   Sparkles,
-} from "lucide-react";
-import type { MarketSnapshot } from "@/lib/evds";
+} from 'lucide-react';
+import type { MarketSnapshot } from '@/lib/evds';
 import {
   bedelliPeriods,
   currentBedelliPeriod,
   firstBedelliPeriod,
   quarterGoldPureGrams,
-} from "@/src/fixtures/bedelli";
+} from '@/src/fixtures/bedelli';
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
   type ChartConfig,
-} from "@/components/ui/chart";
-import { Input } from "@/components/ui/input";
-import { Slider } from "@/components/ui/slider";
+} from '@/components/ui/chart';
+import { Input } from '@/components/ui/input';
+import { Slider } from '@/components/ui/slider';
 import {
   Table,
   TableBody,
@@ -35,63 +34,63 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+} from '@/components/ui/table';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-type Metric = "usd" | "eur" | "gold";
+type Metric = 'usd' | 'eur' | 'gold';
 
-const currency = new Intl.NumberFormat("tr-TR", {
-  style: "currency",
-  currency: "TRY",
+const currency = new Intl.NumberFormat('tr-TR', {
+  style: 'currency',
+  currency: 'TRY',
   maximumFractionDigits: 2,
 });
 
-const decimal = new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 2 });
-const compact = new Intl.NumberFormat("tr-TR", {
-  notation: "compact",
+const decimal = new Intl.NumberFormat('tr-TR', { maximumFractionDigits: 2 });
+const compact = new Intl.NumberFormat('tr-TR', {
+  notation: 'compact',
   maximumFractionDigits: 1,
 });
 
 const metricDetails = {
   usd: {
-    label: "ABD doları",
-    shortLabel: "Dolar",
-    symbol: "$",
-    color: "var(--primary-ink)",
+    label: 'ABD doları',
+    shortLabel: 'Dolar',
+    symbol: '$',
+    color: 'var(--primary-ink)',
   },
   eur: {
-    label: "Euro",
-    shortLabel: "Euro",
-    symbol: "€",
-    color: "var(--information)",
+    label: 'Euro',
+    shortLabel: 'Euro',
+    symbol: '€',
+    color: 'var(--information)',
   },
   gold: {
-    label: "Gram altın",
-    shortLabel: "Gram altın",
-    symbol: "gr",
-    color: "var(--warning)",
+    label: 'Gram altın',
+    shortLabel: 'Gram altın',
+    symbol: 'gr',
+    color: 'var(--warning)',
   },
 } as const;
 
 const chartConfig = {
-  usd: { label: "ABD doları", color: "var(--primary-ink)" },
-  eur: { label: "Euro", color: "var(--information)" },
-  gold: { label: "Gram altın", color: "var(--warning)" },
+  usd: { label: 'ABD doları', color: 'var(--primary-ink)' },
+  eur: { label: 'Euro', color: 'var(--information)' },
+  gold: { label: 'Gram altın', color: 'var(--warning)' },
 } satisfies ChartConfig;
 
 function formatEvdsPeriod(value: string) {
   if (/^\d{4}-\d{1,2}$/.test(value)) {
-    const [year, month] = value.split("-").map(Number);
-    return new Intl.DateTimeFormat("tr-TR", {
-      month: "long",
-      year: "numeric",
+    const [year, month] = value.split('-').map(Number);
+    return new Intl.DateTimeFormat('tr-TR', {
+      month: 'long',
+      year: 'numeric',
     }).format(new Date(Date.UTC(year, month - 1, 1)));
   }
-  const [day, month, year] = value.split("-").map(Number);
-  return new Intl.DateTimeFormat("tr-TR", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
+  const [day, month, year] = value.split('-').map(Number);
+  return new Intl.DateTimeFormat('tr-TR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
   }).format(new Date(Date.UTC(year, month - 1, day)));
 }
 
@@ -110,9 +109,9 @@ function DeltaBadge({
   const Icon = value >= 0 ? ArrowUpRight : ArrowDownRight;
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-bold ${positive ? "bg-success/10 text-success" : "bg-danger/10 text-danger"}`}
+      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-bold ${positive ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger'}`}
     >
-      <Icon className="size-3" aria-hidden="true" /> {value >= 0 ? "+" : ""}
+      <Icon className="size-3" aria-hidden="true" /> {value >= 0 ? '+' : ''}
       {decimal.format(value)}%
     </span>
   );
@@ -182,7 +181,7 @@ function ComparisonCard({
 
 export function BedelliCalculator({ snapshot }: { snapshot: MarketSnapshot }) {
   const [amount, setAmount] = useState<number>(currentBedelliPeriod.amount);
-  const [metric, setMetric] = useState<Metric>("gold");
+  const [metric, setMetric] = useState<Metric>('gold');
   const [comparisonYear, setComparisonYear] = useState<number>(
     firstBedelliPeriod.year,
   );
@@ -360,12 +359,12 @@ export function BedelliCalculator({ snapshot }: { snapshot: MarketSnapshot }) {
           <div className="mt-4 flex flex-wrap gap-2">
             {[0.5, 1, 1.25].map((ratio) => (
               <button
-                className={`rounded-full border px-3 py-1.5 text-[10px] font-bold transition ${ratio === 1 && Math.abs(amount - currentBedelliPeriod.amount) < 1000 ? "border-primary bg-primary-subtle text-primary-ink" : "border-border bg-surface hover:border-primary/50"}`}
+                className={`rounded-full border px-3 py-1.5 text-[10px] font-bold transition ${ratio === 1 && Math.abs(amount - currentBedelliPeriod.amount) < 1000 ? 'border-primary bg-primary-subtle text-primary-ink' : 'border-border bg-surface hover:border-primary/50'}`}
                 key={ratio}
                 onClick={() => setAmount(currentBedelliPeriod.amount * ratio)}
                 type="button"
               >
-                {ratio === 1 ? "Güncel bedel" : `%${ratio * 100}`}
+                {ratio === 1 ? 'Güncel bedel' : `%${ratio * 100}`}
               </button>
             ))}
           </div>
@@ -421,7 +420,7 @@ export function BedelliCalculator({ snapshot }: { snapshot: MarketSnapshot }) {
             {bedelliPeriods.slice(0, -1).map((period) => (
               <button
                 aria-pressed={comparisonYear === period.year}
-                className={`rounded-full border px-4 py-2 text-xs font-bold transition ${comparisonYear === period.year ? "border-primary bg-primary text-primary-foreground shadow-sm" : "border-border bg-surface hover:border-primary/50 hover:text-primary-ink"}`}
+                className={`rounded-full border px-4 py-2 text-xs font-bold transition ${comparisonYear === period.year ? 'border-primary bg-primary text-primary-foreground shadow-sm' : 'border-border bg-surface hover:border-primary/50 hover:text-primary-ink'}`}
                 key={period.year}
                 onClick={() => setComparisonYear(period.year)}
                 type="button"
@@ -492,7 +491,7 @@ export function BedelliCalculator({ snapshot }: { snapshot: MarketSnapshot }) {
                 <TableRow
                   className={
                     row.period.year === currentBedelliPeriod.year
-                      ? "bg-primary-subtle/55"
+                      ? 'bg-primary-subtle/55'
                       : undefined
                   }
                   key={row.period.year}
@@ -571,7 +570,7 @@ export function BedelliCalculator({ snapshot }: { snapshot: MarketSnapshot }) {
                 Seçili gösterge
               </p>
               <p className="mt-1 text-lg font-bold">
-                {metricMeta.label} · {metric === "gold" ? "TL/gram" : "TL"}
+                {metricMeta.label} · {metric === 'gold' ? 'TL/gram' : 'TL'}
               </p>
             </div>
             <span className="rounded-full bg-primary-subtle px-3 py-1.5 text-[10px] font-bold text-primary-ink">
@@ -616,14 +615,14 @@ export function BedelliCalculator({ snapshot }: { snapshot: MarketSnapshot }) {
               />
               <YAxis
                 axisLine={false}
-                domain={["dataMin - 1", "dataMax + 1"]}
+                domain={['dataMin - 1', 'dataMax + 1']}
                 tickFormatter={(value: number) => compact.format(value)}
                 tickLine={false}
                 width={46}
               />
               <ChartTooltip
                 content={<ChartTooltipContent />}
-                cursor={{ stroke: "var(--border)" }}
+                cursor={{ stroke: 'var(--border)' }}
               />
               <Area
                 activeDot={{ r: 5, fill: metricMeta.color }}
@@ -638,8 +637,6 @@ export function BedelliCalculator({ snapshot }: { snapshot: MarketSnapshot }) {
           </ChartContainer>
         </div>
       </section>
-
-      
     </>
   );
 }
