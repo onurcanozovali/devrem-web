@@ -7,10 +7,10 @@ const buttonLinkVariants = cva(
   {
     variants: {
       variant: {
-        primary: 'bg-primary text-primary-foreground shadow-[0_12px_30px_rgb(91_103_241/24%)] hover:bg-primary-dark hover:-translate-y-0.5',
-        outline: 'border border-border bg-white/70 text-foreground hover:border-primary/30 hover:bg-white',
-        light: 'bg-white text-primary-dark shadow-[0_12px_28px_rgb(0_0_0/12%)] hover:-translate-y-0.5',
-        ghost: 'text-primary hover:bg-primary-subtle',
+        primary: 'bg-primary text-primary-foreground shadow-[0_12px_30px_rgb(85_200_157/14%)] hover:bg-primary-hover hover:-translate-y-0.5',
+        outline: 'border border-border bg-surface-elevated text-foreground hover:border-primary/35 hover:bg-surface-secondary',
+        light: 'bg-primary text-primary-foreground shadow-[0_12px_28px_rgb(0_0_0/18%)] hover:bg-primary-hover hover:-translate-y-0.5',
+        ghost: 'text-primary-ink hover:bg-primary-subtle',
       },
       size: {
         sm: 'h-10 px-4 text-sm',

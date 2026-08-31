@@ -21,7 +21,7 @@ function ToolCard({ tool }: { tool: ToolFixture }) {
       </div>
       <h3 className="mt-10 text-xl font-bold tracking-[-0.035em]">{tool.title}</h3>
       <p className="mt-3 text-sm leading-6 text-secondary-foreground">{tool.description}</p>
-      <p className="mt-7 text-xs font-bold text-primary">İlgili önizlemeye git</p>
+      <p className="mt-7 text-xs font-bold text-primary-ink">İlgili önizlemeye git</p>
     </Link>
   );
 }

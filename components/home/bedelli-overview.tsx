@@ -16,8 +16,8 @@ export function BedelliOverview() {
         <div className="mt-10 grid gap-5 lg:grid-cols-[0.85fr_1.15fr]">
           <article className="bedelli-price-card">
             <div className="flex items-start justify-between gap-5">
-              <div><p className="text-xs font-bold uppercase tracking-[0.12em] text-primary">Güncel ücret alanı</p><p className="mt-3 text-4xl font-bold tracking-[-0.055em] sm:text-5xl">{bedelliOverview.amount}</p><p className="mt-2 text-sm text-secondary-foreground">{bedelliOverview.period} · açıkça demo veri</p></div>
-              <span className="flex size-12 items-center justify-center rounded-2xl bg-primary-subtle text-primary"><CircleDollarSign className="size-6" aria-hidden="true" /></span>
+              <div><p className="text-xs font-bold uppercase tracking-[0.12em] text-primary-ink">Güncel ücret alanı</p><p className="mt-3 text-4xl font-bold tracking-[-0.055em] sm:text-5xl">{bedelliOverview.amount}</p><p className="mt-2 text-sm text-secondary-foreground">{bedelliOverview.period} · açıkça demo veri</p></div>
+              <span className="flex size-12 items-center justify-center rounded-2xl bg-primary-subtle text-primary-ink"><CircleDollarSign className="size-6" aria-hidden="true" /></span>
             </div>
             <div className="mt-8 flex items-center justify-between rounded-2xl bg-background px-4 py-3">
               <div><p className="text-[10px] uppercase tracking-[0.1em] text-secondary-foreground">Önceki döneme göre</p><p className="mt-1 text-sm font-bold">{bedelliOverview.change} <span className="font-medium text-secondary-foreground">örnek değişim</span></p></div>
@@ -31,7 +31,7 @@ export function BedelliOverview() {
           <article className="bedelli-chart-card">
             <div className="flex items-start justify-between gap-4">
               <div><p className="text-sm font-bold">Tarihsel karşılaştırma</p><p className="mt-1 text-xs text-secondary-foreground">Yıllara göre endeks görünümü · demo</p></div>
-              <span className="flex size-10 items-center justify-center rounded-xl bg-[#FFF5E5] text-warning"><Coins className="size-5" aria-hidden="true" /></span>
+              <span className="flex size-10 items-center justify-center rounded-xl bg-warning/10 text-warning"><Coins className="size-5" aria-hidden="true" /></span>
             </div>
             <figure className="chart-placeholder mt-10" aria-label="Demo tarihsel bedelli ücret grafiği">
               {bedelliOverview.history.map((value, index) => (

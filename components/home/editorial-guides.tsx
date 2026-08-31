@@ -4,11 +4,11 @@ import { Container } from '@/components/site/container';
 import { SectionHeader } from './section-header';
 
 const toneIcons = {
-  violet: Sparkles,
-  blue: FileText,
+  mint: Sparkles,
+  sage: FileText,
   amber: Clock3,
-  navy: BookOpen,
-  green: Smartphone,
+  charcoal: BookOpen,
+  sand: Smartphone,
   rose: FileText,
 } as const;
 
@@ -24,13 +24,13 @@ function GuideCard({ guide, featured = false }: { guide: EditorialFixture; featu
       </div>
       <div className="guide-content">
         <div className="flex flex-wrap items-center gap-3">
-          <span className="rounded-full bg-primary-subtle px-2.5 py-1 text-[10px] font-bold text-primary">{guide.category}</span>
+          <span className="rounded-full bg-primary-subtle px-2.5 py-1 text-[10px] font-bold text-primary-ink">{guide.category}</span>
           <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-secondary-foreground"><Clock3 className="size-3" aria-hidden="true" /> {guide.readingTime}</span>
           <span className="ml-auto text-[9px] font-bold uppercase tracking-[0.08em] text-secondary-foreground">İçerik demosu</span>
         </div>
         <h3 className={`${featured ? 'mt-6 text-3xl sm:text-4xl' : 'mt-5 text-lg'} font-bold leading-tight tracking-[-0.045em]`}>{guide.title}</h3>
         <p className={`${featured ? 'mt-4 max-w-xl text-base leading-7' : 'mt-3 text-sm leading-6'} text-secondary-foreground`}>{guide.excerpt}</p>
-        <p className="mt-6 text-xs font-bold text-primary">Detay sayfası sonraki aşamada</p>
+        <p className="mt-6 text-xs font-bold text-primary-ink">Detay sayfası sonraki aşamada</p>
       </div>
     </article>
   );

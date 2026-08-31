@@ -9,7 +9,7 @@ export function SponsoredPlacement() {
         <article className="sponsored-placement">
           <div className="sponsor-brand-placeholder" aria-hidden="true"><BusFront className="size-7" /></div>
           <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-3"><p className="text-[10px] font-bold uppercase tracking-[0.12em] text-primary">{sponsoredPlacement.eyebrow}</p><span className="rounded-full bg-warning/10 px-2 py-1 text-[8px] font-bold text-warning">AKTİF İŞ BİRLİĞİ DEĞİL</span></div>
+            <div className="flex flex-wrap items-center gap-3"><p className="text-[10px] font-bold uppercase tracking-[0.12em] text-primary-ink">{sponsoredPlacement.eyebrow}</p><span className="rounded-full bg-warning/10 px-2 py-1 text-[8px] font-bold text-warning">AKTİF İŞ BİRLİĞİ DEĞİL</span></div>
             <h2 className="mt-3 text-2xl font-bold tracking-[-0.04em] sm:text-3xl">{sponsoredPlacement.title}</h2>
             <p className="mt-2 text-sm leading-6 text-secondary-foreground">{sponsoredPlacement.description}</p>
           </div>

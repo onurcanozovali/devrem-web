@@ -23,6 +23,10 @@ Stage 2'ye bırakılan özellikler: kullanıcı hesabı, mesajlaşma, gerçek bi
 - shadcn/ui ve Lucide ikonları
 - pnpm
 
+## Marka ve tema
+
+Ana site yüzeyi açık Devrem temasıdır: kırık beyaz arka plan, katmanlı açık yüzeyler ve kontrollü `#55C89D` mint vurgu. Açık zemin üzerindeki metin vurgularında erişilebilir `primary-ink` tonu kullanılır; CTA, ilerleme ve ürün aksiyonlarında marka minti korunur. Telefon maketleri gerçek ürün ailesini yansıtmak için koyu temadadır. Tüm arayüz Poppins kullanır. Gelecekteki uzun rehber ve makaleler için `editorial-*` yüksek okunabilirlik tokenları hazırdır; ana sayfada etkin değildir.
+
 ## Yerel çalışma
 
 ```bash

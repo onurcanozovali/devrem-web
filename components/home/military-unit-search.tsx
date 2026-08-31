@@ -16,7 +16,7 @@ export function MilitaryUnitSearch({ units }: { units: MilitaryUnitFixture[] }) 
   return (
     <div className="unit-search-panel">
       <label className="unit-search-input" htmlFor="military-unit-search">
-        <Search className="size-5 shrink-0 text-primary" aria-hidden="true" />
+        <Search className="size-5 shrink-0 text-primary-ink" aria-hidden="true" />
         <input
           aria-label="Birlik adı veya şehir ara"
           className="h-12 min-w-0 flex-1 border-0 bg-transparent px-0 text-base outline-none placeholder:text-secondary-foreground focus-visible:ring-0"

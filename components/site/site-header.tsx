@@ -34,7 +34,7 @@ export function SiteHeader() {
             title="Giriş özelliği sonraki aşamada eklenecek"
             type="button"
           >
-            Giriş <span className="ml-1 text-[9px] font-semibold text-primary">YAKINDA</span>
+            Giriş <span className="ml-1 text-[9px] font-semibold text-primary-ink">YAKINDA</span>
           </button>
           <ButtonLink href="/#uygulama" size="sm">
             <Download aria-hidden="true" /> Devrem&apos;i İndir

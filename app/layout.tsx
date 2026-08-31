@@ -1,12 +1,13 @@
 import type { Metadata } from 'next';
-import { Geist } from 'next/font/google';
+import { Poppins } from 'next/font/google';
 import { SiteFooter } from '@/components/site/site-footer';
 import { SiteHeader } from '@/components/site/site-header';
 import './globals.css';
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
+const poppins = Poppins({
+  variable: '--font-poppins',
   subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800'],
 });
 
 export const metadata: Metadata = {
@@ -44,7 +45,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="tr">
-      <body className={`${geistSans.variable} antialiased`}>
+      <body className={`${poppins.variable} antialiased`}>
         <a className="skip-link" href="#ana-icerik">
           Ana içeriğe geç
         </a>
