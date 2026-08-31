@@ -54,6 +54,12 @@ export type BlogPost = {
   sections: ArticleSection[];
   sources?: EditorialSource[];
   faqs?: { question: string; answer: string }[];
+  contextualLinks?: {
+    title: string;
+    description: string;
+    href?: string;
+    status: string;
+  }[];
   relatedSlugs?: string[];
   endCta?: {
     title: string;
@@ -80,11 +86,10 @@ export const blogPosts: BlogPost[] = [
       'Sınıflandırma dönemi ile fiilî sevk tarihi her zaman aynı değildir.',
       'Erler 1, 2 veya 3’üncü grup olarak farklı tarihlerde sevk edilebilir.',
       'Kasım 2026 sınıflandırma sonuçları 27 Ekim 2026’da açıklanacak.',
-      'Bedelli askerlik ayrı bir celp ve sevk takvimini izler.',
     ],
     publishedAt: '31 Ağustos 2026',
     publishedIso: '2026-08-31',
-    readingTime: '9 dk',
+    readingTime: '6 dk',
     author: 'Devrem Editör',
     tone: 'mint',
     featured: true,
@@ -233,85 +238,6 @@ export const blogPosts: BlogPost[] = [
           },
         ],
       },
-      {
-        heading: 'Askerlik Yeri Nasıl Öğrenilir?',
-        blocks: [
-          {
-            type: 'paragraph',
-            text: 'Sınıflandırma sonucunu e-Devlet’teki MSB Askerliğim hizmetinden veya askerlik şubesinden öğrenebilirsin. Kuvvet, statü, birlik ve sevk grubu gibi ayrıntılar için kendi resmî kaydını kontrol et.',
-          },
-        ],
-      },
-      {
-        heading: 'Sevk Belgesi Ne Zaman Alınır?',
-        blocks: [
-          {
-            type: 'paragraph',
-            text: 'İlgili MSB dönem duyurularında sevk belgesinin sevk tarihinden 10 gün önce başlayarak e-Devlet veya askerlik şubesinden alınabildiği belirtilir. Açılma tarihi ve işlem adımları için kendi e-Devlet kaydını ve güncel MSB duyurusunu esas al.',
-          },
-        ],
-      },
-      {
-        heading: 'Askerlik Yol Parası Veriliyor mu?',
-        blocks: [
-          {
-            type: 'paragraph',
-            text: 'Evet. Yol ve iaşe bedeli, Adrese Dayalı Nüfus Kayıt Sistemi’ndeki adres ile sevk edildiğin eğitim birliği arasındaki mesafe esas alınarak hesaplanır. Mesafe ve kişisel sevk bilgileri değiştiği için ödenecek tutar kişiden kişiye farklı olabilir.',
-          },
-        ],
-      },
-      {
-        heading: '2026 Bedelli Askerlik Sevk Tarihleri',
-        blocks: [
-          {
-            type: 'paragraph',
-            text: 'Bedelli askerlik, ana sınıflandırma dönemlerinden ayrı bir celp ve sevk takvimini izler. MSB’nin 2026 bedelli askerlik duyurusundaki sevk tarihleri şunlardır:',
-          },
-          {
-            type: 'table',
-            caption: '2026 bedelli askerlik sevk takvimi',
-            headers: ['Sıra', 'Sevk tarihi'],
-            rows: [
-              ['1', '5 Şubat 2026'],
-              ['2', '5 Mart 2026'],
-              ['3', '2 Nisan 2026'],
-              ['4', '4 Haziran 2026'],
-              ['5', '2 Temmuz 2026'],
-              ['6', '6 Ağustos 2026'],
-              ['7', '3 Eylül 2026'],
-              ['8', '1 Ekim 2026'],
-              ['9', '5 Kasım 2026'],
-              ['10', '3 Aralık 2026'],
-            ],
-          },
-        ],
-      },
-      {
-        heading: 'Askerlik Yeriniz Açıklandıktan Sonra Ne Yapmalısınız?',
-        blocks: [
-          {
-            type: 'numbered-list',
-            items: [
-              'Askerlik statünü kontrol et.',
-              'Kuvvetini ve birliğini kontrol et.',
-              'Sevk grubunu ve tarihini kontrol et.',
-              'Sevk belgesinin ne zaman açılacağını kontrol et.',
-              'Ulaşımını planla.',
-              'Gerekli belgelerini ve kişisel eşyalarını hazırla.',
-              'Yola çıkmadan önce tüm bilgileri e-Devlet’ten yeniden doğrula.',
-            ],
-          },
-        ],
-      },
-      {
-        heading: 'Aynı Dönemde ve Aynı Birlikte Askere Gidecekleri Bul',
-        blocks: [
-          {
-            type: 'paragraph',
-            text: 'Devrem, birliğine katılmadan önce aynı celp dönemindeki, aynı askerlik şehrine veya birliğe gidecek ve aynı askerlik türünde hizmet yapacak kişileri bulmana yardımcı olur. Böylece yol ve teslim süreci öncesinde benzer durumda olan devrelerinle tanışabilirsin.',
-          },
-        ],
-      },
     ],
     sources: [
       {
@@ -323,24 +249,17 @@ export const blogPosts: BlogPost[] = [
         label: 'MSB — Kasım 2026 Sınıflandırma Dönemi Duyurusu',
         href: 'https://www.msb.gov.tr/Askeralma/Duyuru/a090cba01d3949ca8948978b87ee5f54',
       },
-      {
-        label: 'MSB — 2026 Yılı Bedelli Askerlik Celp ve Sevk Duyurusu',
-        href: 'https://www.msb.gov.tr/Askeralma/Duyuru/eb23c6fe23b34e528d7ad824fad5b58c',
-      },
-      {
-        label: 'MSB — Sevk İşlemleri',
-        href: 'https://www.msb.gov.tr/Askeralma/icerik/sevk-islemleri',
-      },
-      {
-        label: 'e-Devlet — Millî Savunma Bakanlığı Askerliğim hizmetleri',
-        href: 'https://www.turkiye.gov.tr/milli-savunma-bakanligi',
-      },
     ],
     faqs: [
       {
         question: '2026 askerlik celp dönemleri hangi aylar?',
         answer:
           'Şubat, Mayıs, Ağustos ve Kasım ana sınıflandırma dönemleridir.',
+      },
+      {
+        question: '2026 askerlik yerleri hangi tarihlerde açıklanacak?',
+        answer:
+          'Sınıflandırma sonuçları Şubat dönemi için 29 Ocak, Mayıs dönemi için 17 Nisan, Ağustos dönemi için 30 Temmuz ve Kasım dönemi için 27 Ekim 2026’da açıklanacak.',
       },
       {
         question: 'Kasım 2026 askerlik yerleri ne zaman belli olacak?',
@@ -353,19 +272,37 @@ export const blogPosts: BlogPost[] = [
           'Statü ve sevk grubuna göre 5 Kasım 2026, 3 Aralık 2026 veya 7 Ocak 2027 tarihinde sevk edilecekler.',
       },
       {
-        question: 'Askerlik yeri nereden öğrenilir?',
-        answer:
-          'Askerlik yeri e-Devlet’teki MSB Askerliğim hizmetinden veya askerlik şubesinden öğrenilebilir.',
-      },
-      {
-        question: 'Celp tercihi yaptığım ay kesin çıkar mı?',
-        answer:
-          'Hayır. Celp ve sevk dönemi tercihleri, Türk Silahlı Kuvvetlerinin ihtiyaç ve öncelikleriyle birlikte değerlendirilir.',
-      },
-      {
         question: 'Sevk tarihi ile celp dönemi aynı mı?',
         answer:
           'Hayır. Sınıflandırma dönemi ile fiilî sevk tarihi farklı olabilir.',
+      },
+    ],
+    contextualLinks: [
+      {
+        title: 'Askerlik yeri nasıl sorgulanır?',
+        description:
+          'Sınıflandırma sonucunu ve birlik bilgilerini nereden kontrol edeceğini öğren.',
+        status: 'Yakında',
+      },
+      {
+        title: 'Sevk belgesi nedir, nasıl alınır?',
+        description:
+          'Belgenin ne zaman açıldığını ve hangi bilgileri içerdiğini ayrı rehberde incele.',
+        href: '/blog/sevk-belgesi-nedir-nasil-alinir',
+        status: 'Rehberi oku',
+      },
+      {
+        title: 'Askerlik yol parası rehberi',
+        description:
+          'Yol ve iaşe bedelinin nasıl hesaplandığını ayrı rehberde incele.',
+        status: 'Yakında',
+      },
+      {
+        title: '2026 bedelli askerlik rehberi',
+        description:
+          'Bedelli sevk bilgilerini ve beş yıllık ücret karşılaştırmasını incele.',
+        href: '/bedelli',
+        status: 'Bedelli sayfası',
       },
     ],
     relatedSlugs: [

@@ -149,6 +149,45 @@ export function ArticleBody({ post }: { post: BlogPost }) {
         </section>
       ))}
 
+      {post.contextualLinks?.length ? (
+        <aside
+          className="article-related article-contextual-guides"
+          aria-label="Ayrıntılı rehberler"
+        >
+          <p className="article-section-kicker">Konuyu derinleştir</p>
+          <p className="article-contextual-intro">
+            Bu başlıkların ayrıntılarını ilgili rehberlerde bulabilirsin.
+          </p>
+          <div className="article-related-grid">
+            {post.contextualLinks.map((item) => {
+              const content = (
+                <>
+                  <span>{item.status}</span>
+                  <strong>{item.title}</strong>
+                  <small>{item.description}</small>
+                  {item.href ? (
+                    <ArrowRight className="size-4" aria-hidden="true" />
+                  ) : null}
+                </>
+              );
+
+              return item.href ? (
+                <Link href={item.href} key={item.title}>
+                  {content}
+                </Link>
+              ) : (
+                <div
+                  className="article-context-link-placeholder"
+                  key={item.title}
+                >
+                  {content}
+                </div>
+              );
+            })}
+          </div>
+        </aside>
+      ) : null}
+
       <aside className="article-callout article-callout-note article-editorial-note">
         <NotebookPen className="size-5 shrink-0" aria-hidden="true" />
         <div>
