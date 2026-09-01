@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowLeft, Clock3, Play, Video } from 'lucide-react';
+import { ArrowLeft, Clock3, Video } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { Container } from '@/components/site/container';
 import { getVlogPost, vlogPosts } from '@/src/fixtures/content';
@@ -91,18 +91,7 @@ export default async function VlogDetailPage({ params }: VlogDetailProps) {
                 src="/ss1.png"
               />
               <div className="vlog-player-overlay">
-                <span className="flex size-16 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                  <Play
-                    className="ml-1 size-7"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  />
-                </span>
-                <strong>Pilot bölüm hazırlanıyor</strong>
-                <p>
-                  Video ve Türkçe altyazı dosyaları yayınlandığında oynatıcı
-                  burada etkinleşecek.
-                </p>
+                <strong>{post.title}</strong>
               </div>
             </>
           )}

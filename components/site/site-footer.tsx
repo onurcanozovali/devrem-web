@@ -3,7 +3,7 @@ import { ArrowUpRight, Mail } from 'lucide-react';
 import { Container } from '@/components/site/container';
 import { SiteLogo } from '@/components/site/site-logo';
 
-type FooterLink = { label: string; href: string | null };
+type FooterLink = { label: string; href: string };
 
 const footerGroups: { title: string; links: FooterLink[] }[] = [
   {
@@ -35,13 +35,6 @@ const footerGroups: { title: string; links: FooterLink[] }[] = [
       },
     ],
   },
-  {
-    title: 'Yasal',
-    links: [
-      { label: 'Gizlilik', href: null },
-      { label: 'Kullanım Koşulları', href: null },
-    ],
-  },
 ];
 
 export function SiteFooter() {
@@ -62,7 +55,7 @@ export function SiteFooter() {
             <Mail className="size-4" aria-hidden="true" /> iletisim@devrem.co
           </a>
         </div>
-        <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
+        <div className="grid grid-cols-2 gap-8 sm:grid-cols-3">
           {footerGroups.map((group) => (
             <div key={group.title}>
               <h2 className="text-xs font-bold uppercase tracking-[0.12em] text-foreground">
@@ -71,27 +64,15 @@ export function SiteFooter() {
               <ul className="mt-5 space-y-3 text-sm text-secondary-foreground">
                 {group.links.map((item) => (
                   <li key={item.label}>
-                    {item.href ? (
-                      <Link
-                        className="inline-flex items-center gap-1 transition hover:text-primary-ink"
-                        href={item.href}
-                      >
-                        {item.label}
-                        {item.href.startsWith('mailto:') ? (
-                          <ArrowUpRight className="size-3" aria-hidden="true" />
-                        ) : null}
-                      </Link>
-                    ) : (
-                      <span
-                        className="inline-flex flex-wrap items-center gap-2 opacity-65"
-                        title="Sonraki aşamada eklenecek"
-                      >
-                        {item.label}
-                        <small className="rounded-full bg-secondary px-1.5 py-0.5 text-[7px] font-bold uppercase">
-                          Yakında
-                        </small>
-                      </span>
-                    )}
+                    <Link
+                      className="inline-flex items-center gap-1 transition hover:text-primary-ink"
+                      href={item.href}
+                    >
+                      {item.label}
+                      {item.href.startsWith('mailto:') ? (
+                        <ArrowUpRight className="size-3" aria-hidden="true" />
+                      ) : null}
+                    </Link>
                   </li>
                 ))}
               </ul>

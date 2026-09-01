@@ -5,7 +5,6 @@ import { siteConfig } from '@/src/config/site';
 type StoreButtonProps = {
   className?: string;
   compact?: boolean;
-  showStatus?: boolean;
 };
 
 const stores = [
@@ -27,11 +26,7 @@ const stores = [
   },
 ] as const;
 
-export function StoreButtons({
-  className,
-  compact = false,
-  showStatus = true,
-}: StoreButtonProps) {
+export function StoreButtons({ className, compact = false }: StoreButtonProps) {
   return (
     <div className={cn('flex flex-wrap items-center gap-3', className)}>
       {stores.map((store) => {
@@ -60,18 +55,11 @@ export function StoreButtons({
             aria-disabled="true"
             className="store-badge-pending"
             key={store.key}
-            title={`${store.label} bağlantısı yakında`}
           >
             {badge}
-            <span className="store-badge-status">Yakında</span>
           </span>
         );
       })}
-      {showStatus ? (
-        <p className="w-full text-[10px] font-medium text-secondary-foreground">
-          Mağaza sayfaları yayınlandığında bağlantılar burada etkinleşecek.
-        </p>
-      ) : null}
     </div>
   );
 }

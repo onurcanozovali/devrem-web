@@ -23,12 +23,11 @@ export const metadata: Metadata = {
 
 export default async function BedelliPage() {
   let snapshot = null;
-  let dataError = false;
 
   try {
     snapshot = await getDailyMarketSnapshot();
   } catch {
-    dataError = true;
+    snapshot = null;
   }
 
   return (
@@ -64,14 +63,8 @@ export default async function BedelliPage() {
               Piyasa verisi şu anda alınamadı.
             </h2>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-secondary-foreground">
-              EVDS bağlantısı yenilenirken karşılaştırma alanını geçici olarak
-              durdurduk. Güncel resmî bedel için MSB kaynağını kullanabilirsin.
+              Güncel resmî bedel için MSB kaynağını kullanabilirsin.
             </p>
-            {dataError ? (
-              <p className="mt-5 text-xs font-semibold text-danger">
-                Veri bağlantısı tekrar denenecek.
-              </p>
-            ) : null}
           </section>
         )}
       </Container>

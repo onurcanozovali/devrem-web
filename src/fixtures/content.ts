@@ -282,7 +282,7 @@ export const blogPosts: BlogPost[] = [
         title: 'Askerlik yeri nasıl sorgulanır?',
         description:
           'Sınıflandırma sonucunu ve birlik bilgilerini nereden kontrol edeceğini öğren.',
-        status: 'Yakında',
+        status: 'Ayrı rehber',
       },
       {
         title: 'Sevk belgesi nedir, nasıl alınır?',
@@ -295,7 +295,7 @@ export const blogPosts: BlogPost[] = [
         title: 'Askerlik yol parası rehberi',
         description:
           'Yol ve iaşe bedelinin nasıl hesaplandığını ayrı rehberde incele.',
-        status: 'Yakında',
+        status: 'Ayrı rehber',
       },
       {
         title: '2026 bedelli askerlik rehberi',
@@ -471,7 +471,7 @@ export const blogPosts: BlogPost[] = [
     endCta: {
       title: 'Hazırlık sürecini sadeleştir',
       description:
-        'Devrem’de rehberleri oku, güncel verileri takip et ve uygulama yayınlandığında aynı dönemdeki devrelerinle tanış.',
+        'Devrem’de rehberleri oku, güncel verileri takip et ve aynı dönemdeki devrelerinle tanış.',
       label: 'Devrem uygulamasını keşfet',
       href: '/#uygulama',
     },
@@ -489,7 +489,6 @@ export const blogPosts: BlogPost[] = [
     quickSummary: [
       'Karşılaştırma 2022–2026 arasındaki ikinci yarı bedellerini kapsar.',
       'Döviz ve altın verileri aynı dönemlere hizalanır.',
-      'EVDS verileri tek günlük önbellekle günde bir kez yenilenir.',
       'Çeyrek altın sonucu kuyumcu satış fiyatı değil, yaklaşık saf altın karşılığıdır.',
     ],
     publishedAt: '31 Ağustos 2026',
@@ -507,7 +506,7 @@ export const blogPosts: BlogPost[] = [
       {
         heading: 'Devrem karşılaştırması nasıl çalışıyor?',
         paragraphs: [
-          '2022–2026 arasındaki ikinci yarı bedelli tutarlarını, TCMB EVDS’nin aynı aya hizalanmış dolar alış, euro alış ve BİST altın kapanış verileriyle eşleştiriyoruz. Veriler günde bir kez yenileniyor ve beş yıllık seri tek istekte alınıyor.',
+          '2022–2026 arasındaki ikinci yarı bedelli tutarlarını, TCMB EVDS’nin aynı aya hizalanmış dolar alış, euro alış ve BİST altın kapanış verileriyle eşleştiriyoruz.',
         ],
         bullets: [
           'Dolar ve euro için TCMB alış serileri kullanılır.',
@@ -650,7 +649,6 @@ export const vlogPosts: VlogPost[] = [
       { time: '06:20', title: 'Teslim kapısına yaklaşırken' },
     ],
     notes: [
-      'Bu pilot içerikte video dosyası henüz yayınlanmadı; sayfa gerçek video URL’si eklendiğinde aynı yapı içinde oynatıcıya dönüşür.',
       'Birliğe göre değişebilen kurallarda resmî yönlendirmeleri esas al.',
       'Sevk belgesi, kimlik ve ulaşım planını çıkmadan önce son kez kontrol et.',
     ],

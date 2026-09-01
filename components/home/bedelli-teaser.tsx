@@ -117,7 +117,7 @@ export async function BedelliTeaser() {
             )}
             <p className="mt-5 text-[10px] leading-5 text-secondary-foreground">
               *Çeyrek altın değeri yaklaşık saf altın karşılığıdır; kuyumcu
-              satış fiyatı değildir. EVDS verileri günde bir kez yenilenir.
+              satış fiyatı değildir.
             </p>
           </div>
         </div>

@@ -31,7 +31,7 @@ export function SiteHeader() {
             </Link>
           ))}
         </nav>
-        <StoreButtons className="hidden xl:flex" compact showStatus={false} />
+        <StoreButtons className="hidden xl:flex" compact />
 
         <Sheet>
           <SheetTrigger

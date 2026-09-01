@@ -8,12 +8,18 @@ export function MilitaryUnitCard({ unit }: { unit: MilitaryUnitFixture }) {
         <MapPin className="size-5" aria-hidden="true" />
       </div>
       <div className="min-w-0 flex-1">
-        <h3 className="text-sm font-bold leading-5 text-foreground">{unit.name}</h3>
-        <p className="mt-1 text-xs text-secondary-foreground">{unit.city} · {unit.force}</p>
+        <h3 className="text-sm font-bold leading-5 text-foreground">
+          {unit.name}
+        </h3>
+        <p className="mt-1 text-xs text-secondary-foreground">
+          {unit.city} · {unit.force}
+        </p>
       </div>
       <div className="flex flex-col items-end gap-2">
-        <span className="rounded-full bg-secondary px-2 py-1 text-[8px] font-bold uppercase tracking-[0.08em] text-secondary-foreground">Demo</span>
-        <ArrowUpRight className="size-4 text-primary-ink opacity-60 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden="true" />
+        <ArrowUpRight
+          className="size-4 text-primary-ink opacity-60 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+          aria-hidden="true"
+        />
       </div>
     </article>
   );

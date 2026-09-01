@@ -975,22 +975,7 @@
 
 .store-badge-link:hover { transform: translateY(-2px); }
 .store-badge-link:focus-visible { outline: 3px solid rgb(85 200 157 / 28%); outline-offset: 3px; }
-.store-badge-pending { cursor: not-allowed; opacity: 0.82; }
-
-.store-badge-status {
-  position: absolute;
-  right: -0.4rem;
-  top: -0.45rem;
-  border: 2px solid var(--background);
-  border-radius: 999px;
-  background: var(--primary);
-  padding: 0.15rem 0.4rem;
-  color: var(--primary-foreground);
-  font-size: 0.43rem;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
+.store-badge-pending { opacity: 0.88; }
 
 .landing-hero {
   position: relative;
@@ -1000,27 +985,30 @@
     linear-gradient(180deg, #fbfdfc, var(--background));
 }
 
-.landing-product { position: relative; min-height: 650px; }
+.landing-product { position: relative; display: flex; min-height: 760px; align-items: center; justify-content: center; }
 
 .landing-product-orbit {
   position: absolute;
-  inset: 7% 1% 5%;
+  left: 50%;
+  top: 50%;
+  width: min(100%, 500px);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
   border: 1px solid rgb(85 200 157 / 24%);
   border-radius: 50%;
   background: radial-gradient(circle, rgb(85 200 157 / 11%), transparent 62%);
 }
 
+.landing-phone-wrap { position: relative; z-index: 2; width: min(78vw, 370px); }
+
 .landing-phone {
-  position: absolute;
-  left: 50%;
-  top: 50%;
+  position: relative;
   z-index: 3;
-  width: min(76vw, 340px);
-  height: 620px;
+  width: 100%;
   overflow: hidden;
-  transform: translate(-50%, -50%) rotate(2deg);
+  transform: rotate(2deg);
   border: 8px solid #090e0c;
-  border-radius: 2.65rem;
+  border-radius: 2.9rem;
   background: #101614;
   box-shadow: 0 36px 80px rgb(20 35 29 / 30%);
 }
@@ -1037,9 +1025,6 @@
   border-radius: 999px;
   background: #050807;
 }
-
-.landing-phone-screen { position: absolute; inset: 0; overflow: hidden; }
-.landing-phone-screen img { object-fit: cover; object-position: top center; }
 
 .landing-float-card {
   position: absolute;
@@ -1058,8 +1043,8 @@
 .landing-float-card > span { display: flex; width: 2.4rem; height: 2.4rem; align-items: center; justify-content: center; border-radius: 0.8rem; background: var(--primary-subtle); color: var(--primary-ink); }
 .landing-float-card strong { display: block; font-size: 0.72rem; }
 .landing-float-card small { display: block; margin-top: 0.15rem; color: var(--secondary-foreground); font-size: 0.55rem; }
-.landing-float-card-a { left: 0; top: 20%; }
-.landing-float-card-b { bottom: 17%; right: 0; }
+.landing-float-card-a { left: -9rem; top: 19%; }
+.landing-float-card-b { bottom: 14%; right: -9rem; }
 
 .landing-benefits { background: var(--surface); }
 .landing-benefit-card { min-height: 280px; background: var(--surface); padding: clamp(1.5rem, 3vw, 2.25rem); transition: background-color 180ms ease; }
@@ -1451,8 +1436,6 @@
 .app-landing-promise p { margin-top: 0.25rem; color: var(--secondary-foreground); font-size: 0.72rem; line-height: 1.2rem; }
 
 .final-landing-cta { position: relative; min-height: 510px; overflow: hidden; border-radius: 2rem; background: radial-gradient(circle at 86% 18%, rgb(85 200 157 / 16%), transparent 22rem), linear-gradient(145deg, #15201c, #0c1210); padding: clamp(2rem, 6vw, 5rem); }
-.final-landing-cta .store-badge-status { border-color: #101614; }
-.final-landing-cta .store-badge-pending + p { color: #a9b0ac; }
 .final-landing-signal { position: absolute; display: flex; align-items: center; justify-content: center; border: 1px solid #2c3a35; border-radius: 1.5rem; background: rgb(29 40 34 / 88%); color: #55c89d; box-shadow: 0 18px 50px rgb(0 0 0 / 24%); }
 .final-landing-signal-a { right: 14%; top: 20%; width: 5.5rem; height: 5.5rem; }
 .final-landing-signal-b { right: 28%; bottom: 16%; width: 4.5rem; height: 4.5rem; }
@@ -1466,7 +1449,7 @@
 }
 
 @media (max-width: 1023px) {
-  .landing-product { min-height: 610px; }
+  .landing-product { min-height: 760px; }
   .app-landing-visual { order: 2; min-height: 610px; }
 }
 
@@ -1480,11 +1463,9 @@
 }
 
 @media (max-width: 640px) {
-  .landing-product { min-height: 550px; }
-  .landing-phone { width: 285px; height: 520px; }
-  .landing-float-card { transform: scale(0.88); }
-  .landing-float-card-a { left: -7%; top: 17%; }
-  .landing-float-card-b { right: -8%; bottom: 13%; }
+  .landing-product { min-height: 720px; }
+  .landing-phone-wrap { width: min(88vw, 330px); }
+  .landing-float-card { display: none; }
   .bedelli-landing-card { border-radius: 1.5rem; }
   .article-card-cover { min-height: 160px; }
   .article-page { padding-bottom: 3.5rem; }

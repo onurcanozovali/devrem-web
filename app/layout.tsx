@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { Poppins } from 'next/font/google';
 import { SiteFooter } from '@/components/site/site-footer';
-import { SiteHeader } from '@/components/site/site-header';
 import './globals.css';
 
 const poppins = Poppins({
@@ -56,7 +55,6 @@ export default function RootLayout({
         <a className="skip-link" href="#ana-icerik">
           Ana içeriğe geç
         </a>
-        <SiteHeader />
         {children}
         <SiteFooter />
       </body>

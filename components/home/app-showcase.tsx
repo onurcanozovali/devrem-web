@@ -1,7 +1,6 @@
 import Image from 'next/image';
 import { MessageCircleMore, ShieldCheck, UsersRound } from 'lucide-react';
 import { Container } from '@/components/site/container';
-import { StoreButtons } from '@/components/site/store-buttons';
 
 const appPromises = [
   {
@@ -75,7 +74,6 @@ export function AppShowcase() {
               );
             })}
           </div>
-          <StoreButtons className="mt-8" />
         </div>
       </Container>
     </section>
