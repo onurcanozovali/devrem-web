@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowRight, PlayCircle } from 'lucide-react';
 import { ArticleCard } from '@/components/content/article-card';
+import { BlogSearch } from '@/components/content/blog-search';
 import { Container } from '@/components/site/container';
 import { blogPosts, vlogPosts } from '@/src/fixtures/content';
 
@@ -28,17 +29,16 @@ export default function BlogPage() {
           <p className="text-xs font-bold uppercase tracking-[0.14em] text-primary-ink">
             Devrem Blog
           </p>
-          <h1 className="mt-4 max-w-4xl text-balance text-[clamp(3rem,7vw,6.5rem)] font-extrabold leading-[0.92] tracking-[-0.075em]">
-            Bilmen gerekeni,
+          <h1 className="mt-4 max-w-4xl text-balance text-[clamp(2.5rem,5.5vw,4.75rem)] font-extrabold leading-[0.98] tracking-[-0.065em]">
+            Askerlik sürecine dair
             <br />
-            <span className="text-primary-ink">
-              gerektiği kadar anlatıyoruz.
-            </span>
+            <span className="text-primary-ink">güncel rehberler.</span>
           </h1>
           <p className="mt-7 max-w-2xl text-base leading-8 text-secondary-foreground sm:text-lg">
             Resmî kaynakları sadeleştiren rehberler, Bedelli verisini
             anlamlandıran analizler ve askerliğe dair gerçekçi deneyim notları.
           </p>
+          <BlogSearch className="mt-8 max-w-2xl" variant="page" />
         </header>
 
         <section aria-labelledby="featured-article-title">
@@ -61,7 +61,7 @@ export default function BlogPage() {
                 className="mt-2 text-3xl font-bold tracking-[-0.05em] sm:text-4xl"
                 id="latest-articles-title"
               >
-                Sıradaki okuman
+                Güncel rehberler
               </h2>
             </div>
             <span className="text-xs font-semibold text-secondary-foreground">
@@ -81,7 +81,7 @@ export default function BlogPage() {
               <PlayCircle className="size-6" aria-hidden="true" />
             </span>
             <p className="mt-7 text-xs font-bold uppercase tracking-[0.14em] text-primary-ink">
-              Devrem Vlog · Pilot bölüm
+              Devrem Vlog
             </p>
             <h2
               className="mt-3 text-3xl font-bold leading-tight tracking-[-0.05em] sm:text-5xl"

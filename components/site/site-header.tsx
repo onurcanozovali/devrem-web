@@ -2,10 +2,10 @@
 
 import Link from 'next/link';
 import { Menu } from 'lucide-react';
+import { BlogSearch } from '@/components/content/blog-search';
 import { mainNavigation } from '@/src/config/site';
 import { Container } from '@/components/site/container';
 import { SiteLogo } from '@/components/site/site-logo';
-import { StoreButtons } from '@/components/site/store-buttons';
 import {
   Sheet,
   SheetClose,
@@ -21,17 +21,16 @@ export function SiteHeader() {
     <header className="site-header sticky top-0 z-40 border-b border-transparent bg-background/88 backdrop-blur-xl">
       <Container className="flex h-[72px] items-center justify-between gap-5 xl:h-20">
         <SiteLogo />
-        <nav
-          aria-label="Ana menü"
-          className="hidden items-center gap-1 xl:flex"
-        >
-          {mainNavigation.map((item) => (
-            <Link className="nav-link" href={item.href} key={item.href}>
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-        <StoreButtons className="hidden xl:flex" compact />
+        <div className="hidden items-center gap-3 xl:flex">
+          <nav aria-label="Ana menü" className="flex items-center gap-1">
+            {mainNavigation.map((item) => (
+              <Link className="nav-link" href={item.href} key={item.href}>
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+          <BlogSearch variant="header" />
+        </div>
 
         <Sheet>
           <SheetTrigger
@@ -51,6 +50,7 @@ export function SiteHeader() {
                 Devrem platformu bölümleri
               </SheetDescription>
             </SheetHeader>
+            <BlogSearch className="mx-5 mt-5" variant="mobile" />
             <nav aria-label="Mobil menü" className="flex flex-col gap-1 p-5">
               {mainNavigation.map((item) => (
                 <SheetClose
@@ -67,12 +67,6 @@ export function SiteHeader() {
                 </SheetClose>
               ))}
             </nav>
-            <div className="mt-auto border-t border-border p-5">
-              <p className="mb-4 text-xs font-bold uppercase tracking-[0.1em] text-primary-ink">
-                Devrem&apos;i indir
-              </p>
-              <StoreButtons />
-            </div>
           </SheetContent>
         </Sheet>
       </Container>

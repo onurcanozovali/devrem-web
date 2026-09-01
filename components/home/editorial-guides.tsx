@@ -18,9 +18,9 @@ export function EditorialGuides() {
               Devrem Blog
             </p>
             <h2 className="section-title mt-4" id="home-blog-title">
-              Sorunun kısa cevabı.
+              Askerlik sürecini anlaşılır kılan
               <br />
-              Merak edersen devamı.
+              güncel rehberler.
             </h2>
             <p className="mt-5 max-w-2xl text-base leading-7 text-secondary-foreground">
               Gürültüyü azaltan rehberler, kaynağı belli bilgiler ve Bedelli

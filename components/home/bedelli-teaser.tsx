@@ -62,9 +62,9 @@ export async function BedelliTeaser() {
               className="mt-3 text-4xl font-bold leading-[1.02] tracking-[-0.06em] sm:text-5xl"
               id="bedelli-teaser-title"
             >
-              Tutarı gör.
+              Bedelli ücretini
               <br />
-              Karşılığını anla.
+              yıllar içinde karşılaştır.
             </h2>
             <p className="mt-5 text-sm leading-7 text-secondary-foreground sm:text-base">
               Bugünkü resmî ücreti yalnızca TL olarak değil; 2022–2026

@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import { Apple, Play } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { siteConfig } from '@/src/config/site';
 
@@ -11,17 +11,13 @@ const stores = [
   {
     key: 'app-store',
     label: 'App Store',
-    image: '/store-app-store.svg',
-    width: 151,
-    height: 40,
+    icon: Apple,
     href: siteConfig.release.appStoreUrl,
   },
   {
     key: 'google-play',
     label: 'Google Play',
-    image: '/store-google-play.svg',
-    width: 135,
-    height: 40,
+    icon: Play,
     href: siteConfig.release.googlePlayUrl,
   },
 ] as const;
@@ -30,19 +26,23 @@ export function StoreButtons({ className, compact = false }: StoreButtonProps) {
   return (
     <div className={cn('flex flex-wrap items-center gap-3', className)}>
       {stores.map((store) => {
+        const Icon = store.icon;
         const badge = (
-          <Image
-            alt={`${store.label} üzerinden indir`}
-            className={cn('h-10 w-auto', compact && 'h-9')}
-            height={store.height}
-            src={store.image}
-            width={store.width}
-          />
+          <>
+            <Icon
+              className={cn(
+                'size-5 shrink-0',
+                store.key === 'google-play' && 'fill-current',
+              )}
+              aria-hidden="true"
+            />
+            <span>{store.label}</span>
+          </>
         );
 
         return store.href ? (
           <a
-            className="store-badge-link"
+            className={cn('store-badge-link', compact && 'store-badge-compact')}
             href={store.href}
             key={store.key}
             rel="noreferrer"
@@ -53,7 +53,10 @@ export function StoreButtons({ className, compact = false }: StoreButtonProps) {
         ) : (
           <span
             aria-disabled="true"
-            className="store-badge-pending"
+            className={cn(
+              'store-badge-pending',
+              compact && 'store-badge-compact',
+            )}
             key={store.key}
           >
             {badge}
