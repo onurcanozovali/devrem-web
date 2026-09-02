@@ -26,7 +26,7 @@ export function ArticleSources({ sources }: { sources: EditorialSource[] }) {
           );
 
           return (
-            <li key={source.href}>
+            <li key={`${source.href}-${source.label}`}>
               {source.href.startsWith('/') ? (
                 <Link href={source.href}>{content}</Link>
               ) : (

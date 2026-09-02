@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { ChevronDown, ListTree } from 'lucide-react';
 import {
@@ -18,10 +18,13 @@ type ArticleTocProps = {
 export function ArticleToc({ items, variant }: ArticleTocProps) {
   const [activeId, setActiveId] = useState(items[0]?.id ?? '');
   const [mobileOpen, setMobileOpen] = useState(false);
+  const listRef = useRef<HTMLOListElement>(null);
 
   useEffect(() => {
+    const ownerDocument = listRef.current?.ownerDocument ?? document;
+    const ownerWindow = ownerDocument.defaultView ?? window;
     const headings = items
-      .map((item) => document.getElementById(item.id))
+      .map((item) => ownerDocument.getElementById(item.id))
       .filter((heading): heading is HTMLElement => Boolean(heading));
 
     if (!headings.length) return;
@@ -34,38 +37,42 @@ export function ArticleToc({ items, variant }: ArticleTocProps) {
       setActiveId(current?.id ?? headings[0].id);
     };
     const onScroll = () => {
-      window.cancelAnimationFrame(frame);
-      frame = window.requestAnimationFrame(updateActiveHeading);
+      ownerWindow.cancelAnimationFrame(frame);
+      frame = ownerWindow.requestAnimationFrame(updateActiveHeading);
     };
 
     updateActiveHeading();
-    window.addEventListener('scroll', onScroll, { passive: true });
+    ownerWindow.addEventListener('scroll', onScroll, { passive: true });
     return () => {
-      window.cancelAnimationFrame(frame);
-      window.removeEventListener('scroll', onScroll);
+      ownerWindow.cancelAnimationFrame(frame);
+      ownerWindow.removeEventListener('scroll', onScroll);
     };
   }, [items]);
 
   function selectHeading(id: string) {
-    const heading = document.getElementById(id);
+    const ownerDocument = listRef.current?.ownerDocument ?? document;
+    const ownerWindow = ownerDocument.defaultView ?? window;
+    const heading = ownerDocument.getElementById(id);
     if (!heading) return;
 
     if (variant === 'mobile') flushSync(() => setMobileOpen(false));
-    window.requestAnimationFrame(() => {
-      const reduceMotion = window.matchMedia(
+    ownerWindow.requestAnimationFrame(() => {
+      const reduceMotion = ownerWindow.matchMedia(
         '(prefers-reduced-motion: reduce)',
       ).matches;
       heading.scrollIntoView({
         behavior: reduceMotion ? 'auto' : 'smooth',
         block: 'start',
       });
-      window.history.replaceState(null, '', `#${id}`);
+      if (ownerWindow === window) {
+        ownerWindow.history.replaceState(null, '', `#${id}`);
+      }
       setActiveId(id);
     });
   }
 
   const links = (
-    <ol className="article-toc-list">
+    <ol className="article-toc-list" ref={listRef}>
       {items.map((item) => (
         <li
           className={item.level === 3 ? 'article-toc-subitem' : undefined}

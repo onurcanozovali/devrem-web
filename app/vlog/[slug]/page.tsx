@@ -44,14 +44,11 @@ export default async function VlogDetailPage({ params }: VlogDetailProps) {
   return (
     <main className="vlog-page" id="ana-icerik">
       <Container>
-        <header className="vlog-hero">
-          <Link
-            className="inline-flex items-center gap-2 text-xs font-bold text-secondary-foreground transition hover:text-primary-ink"
-            href="/blog"
-          >
+        <header className="vlog-hero page-hero">
+          <Link className="page-back-link" href="/blog">
             <ArrowLeft className="size-4" aria-hidden="true" /> Bloga dön
           </Link>
-          <div className="mt-10 flex flex-wrap items-center gap-3 text-xs font-semibold text-secondary-foreground">
+          <div className="page-hero-meta flex flex-wrap items-center gap-3 text-xs font-semibold text-secondary-foreground">
             <span className="rounded-full bg-primary-subtle px-3 py-1.5 font-bold text-primary-ink">
               Devrem Vlog
             </span>
@@ -60,9 +57,7 @@ export default async function VlogDetailPage({ params }: VlogDetailProps) {
               <Clock3 className="size-3.5" aria-hidden="true" /> {post.duration}
             </span>
           </div>
-          <h1 className="mt-6 max-w-5xl text-balance text-[clamp(2.8rem,7vw,6rem)] font-extrabold leading-[0.94] tracking-[-0.075em]">
-            {post.title}
-          </h1>
+          <h1 className="page-title max-w-5xl text-balance">{post.title}</h1>
           <p className="mt-7 max-w-3xl text-lg leading-8 text-secondary-foreground">
             {post.excerpt}
           </p>

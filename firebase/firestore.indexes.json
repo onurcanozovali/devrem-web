@@ -1,0 +1,21 @@
+{
+  "indexes": [
+    { "collectionGroup": "users", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "firstName", "order": "ASCENDING" }, { "fieldPath": "createdAt", "order": "DESCENDING" }] },
+    { "collectionGroup": "users", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "lastName", "order": "ASCENDING" }, { "fieldPath": "createdAt", "order": "DESCENDING" }] },
+    { "collectionGroup": "users", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "uid", "order": "ASCENDING" }, { "fieldPath": "createdAt", "order": "DESCENDING" }] },
+    { "collectionGroup": "users", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "militaryPeriodYear", "order": "ASCENDING" }, { "fieldPath": "militaryPeriodMonth", "order": "ASCENDING" }, { "fieldPath": "createdAt", "order": "DESCENDING" }] },
+    { "collectionGroup": "users", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "militaryCity", "order": "ASCENDING" }, { "fieldPath": "createdAt", "order": "DESCENDING" }] },
+    { "collectionGroup": "users", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "militaryUnit", "order": "ASCENDING" }, { "fieldPath": "createdAt", "order": "DESCENDING" }] },
+    { "collectionGroup": "users", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "militaryType", "order": "ASCENDING" }, { "fieldPath": "createdAt", "order": "DESCENDING" }] },
+    { "collectionGroup": "users", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "militaryPeriodYear", "order": "ASCENDING" }, { "fieldPath": "militaryPeriodMonth", "order": "ASCENDING" }, { "fieldPath": "militaryCity", "order": "ASCENDING" }, { "fieldPath": "militaryUnit", "order": "ASCENDING" }, { "fieldPath": "militaryType", "order": "ASCENDING" }, { "fieldPath": "createdAt", "order": "DESCENDING" }] },
+    { "collectionGroup": "_accountAccess", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "status", "order": "ASCENDING" }, { "fieldPath": "updatedAt", "order": "DESCENDING" }] },
+    { "collectionGroup": "moderationReports", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "status", "order": "ASCENDING" }, { "fieldPath": "createdAt", "order": "DESCENDING" }] },
+    { "collectionGroup": "moderationReports", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "conversationType", "order": "ASCENDING" }, { "fieldPath": "createdAt", "order": "DESCENDING" }] },
+    { "collectionGroup": "moderationReports", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "status", "order": "ASCENDING" }, { "fieldPath": "conversationType", "order": "ASCENDING" }, { "fieldPath": "createdAt", "order": "DESCENDING" }] },
+    { "collectionGroup": "_adminAuditLogs", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "adminUid", "order": "ASCENDING" }, { "fieldPath": "timestamp", "order": "DESCENDING" }] },
+    { "collectionGroup": "_adminAuditLogs", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "action", "order": "ASCENDING" }, { "fieldPath": "timestamp", "order": "DESCENDING" }] },
+    { "collectionGroup": "_adminAuditLogs", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "targetType", "order": "ASCENDING" }, { "fieldPath": "timestamp", "order": "DESCENDING" }] },
+    { "collectionGroup": "_adminAuditLogs", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "adminUid", "order": "ASCENDING" }, { "fieldPath": "action", "order": "ASCENDING" }, { "fieldPath": "targetType", "order": "ASCENDING" }, { "fieldPath": "timestamp", "order": "DESCENDING" }] }
+  ],
+  "fieldOverrides": []
+}

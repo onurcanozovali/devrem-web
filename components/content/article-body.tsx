@@ -1,12 +1,15 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   ArrowRight,
+  CheckCircle2,
   ChevronDown,
   Info,
   NotebookPen,
   TriangleAlert,
 } from 'lucide-react';
 import { ArticleSources } from '@/components/content/article-sources';
+import { SafeRichText } from '@/components/content/safe-rich-text';
 import {
   Table,
   TableBody,
@@ -30,7 +33,9 @@ const calloutIcons = {
 } as const;
 
 function ArticleBlockView({ block }: { block: ArticleBlock }) {
-  if (block.type === 'paragraph') return <p>{block.text}</p>;
+  if (block.type === 'paragraph') {
+    return <p><SafeRichText text={block.text} /></p>;
+  }
 
   if (block.type === 'bullet-list') {
     return (
@@ -54,8 +59,9 @@ function ArticleBlockView({ block }: { block: ArticleBlock }) {
 
   if (block.type === 'table') {
     return (
-      <div className="article-table-wrap">
-        <Table className="min-w-[620px]">
+      <div>
+        <div className="article-table-wrap">
+          <Table className="min-w-[620px]">
           {block.caption ? <TableCaption>{block.caption}</TableCaption> : null}
           <TableHeader>
             <TableRow>
@@ -80,8 +86,52 @@ function ArticleBlockView({ block }: { block: ArticleBlock }) {
               </TableRow>
             ))}
           </TableBody>
-        </Table>
+          </Table>
+        </div>
+        {block.note ? <p className="article-table-note">{block.note}</p> : null}
       </div>
+    );
+  }
+
+  if (block.type === 'checklist') {
+    return (
+      <ul className="article-checklist">
+        {block.items.map((item) => (
+          <li key={item}>
+            <CheckCircle2 className="size-5" aria-hidden="true" />
+            <span>{item}</span>
+          </li>
+        ))}
+      </ul>
+    );
+  }
+
+  if (block.type === 'image') {
+    return (
+      <figure className="article-inline-image">
+        <Image
+          alt={block.alt}
+          height={675}
+          src={block.url}
+          unoptimized
+          width={1200}
+        />
+        {block.caption ? <figcaption>{block.caption}</figcaption> : null}
+      </figure>
+    );
+  }
+
+  if (block.type === 'cta') {
+    return (
+      <aside className="article-inline-cta">
+        <div>
+          <strong>{block.title}</strong>
+          <p>{block.description}</p>
+        </div>
+        <Link href={block.href}>
+          {block.label} <ArrowRight className="size-4" aria-hidden="true" />
+        </Link>
+      </aside>
     );
   }
 
@@ -114,8 +164,14 @@ function LegacySectionContent({ section }: { section: ArticleSection }) {
   );
 }
 
-export function ArticleBody({ post }: { post: BlogPost }) {
-  const relatedPosts = getRelatedPosts(post);
+export function ArticleBody({
+  post,
+  relatedPosts: suppliedRelatedPosts,
+}: {
+  post: BlogPost;
+  relatedPosts?: BlogPost[];
+}) {
+  const relatedPosts = suppliedRelatedPosts ?? getRelatedPosts(post);
   const cta =
     post.endCta ??
     ({

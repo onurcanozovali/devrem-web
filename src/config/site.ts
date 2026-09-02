@@ -4,10 +4,16 @@ export const siteConfig = {
   description:
     'Aynı celp döneminde aynı birliğe gidecek devrelerinle tanış; Bedelli verilerini karşılaştır ve sade askerlik rehberlerine ulaş.',
   contactEmail: 'iletisim@devrem.co',
-  operatorName: 'Onurcan Özovalı ve Muhammet Şen',
-  dataControllerName: 'Onurcan Özovalı ve Muhammet Şen',
-  address: 'İstiklal Mah. Cumhuriyet Cad. No: 290, 19 Mayıs/Samsun',
-  legalVersion: '2026-08-20-v1',
+  operatorName: 'Onurcan Özovalı, Muhammet Şen ve Mertcan Uğurluel',
+  dataControllerName: 'Onurcan Özovalı, Muhammet Şen ve Mertcan Uğurluel',
+  address:
+    'Teknopark Samsun 19 Mayıs Yerleşkesi, İstiklal Mah. Cumhuriyet Cad. No: 290, 19 Mayıs / Samsun',
+  addressLines: [
+    'Teknopark Samsun 19 Mayıs Yerleşkesi',
+    'İstiklal Mah. Cumhuriyet Cad. No: 290',
+    '19 Mayıs / Samsun',
+  ],
+  legalVersion: '2026-09-01-v1',
   release: {
     status: 'preparing' as const,
     appStoreUrl: null,
@@ -17,8 +23,24 @@ export const siteConfig = {
 };
 
 export const mainNavigation = [
-  { href: '/', label: 'Ana Sayfa' },
-  { href: '/bedelli', label: 'Bedelli' },
-  { href: '/blog', label: 'Blog' },
-  { href: '/#uygulama', label: 'Devrem Uygulaması' },
+  {
+    href: '/',
+    label: 'Ana Sayfa',
+    description: "Devrem'i ve öne çıkan içerikleri keşfet",
+  },
+  {
+    href: '/bedelli',
+    label: 'Bedelli',
+    description: 'Ücreti beş yıllık verilerle karşılaştır',
+  },
+  {
+    href: '/blog',
+    label: 'Blog',
+    description: 'Güncel rehber ve analizleri oku',
+  },
+  {
+    href: '/#uygulama',
+    label: 'Devrem Uygulaması',
+    description: 'Aynı dönem ve birlikteki devrelerini bul',
+  },
 ] as const;

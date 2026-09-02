@@ -9,6 +9,9 @@
     "dev": "vinext dev",
     "build": "vinext build",
     "start": "wrangler dev --config dist/server/wrangler.json",
+    "migrate:blog": "tsx scripts/migrate-blog-posts.ts",
+    "test:blog-admin": "tsx scripts/test-blog-admin.ts",
+    "test:admin-core": "tsx scripts/test-admin-core.ts",
     "lint": "oxlint",
     "typecheck": "tsc --noEmit",
     "format": "oxfmt"
@@ -48,6 +51,7 @@
     "oxlint": "1.76.0",
     "oxlint-tsgolint": "7.0.2001",
     "tailwindcss": "4.2.1",
+    "tsx": "4.20.6",
     "typescript": "5.9.3",
     "vite": "8.0.13",
     "wrangler": "4.92.0"

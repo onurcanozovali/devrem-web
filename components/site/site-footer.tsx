@@ -35,6 +35,17 @@ const footerGroups: { title: string; links: FooterLink[] }[] = [
       },
     ],
   },
+  {
+    title: 'Yasal',
+    links: [
+      { label: 'Gizlilik Politikası', href: '/privacy' },
+      { label: 'KVKK Aydınlatma Metni', href: '/kvkk' },
+      { label: 'Kullanım Koşulları', href: '/terms' },
+      { label: 'Hesap Silme', href: '/account-deletion' },
+      { label: 'Topluluk Kuralları', href: '/community-guidelines' },
+      { label: 'Destek ve İletişim', href: '/support' },
+    ],
+  },
 ];
 
 export function SiteFooter() {
@@ -55,7 +66,7 @@ export function SiteFooter() {
             <Mail className="size-4" aria-hidden="true" /> iletisim@devrem.co
           </a>
         </div>
-        <div className="grid grid-cols-2 gap-8 sm:grid-cols-3">
+        <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
           {footerGroups.map((group) => (
             <div key={group.title}>
               <h2 className="text-xs font-bold uppercase tracking-[0.12em] text-foreground">

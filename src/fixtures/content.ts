@@ -5,6 +5,7 @@ export type ArticleBlock =
   | {
       type: 'table';
       caption?: string;
+      note?: string;
       headers: string[];
       rows: string[][];
     }
@@ -13,6 +14,22 @@ export type ArticleBlock =
       tone: 'info' | 'warning' | 'note';
       title: string;
       body: string;
+    }
+  | { type: 'checklist'; items: string[] }
+  | {
+      type: 'image';
+      path: string;
+      url: string;
+      alt: string;
+      caption?: string;
+    }
+  | {
+      type: 'cta';
+      title: string;
+      description: string;
+      label: string;
+      href: string;
+      presentation?: 'inline';
     };
 
 export type ArticleSubsection = {
@@ -35,10 +52,20 @@ export type EditorialSource = {
 };
 
 export type BlogPost = {
+  id?: string;
   slug: string;
-  category: 'Rehber' | 'Bedelli' | 'Deneyim';
+  category:
+    | 'Rehber'
+    | 'Bedelli'
+    | 'Celp Dönemleri'
+    | 'Birlikler'
+    | 'Hazırlık'
+    | 'Haberler'
+    | 'Deneyim';
   title: string;
+  cardTitle?: string;
   seoTitle?: string;
+  metaDescription?: string;
   excerpt: string;
   standfirst?: [string, string];
   quickSummary?: string[];
@@ -51,6 +78,7 @@ export type BlogPost = {
   tone: 'mint' | 'amber' | 'slate' | 'sand';
   featured?: boolean;
   coverImage?: { src: string; alt: string; caption?: string };
+  ogImage?: { src: string; alt: string; caption?: string };
   sections: ArticleSection[];
   sources?: EditorialSource[];
   faqs?: { question: string; answer: string }[];

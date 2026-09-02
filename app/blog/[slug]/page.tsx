@@ -1,59 +1,60 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
-import { notFound } from 'next/navigation';
-import { ArticleBody } from '@/components/content/article-body';
-import { ArticleHeader } from '@/components/content/article-header';
-import { ArticleSources } from '@/components/content/article-sources';
-import { ArticleToc } from '@/components/content/article-toc';
+import { notFound, permanentRedirect } from 'next/navigation';
+import { BlogArticle } from '@/components/content/blog-article';
 import { Container } from '@/components/site/container';
-import { getArticleToc } from '@/lib/content';
-import { blogPosts, getBlogPost } from '@/src/fixtures/content';
+import {
+  getPublishedBlogPost,
+  getPublishedRelatedPosts,
+} from '@/lib/blog/repository';
 
 type BlogDetailProps = { params: Promise<{ slug: string }> };
 
-export function generateStaticParams() {
-  return blogPosts.map((post) => ({ slug: post.slug }));
-}
+export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({
   params,
 }: BlogDetailProps): Promise<Metadata> {
   const { slug } = await params;
-  const post = getBlogPost(slug);
+  const post = await getPublishedBlogPost(slug);
   if (!post) return {};
   const metadataTitle = post.seoTitle ?? post.title;
+  const description = post.metaDescription ?? post.excerpt;
+  const socialImage = post.ogImage ?? post.coverImage;
+  const absoluteSocialImage = socialImage
+    ? new URL(socialImage.src, 'https://devrem.co').toString()
+    : null;
   return {
     title: metadataTitle,
-    description: post.excerpt,
+    description,
     alternates: { canonical: `/blog/${post.slug}` },
     openGraph: {
       type: 'article',
       title: `${metadataTitle} | Devrem`,
-      description: post.excerpt,
+      description,
       publishedTime: post.publishedIso,
       modifiedTime: post.updatedIso ?? post.publishedIso,
       authors: [post.author],
-      images: [],
+      images: absoluteSocialImage ? [absoluteSocialImage] : [],
     },
     twitter: {
       card: 'summary',
       title: `${metadataTitle} | Devrem`,
-      description: post.excerpt,
-      images: [],
+      description,
+      images: absoluteSocialImage ? [absoluteSocialImage] : [],
     },
   };
 }
 
 export default async function BlogDetailPage({ params }: BlogDetailProps) {
   const { slug } = await params;
-  const post = getBlogPost(slug);
+  const post = await getPublishedBlogPost(slug);
   if (!post) notFound();
+  if (post.slug !== slug) permanentRedirect(`/blog/${post.slug}`);
 
-  const toc = getArticleToc(post);
+  const relatedPosts = await getPublishedRelatedPosts(post.relatedSlugs ?? []);
   const schemaGraph: Record<string, unknown>[] = [
     {
-      '@type': 'BlogPosting',
+      '@type': ['Article', 'BlogPosting'],
       mainEntityOfPage: `https://devrem.co/blog/${post.slug}`,
       headline: post.title,
       description: post.excerpt,
@@ -65,6 +66,17 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
         name: 'Devrem',
         url: 'https://devrem.co',
       },
+      ...(post.coverImage || post.ogImage
+        ? {
+            image: new URL(
+              (post.ogImage ?? post.coverImage)?.src ?? '',
+              'https://devrem.co',
+            ).toString(),
+          }
+        : {}),
+      ...(post.sources?.length
+        ? { citation: post.sources.map((source) => source.href) }
+        : {}),
     },
     {
       '@type': 'BreadcrumbList',
@@ -106,14 +118,6 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
     '@context': 'https://schema.org',
     '@graph': schemaGraph,
   }).replace(/</g, '\\u003c');
-  const sidebarCta = post.endCta ?? {
-    title: 'Daha fazla rehber',
-    description:
-      'Hazırlık sürecindeki diğer soruların için Devrem Blog’a göz at.',
-    label: 'Tümünü gör',
-    href: '/blog',
-  };
-
   return (
     <main className="article-page editorial-surface" id="ana-icerik">
       <script
@@ -121,38 +125,7 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
         type="application/ld+json"
       />
       <Container>
-        <article>
-          <ArticleHeader post={post} toc={toc} />
-
-          <div className="article-layout">
-            <ArticleBody post={post} />
-
-            <aside
-              className="article-desktop-sidebar"
-              aria-label="Yazı navigasyonu"
-            >
-              <div className="article-sidebar-panel">
-                <p className="article-sidebar-label">İçindekiler</p>
-                <ArticleToc items={toc} variant="desktop" />
-
-                {post.sources?.length ? (
-                  <div className="article-desktop-sources">
-                    <ArticleSources sources={post.sources} />
-                  </div>
-                ) : null}
-
-                <div className="article-sidebar-cta">
-                  <strong>{sidebarCta.title}</strong>
-                  <p>{sidebarCta.description}</p>
-                  <Link href={sidebarCta.href}>
-                    {sidebarCta.label}{' '}
-                    <ArrowRight className="size-3.5" aria-hidden="true" />
-                  </Link>
-                </div>
-              </div>
-            </aside>
-          </div>
-        </article>
+        <BlogArticle post={post} relatedPosts={relatedPosts} />
       </Container>
     </main>
   );

@@ -1,61 +1,100 @@
 'use client';
 
-import { useId, useMemo, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import Link from 'next/link';
 import { ArrowUpRight, Search, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { blogPosts } from '@/src/fixtures/content';
 
 type BlogSearchProps = {
   className?: string;
   variant?: 'header' | 'mobile' | 'page';
+  onSearchStateChange?: (active: boolean) => void;
+  onResultSelect?: () => void;
+  headerExpanded?: boolean;
+  onHeaderExpand?: () => void;
+  onHeaderDismiss?: () => void;
 };
 
-function normalizeSearchText(value: string) {
-  return value
-    .toLocaleLowerCase('tr-TR')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[ıİ]/g, 'i')
-    .replace(/ğ/g, 'g')
-    .replace(/ş/g, 's')
-    .replace(/ç/g, 'c')
-    .replace(/ö/g, 'o')
-    .replace(/ü/g, 'u');
-}
+type SearchResult = {
+  slug: string;
+  title: string;
+  excerpt: string;
+  category: string;
+};
 
-const searchEntries = blogPosts.map((post) => ({
-  post,
-  searchText: normalizeSearchText(
-    [
-      post.title,
-      post.excerpt,
-      post.category,
-      ...(post.standfirst ?? []),
-      ...(post.quickSummary ?? []),
-      ...post.sections.flatMap((section) => [
-        section.heading,
-        ...(section.subsections?.map((subsection) => subsection.heading) ?? []),
-      ]),
-    ].join(' '),
-  ),
-}));
-
-export function BlogSearch({ className, variant = 'page' }: BlogSearchProps) {
+export function BlogSearch({
+  className,
+  variant = 'page',
+  onSearchStateChange,
+  onResultSelect,
+  headerExpanded = false,
+  onHeaderExpand,
+  onHeaderDismiss,
+}: BlogSearchProps) {
   const inputId = useId();
+  const inputRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
-  const normalizedQuery = normalizeSearchText(query.trim());
-  const results = useMemo(
-    () =>
-      normalizedQuery.length < 2
-        ? []
-        : searchEntries
-            .filter((entry) => entry.searchText.includes(normalizedQuery))
-            .slice(0, 6),
-    [normalizedQuery],
-  );
-  const showResults = open && normalizedQuery.length >= 2;
+  const [results, setResults] = useState<SearchResult[]>([]);
+  const [loading, setLoading] = useState(false);
+  const normalizedQuery = query.trim();
+  const minimumLength = variant === 'mobile' ? 1 : 2;
+  const showResults = open && normalizedQuery.length >= minimumLength;
+
+  useEffect(() => {
+    onSearchStateChange?.(query.trim().length > 0);
+  }, [onSearchStateChange, query]);
+
+  useEffect(() => {
+    if (variant === 'header' && headerExpanded) {
+      inputRef.current?.focus();
+    }
+  }, [headerExpanded, variant]);
+
+  useEffect(() => {
+    if (normalizedQuery.length < minimumLength) {
+      return;
+    }
+    const controller = new AbortController();
+    const timeout = window.setTimeout(async () => {
+      setLoading(true);
+      try {
+        const response = await fetch(
+          `/api/blog/search?q=${encodeURIComponent(normalizedQuery)}`,
+          { signal: controller.signal },
+        );
+        const payload = (await response.json()) as { results?: SearchResult[] };
+        if (!controller.signal.aborted) setResults(payload.results ?? []);
+      } catch {
+        if (!controller.signal.aborted) setResults([]);
+      } finally {
+        if (!controller.signal.aborted) setLoading(false);
+      }
+    }, 180);
+    return () => {
+      window.clearTimeout(timeout);
+      controller.abort();
+    };
+  }, [minimumLength, normalizedQuery]);
+
+  const dismissHeaderSearch = () => {
+    setQuery('');
+    setOpen(false);
+    onHeaderDismiss?.();
+  };
+
+  if (variant === 'header' && !headerExpanded) {
+    return (
+      <button
+        aria-label="Blogda ara"
+        className={cn('header-search-trigger', className)}
+        onClick={onHeaderExpand}
+        type="button"
+      >
+        <Search className="size-[18px]" aria-hidden="true" />
+      </button>
+    );
+  }
 
   return (
     <div
@@ -78,18 +117,33 @@ export function BlogSearch({ className, variant = 'page' }: BlogSearchProps) {
         <input
           autoComplete="off"
           id={inputId}
+          ref={inputRef}
           onChange={(event) => {
             setQuery(event.target.value);
             setOpen(true);
           }}
           onKeyDown={(event) => {
-            if (event.key === 'Escape') setOpen(false);
+            if (event.key === 'Escape') {
+              if (variant === 'header') dismissHeaderSearch();
+              else {
+                setQuery('');
+                setOpen(false);
+              }
+            }
           }}
           placeholder="Blogda ara"
           type="search"
           value={query}
         />
-        {query ? (
+        {variant === 'header' ? (
+          <button
+            aria-label="Aramayı kapat"
+            onClick={dismissHeaderSearch}
+            type="button"
+          >
+            <X className="size-4" aria-hidden="true" />
+          </button>
+        ) : query ? (
           <button
             aria-label="Aramayı temizle"
             onClick={() => {
@@ -105,14 +159,20 @@ export function BlogSearch({ className, variant = 'page' }: BlogSearchProps) {
 
       {showResults ? (
         <div className="blog-search-results" aria-live="polite">
-          {results.length ? (
+          {loading ? (
+            <p className="blog-search-empty">Aranıyor…</p>
+          ) : results.length ? (
             <ul>
-              {results.map(({ post }) => (
+              {results.map((post) => (
                 <li key={post.slug}>
                   <Link
                     className="blog-search-result"
                     href={`/blog/${post.slug}`}
-                    onClick={() => setOpen(false)}
+                    onClick={() => {
+                      setOpen(false);
+                      onResultSelect?.();
+                      if (variant === 'header') dismissHeaderSearch();
+                    }}
                   >
                     <span>{post.category}</span>
                     <strong>{post.title}</strong>

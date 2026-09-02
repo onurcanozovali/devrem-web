@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import {
   CalendarDays,
   Check,
@@ -107,12 +108,14 @@ export function HomeHero() {
                     Görev yerin
                   </p>
                   <div className="flex items-center">
-                    <div className="mr-3 flex size-[47px] shrink-0 items-center justify-center rounded-[14px] border border-[#35433E] bg-[#19231F]">
-                      <span className="text-center text-[9px] font-extrabold leading-[10px] text-[#55C89D]">
-                        Hv.
-                        <br />
-                        KK
-                      </span>
+                    <div className="mr-3 flex size-[47px] shrink-0 items-center justify-center rounded-[14px] border border-[#35433E] bg-[#19231F] p-1.5">
+                      <Image
+                        alt=""
+                        className="h-full w-full object-contain"
+                        height={47}
+                        src="/kuvvetler/hava.png"
+                        width={47}
+                      />
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="text-[22px] font-extrabold leading-none tracking-[-0.03em]">

@@ -1,0 +1,167 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isAdmin() {
+      return request.auth != null && request.auth.token.admin == true;
+    }
+
+    function hasOperationalAccess(uid) {
+      return !firestore.exists(/databases/(default)/documents/_accountAccess/$(uid))
+        || firestore.get(/databases/(default)/documents/_accountAccess/$(uid)).data.status == 'active';
+    }
+
+    function isGroupOperational(groupId) {
+      return !firestore.exists(/databases/(default)/documents/_adminGroupControls/$(groupId))
+        || firestore.get(/databases/(default)/documents/_adminGroupControls/$(groupId)).data.status == 'active';
+    }
+
+    function isDevreGroupMember(groupId) {
+      return request.auth != null
+        && hasOperationalAccess(request.auth.uid)
+        && isGroupOperational(groupId)
+        && firestore.exists(/databases/(default)/documents/devreGroups/$(groupId)/members/$(request.auth.uid))
+        && firestore.get(/databases/(default)/documents/devreGroups/$(groupId)/members/$(request.auth.uid)).data.status == 'active';
+    }
+
+    function isDirectParticipant(conversationId) {
+      return request.auth != null
+        && hasOperationalAccess(request.auth.uid)
+        && firestore.exists(/databases/(default)/documents/directConversations/$(conversationId))
+        && request.auth.uid in firestore.get(/databases/(default)/documents/directConversations/$(conversationId)).data.participantUids;
+    }
+
+    function directOtherUid(conversationId) {
+      let participants = firestore.get(/databases/(default)/documents/directConversations/$(conversationId)).data.participantUids;
+      return participants[0] == request.auth.uid ? participants[1] : participants[0];
+    }
+
+    function directMessagingAllowed(conversationId) {
+      let otherUid = directOtherUid(conversationId);
+      return hasOperationalAccess(otherUid)
+        && !firestore.exists(/databases/(default)/documents/users/$(request.auth.uid)/blockedUsers/$(otherUid))
+        && !firestore.exists(/databases/(default)/documents/users/$(otherUid)/blockedUsers/$(request.auth.uid));
+    }
+
+    match /users/{uid}/profile/avatar.jpg {
+      allow read: if request.auth != null
+        && hasOperationalAccess(request.auth.uid)
+        && (
+          request.auth.uid == uid
+          || !firestore.exists(/databases/(default)/documents/_accountAccess/$(uid))
+          || firestore.get(/databases/(default)/documents/_accountAccess/$(uid)).data.publicProfileHidden != true
+        );
+
+      allow create, update: if request.auth != null
+        && request.auth.uid == uid
+        && hasOperationalAccess(uid)
+        && request.resource.size <= 1024 * 1024
+        && request.resource.contentType == 'image/jpeg';
+
+      allow delete: if request.auth != null && request.auth.uid == uid;
+    }
+
+    match /devreGroups/{groupId}/media/{messageId}/image.jpg {
+      allow read: if isDevreGroupMember(groupId);
+      allow create, update: if isDevreGroupMember(groupId)
+        && request.resource.size <= 5 * 1024 * 1024
+        && request.resource.contentType == 'image/jpeg'
+        && request.resource.metadata.kind == 'image'
+        && request.resource.metadata.messageId == messageId
+        && request.resource.metadata.senderUid == request.auth.uid
+        && (resource == null || resource.metadata.senderUid == request.auth.uid);
+      allow delete: if isDevreGroupMember(groupId)
+        && resource.metadata.senderUid == request.auth.uid;
+    }
+
+    match /devreGroups/{groupId}/media/{messageId}/audio.m4a {
+      allow read: if isDevreGroupMember(groupId);
+      allow create, update: if isDevreGroupMember(groupId)
+        && request.resource.size <= 10 * 1024 * 1024
+        && request.resource.contentType.matches('audio/(mp4|m4a|x-m4a|aac)')
+        && request.resource.metadata.kind == 'audio'
+        && request.resource.metadata.messageId == messageId
+        && request.resource.metadata.senderUid == request.auth.uid
+        && (resource == null || resource.metadata.senderUid == request.auth.uid);
+      allow delete: if isDevreGroupMember(groupId)
+        && resource.metadata.senderUid == request.auth.uid;
+    }
+
+    match /devreGroups/{groupId}/media/{messageId}/document {
+      allow read: if isDevreGroupMember(groupId);
+      allow create, update: if isDevreGroupMember(groupId)
+        && request.resource.size <= 20 * 1024 * 1024
+        && request.resource.metadata.kind == 'document'
+        && request.resource.metadata.messageId == messageId
+        && request.resource.metadata.senderUid == request.auth.uid
+        && request.resource.metadata.fileName.size() > 0
+        && request.resource.metadata.fileName.size() <= 120
+        && (
+          (request.resource.metadata.extension == 'pdf' && request.resource.contentType == 'application/pdf')
+          || (request.resource.metadata.extension == 'doc' && request.resource.contentType == 'application/msword')
+          || (request.resource.metadata.extension == 'docx' && request.resource.contentType == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+          || (request.resource.metadata.extension == 'xls' && request.resource.contentType == 'application/vnd.ms-excel')
+          || (request.resource.metadata.extension == 'xlsx' && request.resource.contentType == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+          || (request.resource.metadata.extension == 'ppt' && request.resource.contentType == 'application/vnd.ms-powerpoint')
+          || (request.resource.metadata.extension == 'pptx' && request.resource.contentType == 'application/vnd.openxmlformats-officedocument.presentationml.presentation')
+        )
+        && (resource == null || resource.metadata.senderUid == request.auth.uid);
+      allow delete: if isDevreGroupMember(groupId)
+        && resource.metadata.senderUid == request.auth.uid;
+    }
+
+    match /directConversations/{conversationId}/media/{messageId}/image.jpg {
+      allow read: if isDirectParticipant(conversationId);
+      allow create, update: if isDirectParticipant(conversationId)
+        && directMessagingAllowed(conversationId)
+        && request.resource.size <= 5 * 1024 * 1024
+        && request.resource.contentType == 'image/jpeg'
+        && request.resource.metadata.kind == 'image'
+        && request.resource.metadata.messageId == messageId
+        && request.resource.metadata.senderUid == request.auth.uid
+        && (resource == null || resource.metadata.senderUid == request.auth.uid);
+      allow delete: if isDirectParticipant(conversationId) && resource.metadata.senderUid == request.auth.uid;
+    }
+
+    match /directConversations/{conversationId}/media/{messageId}/document {
+      allow read: if isDirectParticipant(conversationId);
+      allow create, update: if isDirectParticipant(conversationId)
+        && directMessagingAllowed(conversationId)
+        && request.resource.size <= 20 * 1024 * 1024
+        && request.resource.metadata.kind == 'document'
+        && request.resource.metadata.messageId == messageId
+        && request.resource.metadata.senderUid == request.auth.uid
+        && request.resource.metadata.fileName.size() > 0
+        && request.resource.metadata.fileName.size() <= 120
+        && (
+          (request.resource.metadata.extension == 'pdf' && request.resource.contentType == 'application/pdf')
+          || (request.resource.metadata.extension == 'doc' && request.resource.contentType == 'application/msword')
+          || (request.resource.metadata.extension == 'docx' && request.resource.contentType == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+          || (request.resource.metadata.extension == 'xls' && request.resource.contentType == 'application/vnd.ms-excel')
+          || (request.resource.metadata.extension == 'xlsx' && request.resource.contentType == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+          || (request.resource.metadata.extension == 'ppt' && request.resource.contentType == 'application/vnd.ms-powerpoint')
+          || (request.resource.metadata.extension == 'pptx' && request.resource.contentType == 'application/vnd.openxmlformats-officedocument.presentationml.presentation')
+        )
+        && (resource == null || resource.metadata.senderUid == request.auth.uid);
+      allow delete: if isDirectParticipant(conversationId) && resource.metadata.senderUid == request.auth.uid;
+    }
+
+    // Blog media is public only while its owning post is published. Browser
+    // writes require an admin claim; the protected admin server uses the same
+    // path, type and size constraints before writing with its service account.
+    match /blog/{postId}/{allPaths=**} {
+      allow read: if firestore.exists(/databases/(default)/documents/blogPosts/$(postId))
+        && firestore.get(/databases/(default)/documents/blogPosts/$(postId)).data.status == 'published';
+      allow create, update: if isAdmin()
+        && request.resource.size <= 1024 * 1024
+        && request.resource.contentType == 'image/webp'
+        && request.resource.metadata.owner == 'devrem-blog-admin'
+        && request.resource.metadata.postId == postId;
+      allow delete: if isAdmin();
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -16,14 +16,14 @@ export function ArticleHeader({
   const summary = getQuickSummary(post);
 
   return (
-    <header className="article-hero">
+    <header className="article-hero page-hero">
       <nav aria-label="İçerik yolu">
-        <Link className="article-back-link" href="/blog">
+        <Link className="article-back-link page-back-link" href="/blog">
           <ArrowLeft className="size-4" aria-hidden="true" /> Bloga dön
         </Link>
       </nav>
 
-      <div className="article-meta">
+      <div className="article-meta page-hero-meta">
         <span className="article-category-badge">{post.category}</span>
         <time dateTime={post.publishedIso}>{post.publishedAt}</time>
         <span className="inline-flex items-center gap-1.5">
@@ -33,7 +33,7 @@ export function ArticleHeader({
         <span>Yazan: {post.author}</span>
       </div>
 
-      <h1>{post.title}</h1>
+      <h1 className="page-title">{post.title}</h1>
 
       <div className="article-standfirst">
         {standfirst.map((paragraph) => (
@@ -71,6 +71,7 @@ export function ArticleHeader({
               fill
               sizes="(max-width: 900px) 100vw, 760px"
               src={post.coverImage.src}
+              style={{ objectFit: 'contain' }}
             />
           </div>
           {post.coverImage.caption ? (

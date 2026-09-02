@@ -33,16 +33,16 @@ export default async function BedelliPage() {
   return (
     <main className="bedelli-page" id="ana-icerik">
       <Container>
-        <div className="bedelli-page-intro">
-          <Link
-            className="inline-flex items-center gap-2 text-xs font-bold text-secondary-foreground transition hover:text-primary-ink"
-            href="/"
-          >
+        <div className="bedelli-page-intro page-hero">
+          <Link className="page-back-link" href="/">
             <ArrowLeft className="size-4" aria-hidden="true" /> Ana sayfa
           </Link>
-          <div className="mt-8 grid gap-7 lg:grid-cols-[1fr_auto] lg:items-end">
+          <div className="page-hero-meta">
+            <p className="page-eyebrow">Bedelli karşılaştırma</p>
+          </div>
+          <div className="grid gap-7 lg:grid-cols-[1fr_auto] lg:items-end">
             <div className="max-w-4xl">
-              <h1 className="mt-4 text-[clamp(2.8rem,6vw,5.2rem)] font-extrabold leading-[0.93] tracking-[-0.075em]">
+              <h1 className="page-title">
                 Bedelli ücreti,
                 <br />
                 <span className="text-primary-ink">gerçekte ne kadar?</span>
