@@ -6,6 +6,7 @@ function webApiKey() {
     process.env.FIREBASE_WEB_API_KEY?.trim() ||
     process.env.NEXT_PUBLIC_FIREBASE_API_KEY?.trim() ||
     process.env.VITE_FIREBASE_API_KEY?.trim() ||
+    process.env.EXPO_PUBLIC_FIREBASE_API_KEY?.trim() ||
     ''
   );
 }
