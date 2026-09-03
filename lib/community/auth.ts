@@ -2,16 +2,54 @@ import { anonymousDisplayName } from './text';
 import type { CommunityAuthIdentity } from './types';
 
 function webApiKey() {
-  return process.env.FIREBASE_WEB_API_KEY?.trim() ?? '';
+  return (
+    process.env.FIREBASE_WEB_API_KEY?.trim() ||
+    process.env.NEXT_PUBLIC_FIREBASE_API_KEY?.trim() ||
+    process.env.VITE_FIREBASE_API_KEY?.trim() ||
+    process.env.EXPO_PUBLIC_FIREBASE_API_KEY?.trim() ||
+    ''
+  );
 }
 
 export class CommunityAuthError extends Error {
   status: number;
-  constructor(message: string, status = 401) {
+  code: string;
+  constructor(message: string, status = 401, code = 'AUTH_ERROR') {
     super(message);
     this.name = 'CommunityAuthError';
     this.status = status;
+    this.code = code;
   }
+}
+
+async function identityToolkitError(
+  response: Response,
+  operation: string,
+  fallback: string,
+) {
+  const payload = (await response.json().catch(() => null)) as {
+    error?: { message?: string };
+  } | null;
+  const code = payload?.error?.message?.split(' : ')[0] || 'UNKNOWN';
+  console.error(`[community-auth] ${operation} failed`, {
+    status: response.status,
+    code,
+  });
+  if (code === 'OPERATION_NOT_ALLOWED' || code === 'ADMIN_ONLY_OPERATION') {
+    return new CommunityAuthError(
+      'Anonim oturum şu anda kullanılamıyor.',
+      503,
+      code,
+    );
+  }
+  if (code === 'API_KEY_INVALID' || code === 'PROJECT_NOT_FOUND') {
+    return new CommunityAuthError(
+      'Topluluk Firebase yapılandırması geçersiz.',
+      503,
+      code,
+    );
+  }
+  return new CommunityAuthError(fallback, 503, code);
 }
 
 type TokenUser = {
@@ -43,9 +81,13 @@ function identityFromUser(
 export async function signInAnonymousCommunityUser() {
   const apiKey = webApiKey();
   if (!apiKey) {
+    console.error(
+      '[community-auth] Anonymous sign-in blocked: Firebase Web API key is missing.',
+    );
     throw new CommunityAuthError(
       'Topluluk oturumu şu anda başlatılamıyor.',
       503,
+      'MISSING_FIREBASE_WEB_API_KEY',
     );
   }
   const response = await fetch(
@@ -58,9 +100,10 @@ export async function signInAnonymousCommunityUser() {
     },
   );
   if (!response.ok) {
-    throw new CommunityAuthError(
+    throw await identityToolkitError(
+      response,
+      'Anonymous sign-in',
       'Anonim oturum oluşturulamadı. Lütfen tekrar dene.',
-      503,
     );
   }
   const payload = (await response.json()) as {
@@ -70,7 +113,14 @@ export async function signInAnonymousCommunityUser() {
     expiresIn?: string;
   };
   if (!payload.idToken || !payload.refreshToken || !payload.localId) {
-    throw new CommunityAuthError('Anonim oturum oluşturulamadı.', 503);
+    console.error(
+      '[community-auth] Anonymous sign-in returned an incomplete response.',
+    );
+    throw new CommunityAuthError(
+      'Anonim oturum oluşturulamadı.',
+      503,
+      'INCOMPLETE_AUTH_RESPONSE',
+    );
   }
   return {
     idToken: payload.idToken,
@@ -89,9 +139,13 @@ export async function signInAnonymousCommunityUser() {
 export async function refreshCommunitySession(refreshToken: string) {
   const apiKey = webApiKey();
   if (!apiKey) {
+    console.error(
+      '[community-auth] Token refresh blocked: Firebase Web API key is missing.',
+    );
     throw new CommunityAuthError(
       'Topluluk oturumu şu anda yenilenemiyor.',
       503,
+      'MISSING_FIREBASE_WEB_API_KEY',
     );
   }
   const response = await fetch(
@@ -107,7 +161,13 @@ export async function refreshCommunitySession(refreshToken: string) {
     },
   );
   if (!response.ok) {
-    throw new CommunityAuthError('Oturum yenilenemedi.', 401);
+    const error = await identityToolkitError(
+      response,
+      'Token refresh',
+      'Oturum yenilenemedi.',
+    );
+    error.status = 401;
+    throw error;
   }
   const payload = (await response.json()) as {
     id_token?: string;
@@ -129,9 +189,13 @@ export async function refreshCommunitySession(refreshToken: string) {
 export async function lookupCommunityIdentity(idToken: string) {
   const apiKey = webApiKey();
   if (!apiKey) {
+    console.error(
+      '[community-auth] Token lookup blocked: Firebase Web API key is missing.',
+    );
     throw new CommunityAuthError(
       'Topluluk kimliği şu anda doğrulanamıyor.',
       503,
+      'MISSING_FIREBASE_WEB_API_KEY',
     );
   }
   const response = await fetch(
@@ -144,7 +208,13 @@ export async function lookupCommunityIdentity(idToken: string) {
     },
   );
   if (!response.ok) {
-    throw new CommunityAuthError('Oturum doğrulanamadı.', 401);
+    const error = await identityToolkitError(
+      response,
+      'Token lookup',
+      'Oturum doğrulanamadı.',
+    );
+    error.status = 401;
+    throw error;
   }
   const payload = (await response.json()) as { users?: TokenUser[] };
   const identity = identityFromUser(payload.users?.[0] ?? {}, idToken);
