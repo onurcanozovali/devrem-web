@@ -35,7 +35,7 @@ async function identityToolkitError(
     status: response.status,
     code,
   });
-  if (code === 'OPERATION_NOT_ALLOWED') {
+  if (code === 'OPERATION_NOT_ALLOWED' || code === 'ADMIN_ONLY_OPERATION') {
     return new CommunityAuthError(
       'Anonim oturum şu anda kullanılamıyor.',
       503,
