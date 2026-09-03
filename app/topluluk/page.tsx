@@ -12,6 +12,7 @@ import {
   type CommunitySortId,
 } from '@/lib/community/constants';
 import { listPublishedCommunityTopics } from '@/lib/community/repository';
+import type { CommunityTopic } from '@/lib/community/types';
 import { breadcrumbSchema, graphSchema, organizationSchema, webPageSchema } from '@/lib/seo/structured-data';
 import { createPageMetadata } from '@/src/config/seo';
 
@@ -46,7 +47,7 @@ export default async function CommunityPage({ searchParams }: PageProps) {
     params.sira && isCommunitySortId(params.sira) ? params.sira : 'aktif';
   const cursor = params.sonra?.trim() || null;
 
-  let topics = [];
+  let topics: CommunityTopic[] = [];
   let nextCursor: string | null = null;
   try {
     const result = await listPublishedCommunityTopics({

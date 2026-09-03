@@ -6,7 +6,7 @@ import { Container } from '@/components/site/container';
 import { CreateTopicDialog } from '@/components/community/create-topic-dialog';
 
 export async function CommunityForumTeaser() {
-  let topics = [];
+  let topics: Awaited<ReturnType<typeof listHomeCommunityTopics>> = [];
   try {
     topics = await listHomeCommunityTopics();
   } catch {

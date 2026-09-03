@@ -25,9 +25,9 @@ function identityFromUser(user: TokenUser): CommunityAuthIdentity | null {
   const uid = user.localId?.trim() ?? '';
   if (!uid) return null;
   const providers = user.providerUserInfo ?? [];
-  const isAnonymous =
-    providers.length === 0 ||
-    providers.every((provider) => provider.providerId === 'anonymous');
+  const isAnonymous = providers.every(
+    (provider) => provider.providerId === 'anonymous',
+  );
   return {
     uid,
     isAnonymous,

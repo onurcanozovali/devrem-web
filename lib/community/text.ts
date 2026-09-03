@@ -11,7 +11,7 @@ import {
 
 export function normalizePlainText(value: unknown) {
   if (typeof value !== 'string') return '';
-  return value.replace(/\r\n/g, '\n').replace(/\u0000/g, '').trim();
+  return value.replace(/\r\n/g, '\n').replaceAll('\0', '').trim();
 }
 
 export function previewText(value: string, max = 140) {
