@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { AppShowcase } from '@/components/home/app-showcase';
 import { BedelliTeaser } from '@/components/home/bedelli-teaser';
 import { CommunityDiscovery } from '@/components/home/community-discovery';
+import { CommunityForumTeaser } from '@/components/home/community-forum-teaser';
 import { CookieNotice } from '@/components/home/cookie-notice';
 import { EditorialGuides } from '@/components/home/editorial-guides';
 import { FinalCTA } from '@/components/home/final-cta';
@@ -27,6 +28,7 @@ export default function HomePage() {
       <JsonLd data={graphSchema(organizationSchema(), websiteSchema())} />
       <HomeHero />
       <CommunityDiscovery />
+      <CommunityForumTeaser />
       <BedelliTeaser />
       <EditorialGuides />
       <AppShowcase />
