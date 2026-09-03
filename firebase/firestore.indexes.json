@@ -15,7 +15,15 @@
     { "collectionGroup": "_adminAuditLogs", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "adminUid", "order": "ASCENDING" }, { "fieldPath": "timestamp", "order": "DESCENDING" }] },
     { "collectionGroup": "_adminAuditLogs", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "action", "order": "ASCENDING" }, { "fieldPath": "timestamp", "order": "DESCENDING" }] },
     { "collectionGroup": "_adminAuditLogs", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "targetType", "order": "ASCENDING" }, { "fieldPath": "timestamp", "order": "DESCENDING" }] },
-    { "collectionGroup": "_adminAuditLogs", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "adminUid", "order": "ASCENDING" }, { "fieldPath": "action", "order": "ASCENDING" }, { "fieldPath": "targetType", "order": "ASCENDING" }, { "fieldPath": "timestamp", "order": "DESCENDING" }] }
+    { "collectionGroup": "_adminAuditLogs", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "adminUid", "order": "ASCENDING" }, { "fieldPath": "action", "order": "ASCENDING" }, { "fieldPath": "targetType", "order": "ASCENDING" }, { "fieldPath": "timestamp", "order": "DESCENDING" }] },
+    { "collectionGroup": "communityTopics", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "status", "order": "ASCENDING" }, { "fieldPath": "lastActivityAt", "order": "DESCENDING" }] },
+    { "collectionGroup": "communityTopics", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "status", "order": "ASCENDING" }, { "fieldPath": "createdAt", "order": "DESCENDING" }] },
+    { "collectionGroup": "communityTopics", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "status", "order": "ASCENDING" }, { "fieldPath": "replyCount", "order": "DESCENDING" }] },
+    { "collectionGroup": "communityTopics", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "category", "order": "ASCENDING" }, { "fieldPath": "status", "order": "ASCENDING" }, { "fieldPath": "lastActivityAt", "order": "DESCENDING" }] },
+    { "collectionGroup": "communityTopics", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "category", "order": "ASCENDING" }, { "fieldPath": "status", "order": "ASCENDING" }, { "fieldPath": "createdAt", "order": "DESCENDING" }] },
+    { "collectionGroup": "communityTopics", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "category", "order": "ASCENDING" }, { "fieldPath": "status", "order": "ASCENDING" }, { "fieldPath": "replyCount", "order": "DESCENDING" }] },
+    { "collectionGroup": "communityTopics", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "slug", "order": "ASCENDING" }, { "fieldPath": "status", "order": "ASCENDING" }] },
+    { "collectionGroup": "replies", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "status", "order": "ASCENDING" }, { "fieldPath": "createdAt", "order": "ASCENDING" }] }
   ],
   "fieldOverrides": []
 }

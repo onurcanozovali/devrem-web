@@ -39,6 +39,11 @@ export const mainNavigation = [
     description: 'Güncel rehber ve analizleri oku',
   },
   {
+    href: '/topluluk',
+    label: 'Topluluk',
+    description: 'Sorularını sor, deneyimini paylaş',
+  },
+  {
     href: '/#uygulama',
     label: 'Devrem Uygulaması',
     description: 'Aynı dönem ve birlikteki devrelerini bul',

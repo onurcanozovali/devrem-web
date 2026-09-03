@@ -163,6 +163,7 @@ function encodeValue(value: unknown, key = ''): FirestoreValue {
         'disabledAt',
         'scheduledAt',
         'lastActivityAt',
+        'lastWriteAt',
       ].includes(key) &&
       !Number.isNaN(Date.parse(value))
     ) {

@@ -940,6 +940,247 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
 
+    function isCommunityWriter() {
+      return isSignedIn() && hasOperationalAccess(request.auth.uid);
+    }
+
+    function isAnonymousAuth() {
+      return request.auth.token.firebase.sign_in_provider == 'anonymous';
+    }
+
+    function isValidCommunityCategory() {
+      return request.resource.data.category in [
+        'bedelli',
+        'celp-donemleri',
+        'birlikler',
+        'hazirlik',
+        'askerlik-hayati',
+        'genel'
+      ];
+    }
+
+    function isValidCommunityDisplayName(name) {
+      return name is string
+        && name.size() >= 2
+        && name.size() <= 40;
+    }
+
+    function isValidOptionalCommunityRelation() {
+      return (
+          !('militaryUnitId' in request.resource.data)
+          || request.resource.data.militaryUnitId == null
+          || (
+            request.resource.data.militaryUnitId is string
+            && request.resource.data.militaryUnitId.size() >= 3
+            && request.resource.data.militaryUnitId.size() <= 160
+          )
+        )
+        && (
+          !('militaryUnitName' in request.resource.data)
+          || request.resource.data.militaryUnitName == null
+          || (
+            request.resource.data.militaryUnitName is string
+            && request.resource.data.militaryUnitName.size() >= 2
+            && request.resource.data.militaryUnitName.size() <= 120
+          )
+        )
+        && (
+          !('celpPeriod' in request.resource.data)
+          || request.resource.data.celpPeriod == null
+          || (
+            request.resource.data.celpPeriod is string
+            && request.resource.data.celpPeriod.size() >= 4
+            && request.resource.data.celpPeriod.size() <= 20
+          )
+        );
+    }
+
+    function hasValidCommunityTopicShape(topicId) {
+      let data = request.resource.data;
+      return data.keys().hasAll([
+          'id',
+          'slug',
+          'title',
+          'body',
+          'category',
+          'authorId',
+          'authorDisplayName',
+          'authorIsAnonymous',
+          'createdAt',
+          'updatedAt',
+          'lastActivityAt',
+          'replyCount',
+          'likeCount',
+          'status',
+          'isPinned',
+          'isLocked'
+        ])
+        && data.keys().hasOnly([
+          'id',
+          'slug',
+          'title',
+          'body',
+          'category',
+          'authorId',
+          'authorDisplayName',
+          'authorIsAnonymous',
+          'createdAt',
+          'updatedAt',
+          'lastActivityAt',
+          'replyCount',
+          'likeCount',
+          'status',
+          'isPinned',
+          'isLocked',
+          'militaryUnitId',
+          'militaryUnitName',
+          'celpPeriod'
+        ])
+        && data.id == topicId
+        && data.slug is string
+        && data.slug.size() >= 3
+        && data.slug.size() <= 90
+        && data.title is string
+        && data.title.size() >= 10
+        && data.title.size() <= 140
+        && data.body is string
+        && data.body.size() >= 20
+        && data.body.size() <= 5000
+        && isValidCommunityCategory()
+        && data.authorId == request.auth.uid
+        && isValidCommunityDisplayName(data.authorDisplayName)
+        && data.authorIsAnonymous == isAnonymousAuth()
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp
+        && data.lastActivityAt is timestamp
+        && data.replyCount == 0
+        && data.likeCount == 0
+        && data.status == 'published'
+        && data.isPinned == false
+        && data.isLocked == false
+        && isValidOptionalCommunityRelation();
+    }
+
+    function hasValidCommunityReplyShape(topicId, replyId) {
+      let data = request.resource.data;
+      return data.keys().hasOnly([
+          'id',
+          'topicId',
+          'body',
+          'authorId',
+          'authorDisplayName',
+          'authorIsAnonymous',
+          'createdAt',
+          'updatedAt',
+          'likeCount',
+          'status'
+        ])
+        && data.id == replyId
+        && data.topicId == topicId
+        && data.body is string
+        && data.body.size() >= 4
+        && data.body.size() <= 3000
+        && data.authorId == request.auth.uid
+        && isValidCommunityDisplayName(data.authorDisplayName)
+        && data.authorIsAnonymous == isAnonymousAuth()
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp
+        && data.likeCount == 0
+        && data.status == 'published';
+    }
+
+    match /communityTopics/{topicId} {
+      allow get, list: if resource.data.status == 'published';
+      allow create: if isCommunityWriter()
+        && hasValidCommunityTopicShape(topicId)
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.lastActivityAt == request.time;
+      allow update, delete: if false;
+
+      match /replies/{replyId} {
+        allow get, list: if resource.data.status == 'published'
+          && get(/databases/$(database)/documents/communityTopics/$(topicId)).data.status == 'published';
+        allow create: if isCommunityWriter()
+          && exists(/databases/$(database)/documents/communityTopics/$(topicId))
+          && get(/databases/$(database)/documents/communityTopics/$(topicId)).data.status == 'published'
+          && get(/databases/$(database)/documents/communityTopics/$(topicId)).data.isLocked != true
+          && hasValidCommunityReplyShape(topicId, replyId)
+          && request.resource.data.createdAt == request.time
+          && request.resource.data.updatedAt == request.time;
+        allow update, delete: if false;
+      }
+    }
+
+    match /communityUsers/{uid} {
+      allow read: if isOwnProfile(uid);
+      allow create: if isOwnProfile(uid)
+        && request.resource.data.keys().hasOnly([
+          'displayName',
+          'isAnonymous',
+          'createdAt',
+          'updatedAt',
+          'lastWriteAt',
+          'lastWriteHash'
+        ])
+        && isValidCommunityDisplayName(request.resource.data.displayName)
+        && request.resource.data.isAnonymous == isAnonymousAuth()
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.lastWriteAt == request.time
+        && request.resource.data.lastWriteHash is string
+        && request.resource.data.lastWriteHash.size() <= 800;
+      allow update: if isOwnProfile(uid)
+        && request.resource.data.keys().hasOnly([
+          'displayName',
+          'isAnonymous',
+          'createdAt',
+          'updatedAt',
+          'lastWriteAt',
+          'lastWriteHash'
+        ])
+        && isValidCommunityDisplayName(request.resource.data.displayName)
+        && request.resource.data.isAnonymous == resource.data.isAnonymous
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.lastWriteAt == request.time
+        && request.resource.data.lastWriteHash is string
+        && request.resource.data.lastWriteHash.size() <= 800;
+      allow delete: if false;
+    }
+
+    match /communityReports/{reportId} {
+      allow create: if isCommunityWriter()
+        && request.resource.data.keys().hasOnly([
+          'id',
+          'targetType',
+          'targetId',
+          'topicId',
+          'reporterId',
+          'reason',
+          'createdAt',
+          'status'
+        ])
+        && request.resource.data.id == reportId
+        && request.resource.data.reporterId == request.auth.uid
+        && request.resource.data.targetType in ['topic', 'reply']
+        && request.resource.data.targetId is string
+        && request.resource.data.targetId.size() >= 8
+        && request.resource.data.targetId.size() <= 80
+        && request.resource.data.topicId is string
+        && exists(/databases/$(database)/documents/communityTopics/$(request.resource.data.topicId))
+        && request.resource.data.reason in [
+          'Spam',
+          'Hakaret / Taciz',
+          'Yanlış Bilgi',
+          'Uygunsuz İçerik',
+          'Diğer'
+        ]
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.status == 'open';
+      allow read, update, delete: if false;
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }

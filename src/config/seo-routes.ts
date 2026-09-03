@@ -8,6 +8,7 @@ const legalLastModified = '2026-09-01';
 export const pageSitemapEntries: SitemapEntry[] = [
   { path: '/', lastModified: '2026-09-03' },
   { path: '/blog', lastModified: '2026-09-03' },
+  { path: '/topluluk', lastModified: '2026-09-03' },
   ...legalDocuments.map((document) => ({
     path: `/${document.slug}`,
     lastModified: legalLastModified,
@@ -26,4 +27,5 @@ export const sitemapGroups = [
   '/sitemaps/pages.xml',
   '/sitemaps/blog.xml',
   '/sitemaps/tools.xml',
+  '/sitemaps/community.xml',
 ] as const;
