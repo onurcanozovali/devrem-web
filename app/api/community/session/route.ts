@@ -11,13 +11,20 @@ export async function POST(request: Request) {
   try {
     const body = (await request.json().catch(() => ({}))) as {
       refreshToken?: string | null;
+      preserveAccount?: boolean;
     };
     const refreshToken = body.refreshToken?.trim() ?? '';
-    const session = refreshToken
-      ? await refreshCommunitySession(refreshToken).catch(() =>
-          signInAnonymousCommunityUser(),
-        )
-      : await signInAnonymousCommunityUser();
+    let session;
+    if (refreshToken) {
+      try {
+        session = await refreshCommunitySession(refreshToken);
+      } catch (error) {
+        if (body.preserveAccount) throw error;
+        session = await signInAnonymousCommunityUser();
+      }
+    } else {
+      session = await signInAnonymousCommunityUser();
+    }
     return NextResponse.json({
       idToken: session.idToken,
       refreshToken: session.refreshToken,

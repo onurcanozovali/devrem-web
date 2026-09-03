@@ -69,6 +69,7 @@ const schema = discussionForumPostingSchema(
     status: 'published',
     isPinned: false,
     isLocked: false,
+    lastReplyId: 'reply1',
     militaryUnitId: null,
     militaryUnitName: null,
     celpPeriod: null,

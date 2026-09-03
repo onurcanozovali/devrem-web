@@ -7,10 +7,11 @@ import { CreateTopicDialog } from '@/components/community/create-topic-dialog';
 
 export async function CommunityForumTeaser() {
   let topics: Awaited<ReturnType<typeof listHomeCommunityTopics>> = [];
+  let loadFailed = false;
   try {
     topics = await listHomeCommunityTopics();
   } catch {
-    topics = [];
+    loadFailed = true;
   }
 
   return (
@@ -40,7 +41,11 @@ export async function CommunityForumTeaser() {
           </Link>
         </div>
 
-        {topics.length ? (
+        {loadFailed ? (
+          <p className="mt-8 rounded-2xl border border-border bg-surface px-5 py-5 text-sm text-secondary-foreground">
+            Topluluk konuları şu anda yüklenemiyor.
+          </p>
+        ) : topics.length ? (
           <ul className="mt-8 divide-y divide-border overflow-hidden rounded-3xl border border-border bg-surface">
             {topics.map((topic) => (
               <li key={topic.id}>

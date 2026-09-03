@@ -21,7 +21,10 @@ type TokenUser = {
   providerUserInfo?: Array<{ providerId?: string }>;
 };
 
-function identityFromUser(user: TokenUser): CommunityAuthIdentity | null {
+function identityFromUser(
+  user: TokenUser,
+  idToken: string,
+): CommunityAuthIdentity | null {
   const uid = user.localId?.trim() ?? '';
   if (!uid) return null;
   const providers = user.providerUserInfo ?? [];
@@ -33,6 +36,7 @@ function identityFromUser(user: TokenUser): CommunityAuthIdentity | null {
     isAnonymous,
     displayName: user.displayName?.trim() || (isAnonymous ? anonymousDisplayName(uid) : null),
     email: user.email?.trim() || null,
+    idToken,
   };
 }
 
@@ -77,6 +81,7 @@ export async function signInAnonymousCommunityUser() {
       isAnonymous: true,
       displayName: anonymousDisplayName(payload.localId),
       email: null,
+      idToken: payload.idToken,
     } satisfies CommunityAuthIdentity,
   };
 }
@@ -142,7 +147,7 @@ export async function lookupCommunityIdentity(idToken: string) {
     throw new CommunityAuthError('Oturum doğrulanamadı.', 401);
   }
   const payload = (await response.json()) as { users?: TokenUser[] };
-  const identity = identityFromUser(payload.users?.[0] ?? {});
+  const identity = identityFromUser(payload.users?.[0] ?? {}, idToken);
   if (!identity) throw new CommunityAuthError('Oturum doğrulanamadı.', 401);
   return identity;
 }

@@ -29,7 +29,7 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const topic = await getPublishedCommunityTopicBySlug(slug).catch(() => null);
+  const topic = await getPublishedCommunityTopicBySlug(slug);
   if (!topic) {
     return createPageMetadata({
       title: 'Konu bulunamadı',
@@ -53,12 +53,10 @@ export async function generateMetadata({
 
 export default async function CommunityTopicPage({ params }: PageProps) {
   const { slug } = await params;
-  const topic = await getPublishedCommunityTopicBySlug(slug).catch(() => null);
+  const topic = await getPublishedCommunityTopicBySlug(slug);
   if (!topic) notFound();
 
-  const { replies, nextCursor } = await listPublishedCommunityReplies(
-    topic.id,
-  ).catch(() => ({ replies: [], nextCursor: null as string | null }));
+  const { replies, nextCursor } = await listPublishedCommunityReplies(topic.id);
 
   const structuredData = graphSchema(
     organizationSchema(),

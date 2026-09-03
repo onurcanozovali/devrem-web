@@ -23,6 +23,47 @@ function readSession(): StoredSession | null {
   }
 }
 
+function readExistingFirebaseSession(): StoredSession | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    for (let index = 0; index < window.localStorage.length; index += 1) {
+      const key = window.localStorage.key(index);
+      if (!key?.startsWith('firebase:authUser:')) continue;
+      const raw = window.localStorage.getItem(key);
+      if (!raw) continue;
+      const user = JSON.parse(raw) as {
+        uid?: string;
+        displayName?: string | null;
+        isAnonymous?: boolean;
+        stsTokenManager?: {
+          accessToken?: string;
+          refreshToken?: string;
+          expirationTime?: number;
+        };
+      };
+      if (
+        !user.uid ||
+        user.isAnonymous !== false ||
+        !user.stsTokenManager?.accessToken ||
+        !user.stsTokenManager.refreshToken
+      ) {
+        continue;
+      }
+      return {
+        uid: user.uid,
+        displayName: user.displayName?.trim() || 'Devrem Üyesi',
+        isAnonymous: false,
+        idToken: user.stsTokenManager.accessToken,
+        refreshToken: user.stsTokenManager.refreshToken,
+        expiresAt: user.stsTokenManager.expirationTime ?? 0,
+      };
+    }
+  } catch {
+    return null;
+  }
+  return null;
+}
+
 function writeSession(session: StoredSession) {
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
 }
@@ -53,7 +94,8 @@ async function sessionFromResponse(response: Response) {
 }
 
 export async function ensureCommunitySession() {
-  const existing = readSession();
+  const existingFirebaseUser = readExistingFirebaseSession();
+  const existing = existingFirebaseUser ?? readSession();
   if (existing && existing.expiresAt > Date.now() + 15_000) {
     return existing;
   }
@@ -62,6 +104,7 @@ export async function ensureCommunitySession() {
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({
       refreshToken: existing?.refreshToken ?? null,
+      preserveAccount: existingFirebaseUser !== null,
     }),
   });
   return sessionFromResponse(response);

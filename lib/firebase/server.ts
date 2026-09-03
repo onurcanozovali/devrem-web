@@ -3,6 +3,7 @@ import { Buffer } from 'node:buffer';
 type FirebaseServerConfig = {
   projectId: string;
   storageBucket: string;
+  webApiKey: string;
   clientEmail: string | null;
   privateKey: string | null;
   accessToken: string | null;
@@ -37,6 +38,7 @@ function getConfig(): FirebaseServerConfig {
   return {
     projectId: process.env.FIREBASE_PROJECT_ID?.trim() ?? '',
     storageBucket: process.env.FIREBASE_STORAGE_BUCKET?.trim() ?? '',
+    webApiKey: process.env.FIREBASE_WEB_API_KEY?.trim() ?? '',
     clientEmail: process.env.FIREBASE_CLIENT_EMAIL?.trim() || null,
     privateKey:
       process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n').trim() || null,
@@ -50,6 +52,11 @@ export function isFirebaseServerConfigured() {
     config.projectId &&
     (config.accessToken || (config.clientEmail && config.privateKey)),
   );
+}
+
+export function isFirebasePublicConfigured() {
+  const config = getConfig();
+  return Boolean(config.projectId && config.webApiKey);
 }
 
 export function getFirebaseStorageBucket() {
@@ -263,6 +270,31 @@ async function firebaseFetch(path: string, init: RequestInit = {}) {
   return response;
 }
 
+async function firebaseUserFetch(
+  path: string,
+  idToken: string | null,
+  init: RequestInit = {},
+) {
+  const config = getConfig();
+  if (!config.projectId || !config.webApiKey) {
+    throw new FirebaseConfigurationError(
+      'FIREBASE_PROJECT_ID veya FIREBASE_WEB_API_KEY eksik.',
+    );
+  }
+  const headers = new Headers(init.headers);
+  if (idToken) headers.set('authorization', `Bearer ${idToken}`);
+  if (init.body) headers.set('content-type', 'application/json');
+  const separator = path.includes('?') ? '&' : '?';
+  return fetch(
+    `https://firestore.googleapis.com/v1/projects/${encodeURIComponent(config.projectId)}/databases/(default)/documents${path}${separator}key=${encodeURIComponent(config.webApiKey)}`,
+    {
+      ...init,
+      headers,
+      cache: 'no-store',
+    },
+  );
+}
+
 export async function listFirestoreDocuments(collection: string) {
   const documents: Array<{ id: string; data: Record<string, unknown> }> = [];
   let pageToken = '';
@@ -397,11 +429,10 @@ function cursorValueForDocument(
   return encodeValue(data[order.field], order.field);
 }
 
-export async function queryFirestoreDocuments(spec: FirestoreQuerySpec) {
-  const response = await firebaseFetch(queryEndpoint(spec.parent, 'runQuery'), {
-    method: 'POST',
-    body: JSON.stringify({ structuredQuery: buildStructuredQuery(spec) }),
-  });
+async function queryFirestoreResponse(
+  spec: FirestoreQuerySpec,
+  response: Response,
+) {
   if (!response.ok) {
     const detail = (await response.text()).slice(0, 500);
     throw new Error(
@@ -433,6 +464,26 @@ export async function queryFirestoreDocuments(spec: FirestoreQuerySpec) {
         })
       : null;
   return { records, nextCursor };
+}
+
+export async function queryFirestoreDocuments(spec: FirestoreQuerySpec) {
+  const response = await firebaseFetch(queryEndpoint(spec.parent, 'runQuery'), {
+    method: 'POST',
+    body: JSON.stringify({ structuredQuery: buildStructuredQuery(spec) }),
+  });
+  return queryFirestoreResponse(spec, response);
+}
+
+export async function queryPublicFirestoreDocuments(spec: FirestoreQuerySpec) {
+  const response = await firebaseUserFetch(
+    queryEndpoint(spec.parent, 'runQuery'),
+    null,
+    {
+      method: 'POST',
+      body: JSON.stringify({ structuredQuery: buildStructuredQuery(spec) }),
+    },
+  );
+  return queryFirestoreResponse(spec, response);
 }
 
 export async function countFirestoreDocuments(
@@ -487,28 +538,61 @@ export type FirestoreCommitWrite = {
   path: string;
   data: Record<string, unknown>;
   updateFields?: string[];
+  serverTimestampFields?: string[];
 };
+
+function firestoreCommitBody(
+  projectId: string,
+  writes: FirestoreCommitWrite[],
+) {
+  return {
+    writes: writes.map((write) => ({
+      update: {
+        name: `projects/${projectId}/databases/(default)/documents/${write.path}`,
+        fields: encodeFields(write.data),
+      },
+      ...(write.updateFields?.length
+        ? { updateMask: { fieldPaths: write.updateFields } }
+        : {}),
+      ...(write.serverTimestampFields?.length
+        ? {
+            updateTransforms: write.serverTimestampFields.map((fieldPath) => ({
+              fieldPath,
+              setToServerValue: 'REQUEST_TIME',
+            })),
+          }
+        : {}),
+    })),
+  };
+}
 
 export async function commitFirestoreWrites(writes: FirestoreCommitWrite[]) {
   const config = getConfig();
   const response = await firebaseFetch(':commit', {
     method: 'POST',
-    body: JSON.stringify({
-      writes: writes.map((write) => ({
-        update: {
-          name: `projects/${config.projectId}/databases/(default)/documents/${write.path}`,
-          fields: encodeFields(write.data),
-        },
-        ...(write.updateFields?.length
-          ? { updateMask: { fieldPaths: write.updateFields } }
-          : {}),
-      })),
-    }),
+    body: JSON.stringify(firestoreCommitBody(config.projectId, writes)),
   });
   if (!response.ok) {
     const detail = (await response.text()).slice(0, 800);
     throw new Error(
       `Firestore işlemi tamamlanamadı (${response.status}): ${detail}`,
+    );
+  }
+}
+
+export async function commitFirestoreWritesAsUser(
+  idToken: string,
+  writes: FirestoreCommitWrite[],
+) {
+  const config = getConfig();
+  const response = await firebaseUserFetch(':commit', idToken, {
+    method: 'POST',
+    body: JSON.stringify(firestoreCommitBody(config.projectId, writes)),
+  });
+  if (!response.ok) {
+    const detail = (await response.text()).slice(0, 800);
+    throw new Error(
+      `Firestore kullanıcı işlemi tamamlanamadı (${response.status}): ${detail}`,
     );
   }
 }
@@ -523,6 +607,43 @@ export async function getFirestoreDocument(collection: string, id: string) {
   }
   const document = (await response.json()) as FirestoreDocument;
   return { id, data: decodeFields(document.fields ?? {}) };
+}
+
+export async function getFirestoreDocumentAsUser(
+  path: string,
+  idToken: string,
+) {
+  const normalized = path
+    .split('/')
+    .map((segment) => encodeURIComponent(segment))
+    .join('/');
+  const response = await firebaseUserFetch(`/${normalized}`, idToken);
+  if (response.status === 404) return null;
+  if (!response.ok) {
+    throw new Error(`Firestore kullanıcı belgesi alınamadı (${response.status}).`);
+  }
+  const document = (await response.json()) as FirestoreDocument;
+  return {
+    id: documentId(document.name),
+    data: decodeFields(document.fields ?? {}),
+  };
+}
+
+export async function getPublicFirestoreDocumentPath(path: string) {
+  const normalized = path
+    .split('/')
+    .map((segment) => encodeURIComponent(segment))
+    .join('/');
+  const response = await firebaseUserFetch(`/${normalized}`, null);
+  if (response.status === 404) return null;
+  if (!response.ok) {
+    throw new Error(`Firestore genel belgesi alınamadı (${response.status}).`);
+  }
+  const document = (await response.json()) as FirestoreDocument;
+  return {
+    id: documentId(document.name),
+    data: decodeFields(document.fields ?? {}),
+  };
 }
 
 export async function createFirestoreDocument(

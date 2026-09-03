@@ -15,21 +15,48 @@ function hrefFor(category: string, sort: string) {
   return query ? `/topluluk?${query}` : '/topluluk';
 }
 
-export function CommunityFilters({
+const categories = [
+  { id: 'all' as const, label: 'Tüm Konular', mobileLabel: 'Tümü' },
+  ...communityCategories.map((item) => ({ ...item, mobileLabel: item.label })),
+];
+
+export function CommunityCategoryNavigation({
   category,
   sort,
 }: {
   category: CommunityCategoryId | 'all';
   sort: CommunitySortId;
 }) {
-  const categories = [
-    { id: 'all' as const, label: 'Tümü' },
-    ...communityCategories,
-  ];
-
   return (
-    <div className="mt-6 space-y-3">
-      <div className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
+    <>
+      <nav
+        aria-label="Topluluk kategorileri"
+        className="hidden w-[220px] shrink-0 lg:block"
+      >
+        <div className="sticky top-28 space-y-1">
+          {categories.map((item) => {
+            const active = item.id === category;
+            return (
+              <Link
+                key={item.id}
+                href={hrefFor(item.id, sort)}
+                className={cn(
+                  'block rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors',
+                  active
+                    ? 'bg-primary-subtle text-primary-ink'
+                    : 'text-secondary-foreground hover:bg-surface hover:text-foreground',
+                )}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
+      <nav
+        aria-label="Topluluk kategorileri"
+        className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-2 lg:hidden"
+      >
         {categories.map((item) => {
           const active = item.id === category;
           return (
@@ -43,30 +70,53 @@ export function CommunityFilters({
                   : 'border-border bg-surface text-secondary-foreground',
               )}
             >
-              {item.label}
+              {item.mobileLabel}
             </Link>
           );
         })}
-      </div>
-      <div className="flex gap-2">
-        {communitySorts.map((item) => {
-          const active = item.id === sort;
-          return (
-            <Link
-              key={item.id}
-              href={hrefFor(category, item.id)}
-              className={cn(
-                'rounded-full px-3 py-1.5 text-xs font-semibold',
-                active
-                  ? 'bg-foreground text-background'
-                  : 'bg-muted text-secondary-foreground',
-              )}
-            >
-              {item.label}
-            </Link>
-          );
-        })}
-      </div>
+      </nav>
+    </>
+  );
+}
+
+export function CommunitySortNavigation({
+  category,
+  sort,
+}: {
+  category: CommunityCategoryId | 'all';
+  sort: CommunitySortId;
+}) {
+  return (
+    <nav aria-label="Konu sıralaması" className="flex gap-1 border-b border-border">
+      {communitySorts.map((item) => {
+        const active = item.id === sort;
+        return (
+          <Link
+            key={item.id}
+            href={hrefFor(category, item.id)}
+            className={cn(
+              '-mb-px border-b-2 px-3 py-3 text-sm font-semibold transition-colors',
+              active
+                ? 'border-primary text-primary-ink'
+                : 'border-transparent text-muted-foreground hover:text-foreground',
+            )}
+          >
+            {item.label}
+          </Link>
+        );
+      })}
+    </nav>
+  );
+}
+
+export function CommunityFilters(props: {
+  category: CommunityCategoryId | 'all';
+  sort: CommunitySortId;
+}) {
+  return (
+    <div className="mt-6 lg:hidden">
+      <CommunityCategoryNavigation {...props} />
+      <CommunitySortNavigation {...props} />
     </div>
   );
 }

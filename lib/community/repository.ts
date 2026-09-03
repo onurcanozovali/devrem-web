@@ -1,10 +1,10 @@
 import {
   FirebaseConfigurationError,
-  commitFirestoreWrites,
-  getFirestoreDocument,
-  getFirestoreDocumentPath,
-  isFirebaseServerConfigured,
-  queryFirestoreDocuments,
+  commitFirestoreWritesAsUser,
+  getFirestoreDocumentAsUser,
+  getPublicFirestoreDocumentPath,
+  isFirebasePublicConfigured,
+  queryPublicFirestoreDocuments,
   type FirestoreQueryFilter,
   type FirestoreQueryOrder,
 } from '@/lib/firebase/server';
@@ -81,6 +81,7 @@ function mapTopic(id: string, data: Record<string, unknown>): CommunityTopic | n
     status: statusOf(data.status),
     isPinned: boolean(data.isPinned),
     isLocked: boolean(data.isLocked),
+    lastReplyId: text(data.lastReplyId) || null,
     militaryUnitId: text(data.militaryUnitId) || null,
     militaryUnitName: text(data.militaryUnitName) || null,
     celpPeriod: text(data.celpPeriod) || null,
@@ -111,8 +112,10 @@ function mapReply(
 export async function listPublishedCommunityTopics(
   query: CommunityTopicListQuery = {},
 ) {
-  if (!isFirebaseServerConfigured()) {
-    return { topics: [] as CommunityTopic[], nextCursor: null as string | null };
+  if (!isFirebasePublicConfigured()) {
+    throw new FirebaseConfigurationError(
+      'Topluluk için FIREBASE_PROJECT_ID ve FIREBASE_WEB_API_KEY gerekli.',
+    );
   }
   const category = query.category && query.category !== 'all' ? query.category : null;
   const sort: CommunitySortId = query.sort ?? 'aktif';
@@ -131,7 +134,7 @@ export async function listPublishedCommunityTopics(
   const orderBy: FirestoreQueryOrder[] = [
     { field: orderField, direction: 'DESCENDING' },
   ];
-  const { records, nextCursor } = await queryFirestoreDocuments({
+  const { records, nextCursor } = await queryPublicFirestoreDocuments({
     collection: COMMUNITY_TOPIC_COLLECTION,
     filters,
     orderBy,
@@ -161,8 +164,8 @@ export async function listHomeCommunityTopics() {
 }
 
 export async function getPublishedCommunityTopicBySlug(slug: string) {
-  if (!isFirebaseServerConfigured() || !slug) return null;
-  const { records } = await queryFirestoreDocuments({
+  if (!slug) return null;
+  const { records } = await queryPublicFirestoreDocuments({
     collection: COMMUNITY_TOPIC_COLLECTION,
     filters: [
       { field: 'slug', op: 'EQUAL', value: slug },
@@ -175,8 +178,10 @@ export async function getPublishedCommunityTopicBySlug(slug: string) {
 }
 
 export async function getPublishedCommunityTopicById(id: string) {
-  if (!isFirebaseServerConfigured() || !id) return null;
-  const document = await getFirestoreDocument(COMMUNITY_TOPIC_COLLECTION, id);
+  if (!id) return null;
+  const document = await getPublicFirestoreDocumentPath(
+    `${COMMUNITY_TOPIC_COLLECTION}/${id}`,
+  );
   if (!document) return null;
   const topic = mapTopic(document.id, document.data);
   return topic?.status === 'published' ? topic : null;
@@ -187,10 +192,7 @@ export async function listPublishedCommunityReplies(
   cursor?: string | null,
   limit = REPLY_PAGE_SIZE,
 ) {
-  if (!isFirebaseServerConfigured()) {
-    return { replies: [] as CommunityReply[], nextCursor: null as string | null };
-  }
-  const { records, nextCursor } = await queryFirestoreDocuments({
+  const { records, nextCursor } = await queryPublicFirestoreDocuments({
     parent: `${COMMUNITY_TOPIC_COLLECTION}/${topicId}`,
     collection: COMMUNITY_REPLY_COLLECTION,
     filters: [{ field: 'status', op: 'EQUAL', value: 'published' }],
@@ -208,7 +210,6 @@ export async function listPublishedCommunityReplies(
 }
 
 export async function listCommunitySitemapEntries(limit = 400) {
-  if (!isFirebaseServerConfigured()) return [];
   const { topics } = await listPublishedCommunityTopics({
     sort: 'yeni',
     limit,
@@ -219,8 +220,11 @@ export async function listCommunitySitemapEntries(limit = 400) {
   }));
 }
 
-async function assertCanWrite(uid: string) {
-  const access = await getFirestoreDocument('_accountAccess', uid);
+async function assertCanWrite(identity: CommunityAuthIdentity) {
+  const access = await getFirestoreDocumentAsUser(
+    `_accountAccess/${identity.uid}`,
+    identity.idToken,
+  );
   if (!access) return;
   if (access.data.status !== 'active') {
     throw new CommunityWriteError(
@@ -234,15 +238,18 @@ async function resolveAuthorDisplayName(
   identity: CommunityAuthIdentity,
   nickname: string,
 ) {
-  const existing = await getFirestoreDocument(
-    COMMUNITY_USER_COLLECTION,
-    identity.uid,
+  const existing = await getFirestoreDocumentAsUser(
+    `${COMMUNITY_USER_COLLECTION}/${identity.uid}`,
+    identity.idToken,
   );
   const storedName = text(existing?.data.displayName);
   if (nickname) return nickname;
   if (storedName) return storedName;
   if (!identity.isAnonymous) {
-    const profile = await getFirestoreDocument('users', identity.uid);
+    const profile = await getFirestoreDocumentAsUser(
+      `users/${identity.uid}`,
+      identity.idToken,
+    );
     const firstName = text(profile?.data.firstName);
     if (firstName.length >= 2) return firstName;
     if (identity.displayName) return identity.displayName;
@@ -250,33 +257,41 @@ async function resolveAuthorDisplayName(
   return identity.displayName;
 }
 
-async function persistCommunityUser(
+async function communityUserWrite(
   identity: CommunityAuthIdentity,
   displayName: string,
   fingerprint: string,
 ) {
   const now = new Date().toISOString();
-  const existing = await getFirestoreDocument(
-    COMMUNITY_USER_COLLECTION,
-    identity.uid,
+  const existing = await getFirestoreDocumentAsUser(
+    `${COMMUNITY_USER_COLLECTION}/${identity.uid}`,
+    identity.idToken,
   );
-  await commitFirestoreWrites([
-    {
-      path: `${COMMUNITY_USER_COLLECTION}/${identity.uid}`,
-      data: {
-        displayName,
-        isAnonymous: identity.isAnonymous,
-        createdAt: isoDate(existing?.data.createdAt, now),
-        updatedAt: now,
-        lastWriteAt: now,
-        lastWriteHash: fingerprint,
-      },
+  const isNew = !existing;
+  return {
+    path: `${COMMUNITY_USER_COLLECTION}/${identity.uid}`,
+    data: {
+      displayName,
+      isAnonymous: identity.isAnonymous,
+      ...(isNew ? {} : { createdAt: isoDate(existing.data.createdAt, now) }),
+      lastWriteHash: fingerprint,
     },
-  ]);
+    serverTimestampFields: [
+      ...(isNew ? ['createdAt'] : []),
+      'updatedAt',
+      'lastWriteAt',
+    ],
+  };
 }
 
-async function assertWriteCooldown(uid: string, fingerprint: string) {
-  const existing = await getFirestoreDocument(COMMUNITY_USER_COLLECTION, uid);
+async function assertWriteCooldown(
+  identity: CommunityAuthIdentity,
+  fingerprint: string,
+) {
+  const existing = await getFirestoreDocumentAsUser(
+    `${COMMUNITY_USER_COLLECTION}/${identity.uid}`,
+    identity.idToken,
+  );
   if (!existing) return;
   const lastWriteAt = isoDate(existing.data.lastWriteAt);
   if (lastWriteAt) {
@@ -318,9 +333,9 @@ export async function createCommunityTopic(input: {
   militaryUnitName?: string | null;
   celpPeriod?: string | null;
 }) {
-  await assertCanWrite(input.identity.uid);
+  await assertCanWrite(input.identity);
   const fingerprint = contentFingerprint(input.title, input.body);
-  await assertWriteCooldown(input.identity.uid, fingerprint);
+  await assertWriteCooldown(input.identity, fingerprint);
   const displayName = await resolveAuthorDisplayName(
     input.identity,
     input.nickname,
@@ -348,17 +363,30 @@ export async function createCommunityTopic(input: {
     status: 'published',
     isPinned: false,
     isLocked: false,
+    lastReplyId: null,
     militaryUnitId: input.militaryUnitId ?? null,
     militaryUnitName: input.militaryUnitName ?? null,
     celpPeriod: input.celpPeriod ?? null,
   };
-  await commitFirestoreWrites([
+  const {
+    createdAt: _createdAt,
+    updatedAt: _updatedAt,
+    lastActivityAt: _lastActivityAt,
+    ...topicFields
+  } = topic;
+  const userWrite = await communityUserWrite(
+    input.identity,
+    displayName,
+    fingerprint,
+  );
+  await commitFirestoreWritesAsUser(input.identity.idToken, [
     {
       path: `${COMMUNITY_TOPIC_COLLECTION}/${id}`,
-      data: { ...topic },
+      data: topicFields,
+      serverTimestampFields: ['createdAt', 'updatedAt', 'lastActivityAt'],
     },
+    userWrite,
   ]);
-  await persistCommunityUser(input.identity, displayName, fingerprint);
   return topic;
 }
 
@@ -368,7 +396,7 @@ export async function createCommunityReply(input: {
   body: string;
   nickname: string;
 }) {
-  await assertCanWrite(input.identity.uid);
+  await assertCanWrite(input.identity);
   const topic = await getPublishedCommunityTopicById(input.topicId);
   if (!topic) {
     throw new CommunityWriteError('Konu bulunamadı.', 404);
@@ -377,7 +405,7 @@ export async function createCommunityReply(input: {
     throw new CommunityWriteError('Bu konu yanıtlara kapatıldı.', 403);
   }
   const fingerprint = contentFingerprint(topic.id, input.body);
-  await assertWriteCooldown(input.identity.uid, fingerprint);
+  await assertWriteCooldown(input.identity, fingerprint);
   const displayName = await resolveAuthorDisplayName(
     input.identity,
     input.nickname,
@@ -399,22 +427,33 @@ export async function createCommunityReply(input: {
     likeCount: 0,
     status: 'published',
   };
-  await commitFirestoreWrites([
+  const {
+    createdAt: _createdAt,
+    updatedAt: _updatedAt,
+    ...replyFields
+  } = reply;
+  const userWrite = await communityUserWrite(
+    input.identity,
+    displayName,
+    fingerprint,
+  );
+  await commitFirestoreWritesAsUser(input.identity.idToken, [
     {
       path: `${COMMUNITY_TOPIC_COLLECTION}/${topic.id}/${COMMUNITY_REPLY_COLLECTION}/${id}`,
-      data: { ...reply },
+      data: replyFields,
+      serverTimestampFields: ['createdAt', 'updatedAt'],
     },
     {
       path: `${COMMUNITY_TOPIC_COLLECTION}/${topic.id}`,
       data: {
         replyCount: topic.replyCount + 1,
-        lastActivityAt: now,
-        updatedAt: now,
+        lastReplyId: id,
       },
-      updateFields: ['replyCount', 'lastActivityAt', 'updatedAt'],
+      updateFields: ['replyCount', 'lastReplyId'],
+      serverTimestampFields: ['lastActivityAt', 'updatedAt'],
     },
+    userWrite,
   ]);
-  await persistCommunityUser(input.identity, displayName, fingerprint);
   return reply;
 }
 
@@ -425,11 +464,11 @@ export async function createCommunityReport(input: {
   topicId: string;
   reason: string;
 }) {
-  await assertCanWrite(input.identity.uid);
+  await assertCanWrite(input.identity);
   const topic = await getPublishedCommunityTopicById(input.topicId);
   if (!topic) throw new CommunityWriteError('Konu bulunamadı.', 404);
   if (input.targetType === 'reply') {
-    const document = await getFirestoreDocumentPath(
+    const document = await getPublicFirestoreDocumentPath(
       `${COMMUNITY_TOPIC_COLLECTION}/${input.topicId}/${COMMUNITY_REPLY_COLLECTION}/${input.targetId}`,
     );
     if (!document) throw new CommunityWriteError('Yanıt bulunamadı.', 404);
@@ -437,8 +476,7 @@ export async function createCommunityReport(input: {
     throw new CommunityWriteError('Konu eşleşmiyor.');
   }
   const id = createId();
-  const now = new Date().toISOString();
-  await commitFirestoreWrites([
+  await commitFirestoreWritesAsUser(input.identity.idToken, [
     {
       path: `${COMMUNITY_REPORT_COLLECTION}/${id}`,
       data: {
@@ -448,9 +486,9 @@ export async function createCommunityReport(input: {
         topicId: input.topicId,
         reporterId: input.identity.uid,
         reason: input.reason,
-        createdAt: now,
         status: 'open',
       },
+      serverTimestampFields: ['createdAt'],
     },
   ]);
   return { id };

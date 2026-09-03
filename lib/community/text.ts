@@ -111,3 +111,21 @@ export function formatCommunityDate(iso: string | null) {
     timeZone: 'Europe/Istanbul',
   }).format(date);
 }
+
+export function formatRelativeCommunityDate(
+  iso: string | null,
+  now = Date.now(),
+) {
+  if (!iso) return '';
+  const timestamp = Date.parse(iso);
+  if (Number.isNaN(timestamp)) return '';
+  const elapsed = Math.max(0, now - timestamp);
+  const minutes = Math.floor(elapsed / 60_000);
+  if (minutes < 1) return 'şimdi';
+  if (minutes < 60) return `${minutes} dk önce`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} sa önce`;
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `${days} gün önce`;
+  return formatCommunityDate(iso);
+}

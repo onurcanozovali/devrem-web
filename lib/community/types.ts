@@ -19,6 +19,7 @@ export type CommunityTopic = {
   status: CommunityContentStatus;
   isPinned: boolean;
   isLocked: boolean;
+  lastReplyId: string | null;
   militaryUnitId: string | null;
   militaryUnitName: string | null;
   celpPeriod: string | null;
@@ -49,4 +50,5 @@ export type CommunityAuthIdentity = {
   isAnonymous: boolean;
   displayName: string | null;
   email: string | null;
+  idToken: string;
 };
