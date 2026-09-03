@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { ChevronRight, Hash } from 'lucide-react';
 import {
   communityCategories,
   communitySorts,
@@ -31,9 +32,13 @@ export function CommunityCategoryNavigation({
     <>
       <nav
         aria-label="Topluluk kategorileri"
-        className="hidden w-[220px] shrink-0 lg:block"
+        className="hidden min-w-0 lg:block"
       >
-        <div className="sticky top-28 space-y-1">
+        <div className="sticky top-24">
+          <p className="mb-2 px-3 text-[11px] font-bold uppercase tracking-[0.15em] text-muted-foreground">
+            Kategoriler
+          </p>
+          <div className="space-y-1">
           {categories.map((item) => {
             const active = item.id === category;
             return (
@@ -41,21 +46,39 @@ export function CommunityCategoryNavigation({
                 key={item.id}
                 href={hrefFor(item.id, sort)}
                 className={cn(
-                  'block rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors',
+                  'group flex min-w-0 items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors',
                   active
-                    ? 'bg-primary-subtle text-primary-ink'
+                    ? 'bg-primary-subtle text-primary-ink ring-1 ring-primary/15'
                     : 'text-secondary-foreground hover:bg-surface hover:text-foreground',
                 )}
               >
-                {item.label}
+                <span
+                  className={cn(
+                    'flex size-7 shrink-0 items-center justify-center rounded-lg border transition-colors',
+                    active
+                      ? 'border-primary/25 bg-surface text-primary-ink'
+                      : 'border-border bg-surface/70 text-muted-foreground',
+                  )}
+                >
+                  <Hash className="size-3.5" aria-hidden="true" />
+                </span>
+                <span className="min-w-0 flex-1 truncate">{item.label}</span>
+                <ChevronRight
+                  className={cn(
+                    'size-3.5 shrink-0 transition-transform group-hover:translate-x-0.5',
+                    active ? 'opacity-100' : 'opacity-0 group-hover:opacity-70',
+                  )}
+                  aria-hidden="true"
+                />
               </Link>
             );
           })}
+          </div>
         </div>
       </nav>
       <nav
         aria-label="Topluluk kategorileri"
-        className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-2 lg:hidden"
+        className="scrollbar-none flex w-full max-w-full gap-2 overflow-x-auto overscroll-x-contain pb-1 lg:hidden"
       >
         {categories.map((item) => {
           const active = item.id === category;
@@ -64,10 +87,10 @@ export function CommunityCategoryNavigation({
               key={item.id}
               href={hrefFor(item.id, sort)}
               className={cn(
-                'shrink-0 rounded-full border px-3.5 py-2 text-sm font-medium',
+                'shrink-0 rounded-full border px-3.5 py-2 text-sm font-semibold transition-colors',
                 active
                   ? 'border-primary bg-primary-subtle text-primary-ink'
-                  : 'border-border bg-surface text-secondary-foreground',
+                  : 'border-border bg-surface text-secondary-foreground hover:border-primary/40 hover:text-foreground',
               )}
             >
               {item.mobileLabel}
@@ -87,7 +110,10 @@ export function CommunitySortNavigation({
   sort: CommunitySortId;
 }) {
   return (
-    <nav aria-label="Konu sıralaması" className="flex gap-1 border-b border-border">
+    <nav
+      aria-label="Konu sıralaması"
+      className="scrollbar-none flex max-w-full gap-1 overflow-x-auto"
+    >
       {communitySorts.map((item) => {
         const active = item.id === sort;
         return (
@@ -95,10 +121,10 @@ export function CommunitySortNavigation({
             key={item.id}
             href={hrefFor(category, item.id)}
             className={cn(
-              '-mb-px border-b-2 px-3 py-3 text-sm font-semibold transition-colors',
+              'shrink-0 rounded-lg px-3 py-2 text-xs font-semibold transition-colors sm:text-sm',
               active
-                ? 'border-primary text-primary-ink'
-                : 'border-transparent text-muted-foreground hover:text-foreground',
+                ? 'bg-primary-subtle text-primary-ink'
+                : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground',
             )}
           >
             {item.label}
@@ -106,17 +132,5 @@ export function CommunitySortNavigation({
         );
       })}
     </nav>
-  );
-}
-
-export function CommunityFilters(props: {
-  category: CommunityCategoryId | 'all';
-  sort: CommunitySortId;
-}) {
-  return (
-    <div className="mt-6 lg:hidden">
-      <CommunityCategoryNavigation {...props} />
-      <CommunitySortNavigation {...props} />
-    </div>
   );
 }

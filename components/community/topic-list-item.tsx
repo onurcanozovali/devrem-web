@@ -19,14 +19,14 @@ export function TopicListItem({ topic }: { topic: CommunityTopic }) {
   return (
     <article className="border-b border-border/80 last:border-b-0">
       <Link
-        className="grid grid-cols-[36px_minmax(0,1fr)_auto] gap-3 px-3 py-3.5 outline-none transition-colors hover:bg-muted/45 focus-visible:ring-3 focus-visible:ring-inset focus-visible:ring-ring/30 sm:grid-cols-[40px_minmax(0,1fr)_76px] sm:gap-4 sm:px-4"
+        className="grid min-w-0 grid-cols-[36px_minmax(0,1fr)_44px] gap-3 overflow-hidden px-3 py-3.5 outline-none transition-colors hover:bg-muted/45 focus-visible:ring-3 focus-visible:ring-inset focus-visible:ring-ring/30 sm:grid-cols-[40px_minmax(0,1fr)_72px] sm:gap-4 sm:px-5 sm:py-4"
         href={`/topluluk/${topic.slug}`}
       >
         <div className="flex size-9 items-center justify-center rounded-full bg-primary-subtle text-xs font-bold text-primary-ink sm:size-10">
           {avatarLabel}
         </div>
         <div className="min-w-0">
-          <h2 className="truncate text-[15px] font-bold tracking-[-0.025em] text-foreground sm:text-base">
+          <h2 className="line-clamp-2 break-words text-[15px] font-bold leading-5 tracking-[-0.025em] text-foreground sm:text-base sm:leading-6">
             {topic.title}
           </h2>
           <p className="mt-0.5 line-clamp-2 text-xs leading-5 text-secondary-foreground sm:line-clamp-1 sm:text-[13px]">
@@ -52,7 +52,7 @@ export function TopicListItem({ topic }: { topic: CommunityTopic }) {
             ) : null}
           </p>
         </div>
-        <div className="flex min-w-11 items-center justify-end gap-1.5 self-center text-xs font-semibold text-muted-foreground sm:justify-center">
+        <div className="flex min-w-0 items-center justify-end gap-1 self-center text-xs font-semibold text-muted-foreground sm:justify-center sm:gap-1.5">
           <MessageCircle className="size-4" aria-hidden="true" />
           <span>{topic.replyCount}</span>
           <span className="sr-only">yanıt</span>

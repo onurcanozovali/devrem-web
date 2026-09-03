@@ -71,7 +71,10 @@ export default async function CommunityPage({ searchParams }: PageProps) {
   if (nextCursor) moreParams.set('sonra', nextCursor);
 
   return (
-    <main className="pb-16 pt-10 sm:pb-20 sm:pt-12" id="ana-icerik">
+    <main
+      className="overflow-x-clip pb-16 pt-8 sm:pb-20 sm:pt-10"
+      id="ana-icerik"
+    >
       <JsonLd
         data={graphSchema(
           organizationSchema(),
@@ -86,13 +89,16 @@ export default async function CommunityPage({ searchParams }: PageProps) {
           ]),
         )}
       />
-      <Container className="max-w-[1240px]">
-        <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <Container className="max-w-[1320px]">
+        <header className="flex flex-col gap-5 border-b border-border pb-7 sm:flex-row sm:items-end sm:justify-between sm:pb-8">
           <div className="max-w-2xl">
-            <h1 className="text-3xl font-bold tracking-[-0.05em] sm:text-4xl">
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary-ink">
+              Devrem
+            </p>
+            <h1 className="mt-2 text-3xl font-bold tracking-[-0.05em] sm:text-4xl">
               Devrem Topluluğu
             </h1>
-            <p className="mt-3 text-sm leading-7 text-secondary-foreground sm:text-base">
+            <p className="mt-2 max-w-xl text-sm leading-6 text-secondary-foreground sm:text-base sm:leading-7">
               Askere gitmeden önce merak ettiklerini sor, deneyimlerini paylaş
               ve aynı süreci yaşayan devrelerinden cevap al.
             </p>
@@ -100,54 +106,57 @@ export default async function CommunityPage({ searchParams }: PageProps) {
           <CreateTopicDialog triggerLabel="+ Konu Aç" />
         </header>
 
-        <div className="mt-8">
-          <div className="lg:hidden">
-            <CommunityCategoryNavigation category={category} sort={sort} />
-          </div>
-          <div className="mt-4 flex items-start gap-8 lg:mt-0">
-            <CommunityCategoryNavigation category={category} sort={sort} />
-            <section className="min-w-0 flex-1" aria-label="Topluluk konuları">
+        <div className="mt-5 grid min-w-0 gap-5 lg:mt-7 lg:grid-cols-[240px_minmax(0,1fr)] lg:items-start lg:gap-7 xl:gap-9">
+          <CommunityCategoryNavigation category={category} sort={sort} />
+          <section
+            className="min-w-0 overflow-hidden rounded-2xl border border-border bg-surface shadow-[0_14px_40px_rgba(24,33,30,0.04)]"
+            aria-label="Topluluk konuları"
+          >
+            <div className="flex min-w-0 flex-col gap-1 border-b border-border px-3 pt-3 sm:flex-row sm:items-center sm:justify-between sm:px-5 sm:py-2.5">
+              <h2 className="px-1 text-sm font-bold tracking-[-0.02em] text-foreground">
+                Konular
+              </h2>
               <CommunitySortNavigation category={category} sort={sort} />
+            </div>
 
-              {loadFailed ? (
-                <div className="px-4 py-10 text-center">
-                  <p className="font-semibold">
-                    Topluluk konuları şu anda yüklenemiyor.
-                  </p>
-                  <p className="mt-1 text-sm text-secondary-foreground">
-                    Lütfen kısa süre sonra tekrar dene.
-                  </p>
+            {loadFailed ? (
+              <div className="px-4 py-12 text-center">
+                <p className="font-semibold">
+                  Topluluk konuları şu anda yüklenemiyor.
+                </p>
+                <p className="mt-1 text-sm text-secondary-foreground">
+                  Lütfen kısa süre sonra tekrar dene.
+                </p>
+              </div>
+            ) : topics.length ? (
+              <div>
+                {topics.map((topic) => (
+                  <TopicListItem key={topic.id} topic={topic} />
+                ))}
+              </div>
+            ) : (
+              <div className="px-4 py-12 text-center">
+                <p className="font-semibold">Henüz burada bir konu yok.</p>
+                <p className="mt-1 text-sm text-secondary-foreground">
+                  İlk soruyu sen sor.
+                </p>
+                <div className="mt-4 flex justify-center">
+                  <CreateTopicDialog />
                 </div>
-              ) : topics.length ? (
-                <div className="border-x border-b border-border bg-surface">
-                  {topics.map((topic) => (
-                    <TopicListItem key={topic.id} topic={topic} />
-                  ))}
-                </div>
-              ) : (
-                <div className="px-4 py-10 text-center">
-                  <p className="font-semibold">Henüz burada bir konu yok.</p>
-                  <p className="mt-1 text-sm text-secondary-foreground">
-                    İlk soruyu sen sor.
-                  </p>
-                  <div className="mt-4 flex justify-center">
-                    <CreateTopicDialog />
-                  </div>
-                </div>
-              )}
+              </div>
+            )}
 
-              {nextCursor ? (
-                <div className="mt-6 text-center">
-                  <Link
-                    className="text-sm font-bold text-primary-ink"
-                    href={`/topluluk?${moreParams.toString()}`}
-                  >
-                    Daha fazla konu
-                  </Link>
-                </div>
-              ) : null}
-            </section>
-          </div>
+            {nextCursor ? (
+              <div className="border-t border-border px-4 py-4 text-center">
+                <Link
+                  className="text-sm font-bold text-primary-ink hover:underline"
+                  href={`/topluluk?${moreParams.toString()}`}
+                >
+                  Daha fazla konu
+                </Link>
+              </div>
+            ) : null}
+          </section>
         </div>
       </Container>
     </main>

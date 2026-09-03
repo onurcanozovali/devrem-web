@@ -2,7 +2,22 @@ import { anonymousDisplayName } from './text';
 import type { CommunityAuthIdentity } from './types';
 
 function webApiKey() {
-  return process.env.FIREBASE_WEB_API_KEY?.trim() ?? '';
+  return (
+    process.env.FIREBASE_WEB_API_KEY?.trim() ||
+    process.env.EXPO_PUBLIC_FIREBASE_API_KEY?.trim() ||
+    ''
+  );
+}
+
+async function firebaseAuthErrorCode(response: Response) {
+  try {
+    const payload = (await response.json()) as {
+      error?: { message?: string };
+    };
+    return payload.error?.message?.split(' : ')[0]?.trim() ?? '';
+  } catch {
+    return '';
+  }
 }
 
 export class CommunityAuthError extends Error {
@@ -58,6 +73,13 @@ export async function signInAnonymousCommunityUser() {
     },
   );
   if (!response.ok) {
+    const errorCode = await firebaseAuthErrorCode(response);
+    if (errorCode === 'OPERATION_NOT_ALLOWED') {
+      throw new CommunityAuthError(
+        'Firebase Anonymous Authentication etkin değil.',
+        503,
+      );
+    }
     throw new CommunityAuthError(
       'Anonim oturum oluşturulamadı. Lütfen tekrar dene.',
       503,
