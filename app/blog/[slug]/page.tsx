@@ -2,10 +2,19 @@ import type { Metadata } from 'next';
 import { notFound, permanentRedirect } from 'next/navigation';
 import { BlogArticle } from '@/components/content/blog-article';
 import { Container } from '@/components/site/container';
+import { JsonLd } from '@/components/seo/json-ld';
 import {
   getPublishedBlogPost,
   getPublishedRelatedPosts,
 } from '@/lib/blog/repository';
+import {
+  articleSchema,
+  breadcrumbSchema,
+  graphSchema,
+  organizationSchema,
+  webPageSchema,
+} from '@/lib/seo/structured-data';
+import { createPageMetadata } from '@/src/config/seo';
 
 type BlogDetailProps = { params: Promise<{ slug: string }> };
 
@@ -17,32 +26,21 @@ export async function generateMetadata({
   const { slug } = await params;
   const post = await getPublishedBlogPost(slug);
   if (!post) return {};
-  const metadataTitle = post.seoTitle ?? post.title;
-  const description = post.metaDescription ?? post.excerpt;
+  const metadataTitle = post.seoTitle?.trim() || post.title;
+  const description = post.metaDescription?.trim() || post.excerpt;
   const socialImage = post.ogImage ?? post.coverImage;
-  const absoluteSocialImage = socialImage
-    ? new URL(socialImage.src, 'https://devrem.co').toString()
-    : null;
-  return {
+  return createPageMetadata({
     title: metadataTitle,
     description,
-    alternates: { canonical: `/blog/${post.slug}` },
-    openGraph: {
-      type: 'article',
-      title: `${metadataTitle} | Devrem`,
-      description,
-      publishedTime: post.publishedIso,
-      modifiedTime: post.updatedIso ?? post.publishedIso,
-      authors: [post.author],
-      images: absoluteSocialImage ? [absoluteSocialImage] : [],
-    },
-    twitter: {
-      card: 'summary',
-      title: `${metadataTitle} | Devrem`,
-      description,
-      images: absoluteSocialImage ? [absoluteSocialImage] : [],
-    },
-  };
+    path: `/blog/${post.slug}`,
+    image: socialImage?.src,
+    imageAlt: socialImage?.alt,
+    type: 'article',
+    index: !post.noindex,
+    publishedTime: post.publishedIso,
+    modifiedTime: post.updatedIso ?? post.publishedIso,
+    authors: [post.author],
+  });
 }
 
 export default async function BlogDetailPage({ params }: BlogDetailProps) {
@@ -52,78 +50,24 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
   if (post.slug !== slug) permanentRedirect(`/blog/${post.slug}`);
 
   const relatedPosts = await getPublishedRelatedPosts(post.relatedSlugs ?? []);
-  const schemaGraph: Record<string, unknown>[] = [
-    {
-      '@type': ['Article', 'BlogPosting'],
-      mainEntityOfPage: `https://devrem.co/blog/${post.slug}`,
-      headline: post.title,
-      description: post.excerpt,
-      datePublished: post.publishedIso,
+  const structuredData = graphSchema(
+    organizationSchema(),
+    webPageSchema({
+      path: `/blog/${post.slug}`,
+      name: post.title,
+      description: post.metaDescription?.trim() || post.excerpt,
       dateModified: post.updatedIso ?? post.publishedIso,
-      author: { '@type': 'Organization', name: post.author },
-      publisher: {
-        '@type': 'Organization',
-        name: 'Devrem',
-        url: 'https://devrem.co',
-      },
-      ...(post.coverImage || post.ogImage
-        ? {
-            image: new URL(
-              (post.ogImage ?? post.coverImage)?.src ?? '',
-              'https://devrem.co',
-            ).toString(),
-          }
-        : {}),
-      ...(post.sources?.length
-        ? { citation: post.sources.map((source) => source.href) }
-        : {}),
-    },
-    {
-      '@type': 'BreadcrumbList',
-      itemListElement: [
-        {
-          '@type': 'ListItem',
-          position: 1,
-          name: 'Ana Sayfa',
-          item: 'https://devrem.co',
-        },
-        {
-          '@type': 'ListItem',
-          position: 2,
-          name: 'Blog',
-          item: 'https://devrem.co/blog',
-        },
-        {
-          '@type': 'ListItem',
-          position: 3,
-          name: post.title,
-          item: `https://devrem.co/blog/${post.slug}`,
-        },
-      ],
-    },
-  ];
-
-  if (post.faqs?.length) {
-    schemaGraph.push({
-      '@type': 'FAQPage',
-      mainEntity: post.faqs.map((item) => ({
-        '@type': 'Question',
-        name: item.question,
-        acceptedAnswer: { '@type': 'Answer', text: item.answer },
-      })),
-    });
-  }
-
-  const structuredData = JSON.stringify({
-    '@context': 'https://schema.org',
-    '@graph': schemaGraph,
-  }).replace(/</g, '\\u003c');
+    }),
+    articleSchema(post),
+    breadcrumbSchema([
+      { name: 'Ana Sayfa', path: '/' },
+      { name: 'Blog', path: '/blog' },
+      { name: post.title, path: `/blog/${post.slug}` },
+    ]),
+  );
   return (
     <main className="article-page editorial-surface" id="ana-icerik">
-      <script
-        dangerouslySetInnerHTML={{ __html: structuredData }}
-        type="application/ld+json"
-      />
+      <JsonLd data={structuredData} />
       <Container>
         <BlogArticle post={post} relatedPosts={relatedPosts} />
       </Container>

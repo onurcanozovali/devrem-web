@@ -1,43 +1,52 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import Link from 'next/link';
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 import {
-  ArrowDownRight,
-  ArrowUpRight,
+  ArrowRight,
+  CalendarDays,
+  Check,
+  ChevronDown,
   Coins,
   Euro,
-  Landmark,
+  ExternalLink,
   Scale,
-  Sparkles,
+  Share2,
+  WalletCards,
 } from 'lucide-react';
 import type { MarketSnapshot } from '@/lib/evds';
 import {
   bedelliPeriods,
   currentBedelliPeriod,
-  firstBedelliPeriod,
-  quarterGoldPureGrams,
 } from '@/src/fixtures/bedelli';
+import {
+  bedelliComparisonDefinitions,
+  bedelliFaqs,
+  bedelliPageCopy,
+  bedelliRelatedContent,
+  bedelliSources,
+  type BedelliComparisonDefinition,
+  type BedelliComparisonId,
+} from '@/src/content/bedelli';
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
   type ChartConfig,
 } from '@/components/ui/chart';
-import { Input } from '@/components/ui/input';
-import { Slider } from '@/components/ui/slider';
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-type Metric = 'usd' | 'eur' | 'gold';
+type MarketMetric = 'usd' | 'eur' | 'gold';
+
+type AnnualRow = {
+  period: (typeof bedelliPeriods)[number];
+  market: MarketSnapshot['annual'][number];
+  usd: number;
+  eur: number;
+  gold: number;
+  minimumWage: number;
+  salaries: number;
+};
 
 const currency = new Intl.NumberFormat('tr-TR', {
   style: 'currency',
@@ -45,29 +54,29 @@ const currency = new Intl.NumberFormat('tr-TR', {
   maximumFractionDigits: 2,
 });
 
-const decimal = new Intl.NumberFormat('tr-TR', { maximumFractionDigits: 2 });
+const decimal = new Intl.NumberFormat('tr-TR', {
+  maximumFractionDigits: 2,
+});
+
 const compact = new Intl.NumberFormat('tr-TR', {
   notation: 'compact',
   maximumFractionDigits: 1,
 });
 
-const metricDetails = {
+const marketMetricDetails = {
   usd: {
     label: 'ABD doları',
     shortLabel: 'Dolar',
-    symbol: '$',
     color: 'var(--primary-ink)',
   },
   eur: {
     label: 'Euro',
     shortLabel: 'Euro',
-    symbol: '€',
     color: 'var(--information)',
   },
   gold: {
     label: 'Gram altın',
     shortLabel: 'Gram altın',
-    symbol: 'gr',
     color: 'var(--warning)',
   },
 } as const;
@@ -78,6 +87,12 @@ const chartConfig = {
   gold: { label: 'Gram altın', color: 'var(--warning)' },
 } satisfies ChartConfig;
 
+const comparisonIcons = {
+  gold: Scale,
+  eur: Euro,
+  minimumWage: WalletCards,
+} satisfies Record<BedelliComparisonId, typeof Scale>;
+
 function formatEvdsPeriod(value: string) {
   if (/^\d{4}-\d{1,2}$/.test(value)) {
     const [year, month] = value.split('-').map(Number);
@@ -86,6 +101,7 @@ function formatEvdsPeriod(value: string) {
       year: 'numeric',
     }).format(new Date(Date.UTC(year, month - 1, 1)));
   }
+
   const [day, month, year] = value.split('-').map(Number);
   return new Intl.DateTimeFormat('tr-TR', {
     day: 'numeric',
@@ -98,488 +114,432 @@ function getDelta(current: number, previous: number) {
   return (current / previous - 1) * 100;
 }
 
-function DeltaBadge({
-  value,
-  reverse = false,
-}: {
-  value: number;
-  reverse?: boolean;
-}) {
-  const positive = reverse ? value <= 0 : value >= 0;
-  const Icon = value >= 0 ? ArrowUpRight : ArrowDownRight;
-  return (
-    <span
-      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-bold ${positive ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger'}`}
-    >
-      <Icon className="size-3" aria-hidden="true" /> {value >= 0 ? '+' : ''}
-      {decimal.format(value)}%
-    </span>
-  );
+function getComparisonPrice(
+  definition: BedelliComparisonDefinition,
+  row: AnnualRow,
+) {
+  if (definition.priceSeries.kind === 'evds') {
+    return row.market[definition.priceSeries.metric].value;
+  }
+
+  return definition.priceSeries.yearlyPrices[row.period.year];
 }
 
-function ComparisonCard({
-  icon: Icon,
-  label,
-  current,
-  previous,
-  currentLabel,
-  previousLabel,
-  unit,
-  note,
-}: {
-  icon: typeof Landmark;
-  label: string;
-  current: number;
-  previous: number;
-  currentLabel: string;
-  previousLabel: string;
-  unit: string;
-  note?: string;
-}) {
-  const delta = getDelta(current, previous);
+function formatQuantity(value: number, metric: BedelliComparisonId) {
+  return new Intl.NumberFormat('tr-TR', {
+    maximumFractionDigits: metric === 'eur' ? 0 : 1,
+  }).format(value);
+}
+
+function ShareResult({ text }: { text: string }) {
+  const [status, setStatus] = useState('');
+
+  const share = async () => {
+    const url = `${window.location.origin}/bedelli`;
+
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: 'Devrem Bedelli karşılaştırması',
+          text,
+          url,
+        });
+        setStatus('Paylaşım ekranı açıldı.');
+      } else {
+        await navigator.clipboard.writeText(`${text} ${url}`);
+        setStatus('Sonuç ve bağlantı kopyalandı.');
+      }
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') return;
+      setStatus(
+        'Paylaşım açılamadı. Bağlantıyı tarayıcıdan kopyalayabilirsin.',
+      );
+    }
+  };
+
   return (
-    <article className="bedelli-comparison-card">
-      <div className="flex items-start justify-between gap-3">
-        <span className="flex size-10 items-center justify-center rounded-xl bg-primary-subtle text-primary-ink">
-          <Icon className="size-5" aria-hidden="true" />
-        </span>
-        <DeltaBadge value={delta} />
-      </div>
-      <h3 className="mt-5 text-sm font-bold">{label}</h3>
-      <div className="mt-5 grid grid-cols-2 gap-3">
-        <div>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-secondary-foreground">
-            {currentLabel}
-          </p>
-          <p className="mt-1 text-xl font-bold tracking-[-0.04em]">
-            {decimal.format(current)}
-          </p>
-          <span className="mt-1 block text-[10px] font-semibold text-secondary-foreground">
-            {unit}
-          </span>
-        </div>
-        <div className="border-l border-border pl-3">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-secondary-foreground">
-            {previousLabel}
-          </p>
-          <p className="mt-1 text-xl font-bold tracking-[-0.04em]">
-            {decimal.format(previous)}
-          </p>
-          <span className="mt-1 block text-[10px] font-semibold text-secondary-foreground">
-            {unit}
-          </span>
-        </div>
-      </div>
-      {note ? (
-        <p className="mt-4 text-[10px] leading-4 text-secondary-foreground">
-          {note}
-        </p>
-      ) : null}
-    </article>
+    <div className="bedelli-share-wrap">
+      <button className="bedelli-share-button" onClick={share} type="button">
+        <Share2 className="size-4" aria-hidden="true" /> Sonucu paylaş
+      </button>
+      <span className="sr-only" aria-live="polite">
+        {status}
+      </span>
+    </div>
   );
 }
 
 export function BedelliCalculator({ snapshot }: { snapshot: MarketSnapshot }) {
-  const [amount, setAmount] = useState<number>(currentBedelliPeriod.amount);
-  const [metric, setMetric] = useState<Metric>('gold');
+  const [marketMetric, setMarketMetric] = useState<MarketMetric>('gold');
+  const [comparisonMetric, setComparisonMetric] =
+    useState<BedelliComparisonId>('gold');
   const [comparisonYear, setComparisonYear] = useState<number>(
-    firstBedelliPeriod.year,
+    bedelliPeriods[0].year,
   );
 
-  const annualRows = useMemo(
+  const annualRows = useMemo<AnnualRow[]>(
     () =>
       bedelliPeriods.flatMap((period) => {
-        const market = snapshot.annual.find(
-          (item) => item.year === period.year,
+        const market = snapshot.annual.find((item) => item.year === period.year);
+        const wageDefinition = bedelliComparisonDefinitions.find(
+          (item) => item.id === 'minimumWage',
         );
-        if (!market) return [];
-        const gold = period.amount / market.gold.value;
+
+        if (!market || wageDefinition?.priceSeries.kind !== 'yearly') return [];
+
+        const minimumWage =
+          wageDefinition.priceSeries.yearlyPrices[period.year];
+        if (!minimumWage) return [];
+
         return [
           {
             period,
             market,
             usd: period.amount / market.usd.value,
             eur: period.amount / market.eur.value,
-            gold,
-            quarter: gold / quarterGoldPureGrams,
+            gold: period.amount / market.gold.value,
+            minimumWage,
+            salaries: period.amount / minimumWage,
           },
         ];
       }),
     [snapshot],
   );
 
-  const currentRow = annualRows.find(
-    (row) => row.period.year === currentBedelliPeriod.year,
-  );
+  const currentRow = annualRows.at(-1);
   const comparisonRow = annualRows.find(
     (row) => row.period.year === comparisonYear,
   );
-
-  const converted = {
-    usd: amount / snapshot.current.usd.value,
-    eur: amount / snapshot.current.eur.value,
-    gold: amount / snapshot.current.gold.value,
-    quarter: amount / (snapshot.current.gold.value * quarterGoldPureGrams),
-  };
-
-  const feeChange = getDelta(
-    currentBedelliPeriod.amount,
-    firstBedelliPeriod.amount,
+  const comparisonDefinition = bedelliComparisonDefinitions.find(
+    (item) => item.id === comparisonMetric,
   );
-  const metricMeta = metricDetails[metric];
+  const marketMetricMeta = marketMetricDetails[marketMetric];
 
-  if (!currentRow || !comparisonRow) {
+  if (!currentRow || !comparisonRow || !comparisonDefinition) {
     return (
-      <section className="rounded-[2rem] border border-danger/25 bg-danger/5 p-8">
-        <h2 className="text-xl font-bold">
-          Beş yıllık karşılaştırma hazırlanamadı.
-        </h2>
-        <p className="mt-2 text-sm text-secondary-foreground">
-          Eksik piyasa dönemi bir sonraki günlük veri yenilemesinde tekrar
-          denenecek.
+      <section className="bedelli-data-error" aria-live="polite">
+        <h2>Karşılaştırma verisi şu anda hazırlanamadı.</h2>
+        <p>
+          Güncel resmî tutar yukarıda yer alıyor. Piyasa verileri yenilendiğinde
+          karşılaştırmalar otomatik olarak geri gelecek.
         </p>
       </section>
     );
   }
 
+  const comparisonPrice = getComparisonPrice(
+    comparisonDefinition,
+    comparisonRow,
+  );
+  const currentPrice = getComparisonPrice(comparisonDefinition, currentRow);
+  const comparisonQuantity = comparisonRow.period.amount / comparisonPrice;
+  const currentQuantity = currentRow.period.amount / currentPrice;
+  const purchasingPowerDelta = getDelta(currentQuantity, comparisonQuantity);
+  const maxQuantity = Math.max(comparisonQuantity, currentQuantity);
+  const feeDelta = getDelta(
+    currentBedelliPeriod.amount,
+    comparisonRow.period.amount,
+  );
+  const goldBought =
+    comparisonRow.period.amount / comparisonRow.market.gold.value;
+  const goldValueToday = goldBought * snapshot.current.gold.value;
+  const goldDifference = goldValueToday - currentBedelliPeriod.amount;
+  const maximumSalaryCount = Math.max(
+    ...annualRows.map((row) => row.salaries),
+  );
+  const ComparisonIcon = comparisonIcons[comparisonMetric];
+  const shareText = `${comparisonYear}'de bedelli askerlik ücreti yaklaşık ${formatQuantity(comparisonQuantity, comparisonMetric)} ${comparisonDefinition.unit} ediyordu; 2026'da bu karşılık ${formatQuantity(currentQuantity, comparisonMetric)} ${comparisonDefinition.unit}.`;
+
   return (
     <>
       <section
-        className="bedelli-workspace"
-        aria-labelledby="bedelli-calculator-title"
+        className="bedelli-section bedelli-purchasing-section"
+        id="alim-gucu"
+        aria-labelledby="purchasing-title"
       >
-        <div className="bedelli-fee-panel">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-xs font-bold uppercase tracking-[0.12em] text-primary-ink">
-              Güncel resmî tutar
-            </p>
-            <span className="rounded-full bg-primary-subtle px-3 py-1.5 text-[10px] font-bold text-primary-ink">
-              {currentBedelliPeriod.label}
+        <div className="bedelli-section-heading">
+          <p className="bedelli-kicker">Etkileşimli karşılaştırma</p>
+          <h2 id="purchasing-title">Bu parayla ne alırdın?</h2>
+          <p>{bedelliPageCopy.purchasingIntro}</p>
+        </div>
+
+        <div className="bedelli-picker-row">
+          <fieldset className="bedelli-year-picker">
+            <legend>Karşılaştırma yılı</legend>
+            <div>
+              {bedelliPeriods.map((period) => (
+                <button
+                  aria-pressed={comparisonYear === period.year}
+                  key={period.year}
+                  onClick={() => setComparisonYear(period.year)}
+                  type="button"
+                >
+                  {period.year}
+                </button>
+              ))}
+            </div>
+          </fieldset>
+
+          <fieldset className="bedelli-metric-picker">
+            <legend>Karşılaştırma ölçüsü</legend>
+            <div>
+              {bedelliComparisonDefinitions.map((definition) => {
+                const Icon = comparisonIcons[definition.id];
+                return (
+                  <button
+                    aria-pressed={comparisonMetric === definition.id}
+                    key={definition.id}
+                    onClick={() => setComparisonMetric(definition.id)}
+                    type="button"
+                  >
+                    <Icon className="size-4" aria-hidden="true" />
+                    {definition.name}
+                  </button>
+                );
+              })}
+            </div>
+          </fieldset>
+        </div>
+
+        <div className="bedelli-comparison-stage">
+          <div className="bedelli-comparison-intro">
+            <span className="bedelli-comparison-icon">
+              <ComparisonIcon className="size-7" aria-hidden="true" />
+            </span>
+            <div>
+              <p>{comparisonDefinition.name}</p>
+              <strong>
+                {purchasingPowerDelta < 0
+                  ? 'Alım gücü azaldı'
+                  : 'Alım gücü arttı'}
+              </strong>
+            </div>
+            <span
+              className={
+                purchasingPowerDelta < 0
+                  ? 'bedelli-change is-negative'
+                  : 'bedelli-change'
+              }
+            >
+              {purchasingPowerDelta > 0 ? '+' : ''}
+              {decimal.format(purchasingPowerDelta)}%
             </span>
           </div>
-          <p className="mt-5 text-[clamp(2.7rem,7vw,5.3rem)] font-extrabold leading-none tracking-[-0.065em]">
-            {currency.format(currentBedelliPeriod.amount)}
-          </p>
-          <div className="mt-6 grid gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl border border-border bg-surface-elevated p-4">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-secondary-foreground">
-                Serinin başlangıcı · 2022
-              </p>
-              <p className="mt-2 text-lg font-bold">
-                {currency.format(firstBedelliPeriod.amount)}
-              </p>
+
+          <div className="bedelli-bar-comparison">
+            <div className="bedelli-bar-row">
+              <div className="bedelli-bar-label">
+                <span>{comparisonYear}</span>
+                <strong>
+                  {formatQuantity(comparisonQuantity, comparisonMetric)}{' '}
+                  <small>{comparisonDefinition.unit}</small>
+                </strong>
+              </div>
+              <div className="bedelli-bar-track" aria-hidden="true">
+                <span
+                  style={{
+                    width: `${Math.max(12, (comparisonQuantity / maxQuantity) * 100)}%`,
+                  }}
+                />
+              </div>
             </div>
-            <div className="rounded-2xl border border-border bg-surface-elevated p-4">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-secondary-foreground">
-                Beş dönemlik tutar değişimi
-              </p>
-              <div className="mt-2 flex items-center gap-2">
-                <p className="text-lg font-bold">
-                  +{decimal.format(feeChange)}%
-                </p>
-                <DeltaBadge value={feeChange} />
+            <div className="bedelli-bar-row is-current">
+              <div className="bedelli-bar-label">
+                <span>2026</span>
+                <strong>
+                  {formatQuantity(currentQuantity, comparisonMetric)}{' '}
+                  <small>{comparisonDefinition.unit}</small>
+                </strong>
+              </div>
+              <div className="bedelli-bar-track" aria-hidden="true">
+                <span
+                  style={{
+                    width: `${Math.max(12, (currentQuantity / maxQuantity) * 100)}%`,
+                  }}
+                />
               </div>
             </div>
           </div>
-          <div className="mt-5 flex flex-wrap gap-3 text-xs">
-            <a
-              className="font-bold text-primary-ink underline decoration-primary/35 underline-offset-4 hover:text-primary-dark"
-              href={currentBedelliPeriod.sourceUrl}
-              rel="noreferrer"
-              target="_blank"
-            >
-              {currentBedelliPeriod.sourceLabel}
-            </a>
-            <a
-              className="font-bold text-primary-ink underline decoration-primary/35 underline-offset-4 hover:text-primary-dark"
-              href="#five-year-data"
-            >
-              Beş yılın tamamını gör
-            </a>
+
+          <div className="bedelli-comparison-footer">
+            <p>
+              {comparisonYear} bedeliyle yaklaşık{' '}
+              <strong>
+                {formatQuantity(comparisonQuantity, comparisonMetric)}{' '}
+                {comparisonDefinition.unit}
+              </strong>{' '}
+              alınabilirken 2026 bedeliyle karşılık{' '}
+              <strong>
+                {formatQuantity(currentQuantity, comparisonMetric)}{' '}
+                {comparisonDefinition.unit}
+              </strong>
+              .
+            </p>
+            <ShareResult text={shareText} />
           </div>
         </div>
 
-        <div className="bedelli-converter-panel">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[0.12em] text-primary-ink">
-                Canlı çevirici
-              </p>
-              <h2
-                className="mt-2 text-2xl font-bold tracking-[-0.045em]"
-                id="bedelli-calculator-title"
-              >
-                Bu para bugün ne eder?
-              </h2>
-            </div>
-            <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
-              <Sparkles className="size-5" aria-hidden="true" />
-            </span>
-          </div>
-          <label
-            className="mt-7 block text-xs font-semibold text-secondary-foreground"
-            htmlFor="bedelli-amount"
+        <p className="bedelli-data-note">
+          {comparisonDefinition.notes}{' '}
+          <a
+            href={comparisonDefinition.source.url}
+            rel="noreferrer"
+            target="_blank"
           >
-            Karşılaştırmak istediğin tutar
-          </label>
-          <div className="relative mt-2">
-            <Input
-              className="h-14 rounded-2xl bg-surface px-4 pr-14 text-xl font-bold tabular-nums"
-              id="bedelli-amount"
-              inputMode="numeric"
-              max={750000}
-              min={50000}
-              onChange={(event) =>
-                setAmount(
-                  Math.min(
-                    750000,
-                    Math.max(50000, Number(event.target.value) || 50000),
-                  ),
-                )
-              }
-              step={1000}
-              type="number"
-              value={Math.round(amount)}
-            />
-            <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-secondary-foreground">
-              TL
-            </span>
-          </div>
-          <Slider
-            aria-label="Karşılaştırılacak tutar"
-            className="mt-6 py-2"
-            max={750000}
-            min={50000}
-            onValueChange={(value) =>
-              setAmount(Array.isArray(value) ? value[0] : value)
-            }
-            step={1000}
-            value={[amount]}
-          />
-          <div className="mt-4 flex flex-wrap gap-2">
-            {[0.5, 1, 1.25].map((ratio) => (
-              <button
-                className={`rounded-full border px-3 py-1.5 text-[10px] font-bold transition ${ratio === 1 && Math.abs(amount - currentBedelliPeriod.amount) < 1000 ? 'border-primary bg-primary-subtle text-primary-ink' : 'border-border bg-surface hover:border-primary/50'}`}
-                key={ratio}
-                onClick={() => setAmount(currentBedelliPeriod.amount * ratio)}
-                type="button"
-              >
-                {ratio === 1 ? 'Güncel bedel' : `%${ratio * 100}`}
-              </button>
-            ))}
-          </div>
-          <div className="mt-7 grid grid-cols-2 gap-3">
-            <div className="bedelli-conversion-result">
-              <span>$</span>
-              <p>{decimal.format(converted.usd)}</p>
-              <small>ABD doları</small>
-            </div>
-            <div className="bedelli-conversion-result">
-              <span>€</span>
-              <p>{decimal.format(converted.eur)}</p>
-              <small>Euro</small>
-            </div>
-            <div className="bedelli-conversion-result">
-              <span>gr</span>
-              <p>{decimal.format(converted.gold)}</p>
-              <small>Gram altın</small>
-            </div>
-            <div className="bedelli-conversion-result">
-              <span>¼</span>
-              <p>≈ {decimal.format(converted.quarter)}</p>
-              <small>Çeyrek altın*</small>
-            </div>
-          </div>
-        </div>
+            Kaynağı gör <ExternalLink className="size-3" aria-hidden="true" />
+          </a>
+        </p>
       </section>
 
       <section
-        className="mt-20 sm:mt-24"
-        id="five-year-data"
-        aria-labelledby="purchasing-power-title"
+        className="bedelli-section bedelli-time-machine"
+        aria-labelledby="time-machine-title"
       >
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-          <div className="max-w-3xl">
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-primary-ink">
-              Alım gücü karşılaştırması
-            </p>
-            <h2
-              className="mt-3 text-3xl font-bold tracking-[-0.05em] sm:text-5xl"
-              id="purchasing-power-title"
-            >
-              Beş yılda ne değişti?
-            </h2>
-            <p className="mt-4 text-sm leading-7 text-secondary-foreground sm:text-base">
-              2022–2026 arasındaki her resmî bedeli, aynı ayın dolar, euro ve
-              altın karşılığıyla incele. Bir yıl seçerek bugünkü dönemle
-              doğrudan kıyasla.
-            </p>
+        <div className="bedelli-time-machine-copy">
+          <p className="bedelli-kicker">Bedelli zaman makinesi</p>
+          <h2 id="time-machine-title">
+            {comparisonYear}’den bugüne tek bakış.
+          </h2>
+          <p>
+            Aynı dönemin resmî ücretini bugünkü tutarla ve seçtiğin alım gücü
+            ölçüsüyle yan yana getir.
+          </p>
+        </div>
+        <div className="bedelli-time-machine-result">
+          <div>
+            <span>{comparisonYear} bedeli</span>
+            <strong>{currency.format(comparisonRow.period.amount)}</strong>
           </div>
-          <fieldset className="flex w-fit flex-wrap gap-2">
-            <legend className="sr-only">Karşılaştırma yılı</legend>
-            {bedelliPeriods.slice(0, -1).map((period) => (
-              <button
-                aria-pressed={comparisonYear === period.year}
-                className={`rounded-full border px-4 py-2 text-xs font-bold transition ${comparisonYear === period.year ? 'border-primary bg-primary text-primary-foreground shadow-sm' : 'border-border bg-surface hover:border-primary/50 hover:text-primary-ink'}`}
-                key={period.year}
-                onClick={() => setComparisonYear(period.year)}
-                type="button"
-              >
-                {period.year}
-              </button>
-            ))}
-          </fieldset>
-        </div>
-        <div className="mt-9 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <ComparisonCard
-            current={currentRow.usd}
-            currentLabel="2026"
-            icon={Landmark}
-            label="ABD doları karşılığı"
-            previous={comparisonRow.usd}
-            previousLabel={String(comparisonYear)}
-            unit="USD"
-          />
-          <ComparisonCard
-            current={currentRow.eur}
-            currentLabel="2026"
-            icon={Euro}
-            label="Euro karşılığı"
-            previous={comparisonRow.eur}
-            previousLabel={String(comparisonYear)}
-            unit="EUR"
-          />
-          <ComparisonCard
-            current={currentRow.gold}
-            currentLabel="2026"
-            icon={Scale}
-            label="Gram altın karşılığı"
-            previous={comparisonRow.gold}
-            previousLabel={String(comparisonYear)}
-            unit="gram"
-          />
-          <ComparisonCard
-            current={currentRow.quarter}
-            currentLabel="2026"
-            icon={Coins}
-            label="Çeyrek altın karşılığı"
-            note="*1,6065 gr saf altın üzerinden yaklaşık metal değeri; kuyumcu satış fiyatı değildir."
-            previous={comparisonRow.quarter}
-            previousLabel={String(comparisonYear)}
-            unit="adet"
-          />
-        </div>
-
-        <div className="mt-6 overflow-hidden rounded-[1.6rem] border border-border bg-surface">
-          <Table className="min-w-[820px]">
-            <TableCaption className="px-5 pb-5 text-left">
-              Her satır, ilgili yılın ikinci yarı bedelini güncel veri ayıyla
-              eşleşen EVDS aylık son değerleriyle gösterir.
-            </TableCaption>
-            <TableHeader className="bg-surface-elevated">
-              <TableRow>
-                <TableHead className="px-5">Dönem</TableHead>
-                <TableHead>Resmî bedel</TableHead>
-                <TableHead>ABD doları</TableHead>
-                <TableHead>Euro</TableHead>
-                <TableHead>Gram altın</TableHead>
-                <TableHead>Çeyrek*</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {annualRows.map((row) => (
-                <TableRow
-                  className={
-                    row.period.year === currentBedelliPeriod.year
-                      ? 'bg-primary-subtle/55'
-                      : undefined
-                  }
-                  key={row.period.year}
-                >
-                  <TableCell className="px-5 py-4">
-                    <strong className="block text-base">
-                      {row.period.year}
-                    </strong>
-                    <span className="mt-1 block text-[10px] text-secondary-foreground">
-                      {formatEvdsPeriod(row.market.gold.date)}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <strong>{currency.format(row.period.amount)}</strong>
-                    <a
-                      className="mt-1 block text-[10px] font-bold text-primary-ink hover:underline"
-                      href={row.period.sourceUrl}
-                      rel="noreferrer"
-                      target="_blank"
-                    >
-                      {row.period.sourceLabel}
-                    </a>
-                  </TableCell>
-                  <TableCell>{decimal.format(row.usd)} USD</TableCell>
-                  <TableCell>{decimal.format(row.eur)} EUR</TableCell>
-                  <TableCell>{decimal.format(row.gold)} gr</TableCell>
-                  <TableCell>≈ {decimal.format(row.quarter)} adet</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <ArrowRight className="size-5" aria-hidden="true" />
+          <div>
+            <span>2026 bedeli</span>
+            <strong>{currency.format(currentBedelliPeriod.amount)}</strong>
+          </div>
+          <div className="bedelli-time-delta">
+            <span>Nominal değişim</span>
+            <strong>+{decimal.format(feeDelta)}%</strong>
+          </div>
+          <p>
+            {comparisonDefinition.name} karşılığı{' '}
+            <b>{formatQuantity(comparisonQuantity, comparisonMetric)}</b>’den{' '}
+            <b>{formatQuantity(currentQuantity, comparisonMetric)}</b>’e geldi.
+          </p>
         </div>
       </section>
 
       <section
-        className="bedelli-trend-panel mt-20 sm:mt-24"
+        className="bedelli-section bedelli-gold-story"
+        aria-labelledby="gold-story-title"
+      >
+        <div className="bedelli-gold-visual" aria-hidden="true">
+          <span>
+            <Coins className="size-10" />
+          </span>
+          <i>{decimal.format(goldBought)} gr</i>
+        </div>
+        <div className="bedelli-gold-copy">
+          <p className="bedelli-kicker">Geçmişe dönük senaryo</p>
+          <h2 id="gold-story-title">Bedelli ücretini altına yatırsaydın?</h2>
+          <p>
+            {comparisonYear} yılındaki bedelli tutarı o dönemin gram altın
+            fiyatıyla yaklaşık <strong>{decimal.format(goldBought)} gram</strong>{' '}
+            altın ediyordu.
+          </p>
+          <div className="bedelli-gold-result">
+            <div>
+              <span>Bugünkü yaklaşık değeri</span>
+              <strong>{currency.format(goldValueToday)}</strong>
+            </div>
+            <div>
+              <span>Bugünkü bedelden farkı</span>
+              <strong className={goldDifference < 0 ? 'is-negative' : ''}>
+                {goldDifference >= 0 ? '+' : ''}
+                {currency.format(goldDifference)}
+              </strong>
+            </div>
+          </div>
+          <small>{bedelliPageCopy.goldDisclaimer}</small>
+        </div>
+      </section>
+
+      <section
+        className="bedelli-section bedelli-salary-section"
+        aria-labelledby="salary-title"
+      >
+        <div className="bedelli-section-heading">
+          <p className="bedelli-kicker">Gelire göre karşılık</p>
+          <h2 id="salary-title">Bedelli kaç maaş?</h2>
+          <p>
+            Her yılın ikinci yarı bedelini aynı dönemde geçerli aylık net asgari
+            ücretle karşılaştır.
+          </p>
+        </div>
+        <div className="bedelli-salary-bars">
+          {annualRows.map((row) => (
+            <div className="bedelli-salary-row" key={row.period.year}>
+              <span>{row.period.year}</span>
+              <div aria-hidden="true">
+                <i
+                  style={{
+                    width: `${Math.max(10, (row.salaries / maximumSalaryCount) * 100)}%`,
+                  }}
+                />
+              </div>
+              <strong>{decimal.format(row.salaries)} maaş</strong>
+            </div>
+          ))}
+        </div>
+        <p className="bedelli-data-note">
+          Net asgari ücret verileri Çalışma ve Sosyal Güvenlik Bakanlığı
+          kayıtlarından alınır. 2022 ve 2023 için Temmuz–Aralık tutarı kullanılır.
+        </p>
+      </section>
+
+      <section
+        className="bedelli-trend-panel bedelli-section"
+        id="piyasa-grafigi"
         aria-labelledby="market-trend-title"
       >
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div className="max-w-2xl">
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-primary-ink">
-              Son 5 yıl
-            </p>
-            <h2
-              className="mt-3 text-3xl font-bold tracking-[-0.05em] sm:text-4xl"
-              id="market-trend-title"
-            >
-              Piyasa nasıl hareket etti?
-            </h2>
-            <p className="mt-3 text-sm leading-6 text-secondary-foreground">
-              Aylık son değerleri tek grafikte izle; gösterge geçişleri akıcı
-              biçimde güncellenir.
+        <div className="bedelli-chart-heading">
+          <div>
+            <p className="bedelli-kicker">Son beş yıl</p>
+            <h2 id="market-trend-title">Piyasa nasıl hareket etti?</h2>
+            <p>
+              Aylık son değerleri tek grafikte izle. Göstergeyi değiştirerek
+              döviz ve gram altının dönem içindeki hareketini karşılaştır.
             </p>
           </div>
-          <Tabs
-            onValueChange={(value) => setMetric(value as Metric)}
-            value={metric}
-          >
-            <TabsList className="h-11 w-full rounded-full bg-secondary p-1 sm:w-auto">
-              {(Object.keys(metricDetails) as Metric[]).map((item) => (
-                <TabsTrigger
-                  className="h-9 rounded-full px-4 data-active:bg-surface"
+          <fieldset className="bedelli-chart-tabs">
+            <legend className="sr-only">Piyasa göstergesi</legend>
+            {(Object.keys(marketMetricDetails) as MarketMetric[]).map(
+              (item) => (
+                <button
+                  aria-pressed={marketMetric === item}
                   key={item}
-                  value={item}
+                  onClick={() => setMarketMetric(item)}
+                  type="button"
                 >
-                  {metricDetails[item].shortLabel}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
+                  {marketMetricDetails[item].shortLabel}
+                </button>
+              ),
+            )}
+          </fieldset>
         </div>
-        <div className="mt-8 rounded-[1.6rem] border border-border bg-surface p-4 sm:p-6">
-          <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <div className="bedelli-chart-shell">
+          <div className="bedelli-chart-meta">
             <div>
-              <p className="text-xs text-secondary-foreground">
-                Seçili gösterge
-              </p>
-              <p className="mt-1 text-lg font-bold">
-                {metricMeta.label} · {metric === 'gold' ? 'TL/gram' : 'TL'}
-              </p>
+              <span>Seçili gösterge</span>
+              <strong>
+                {marketMetricMeta.label} ·{' '}
+                {marketMetric === 'gold' ? 'TL/gram' : 'TL'}
+              </strong>
             </div>
-            <span className="rounded-full bg-primary-subtle px-3 py-1.5 text-[10px] font-bold text-primary-ink">
-              EVDS aylık son değer
-            </span>
+            <span>EVDS aylık son değer</span>
           </div>
           <ChartContainer
             className="h-[280px] w-full aspect-auto sm:h-[340px]"
             config={chartConfig}
+            id="bedelli-market"
             initialDimension={{ width: 760, height: 340 }}
           >
             <AreaChart
@@ -596,12 +556,12 @@ export function BedelliCalculator({ snapshot }: { snapshot: MarketSnapshot }) {
                 >
                   <stop
                     offset="5%"
-                    stopColor={metricMeta.color}
-                    stopOpacity={0.3}
+                    stopColor={marketMetricMeta.color}
+                    stopOpacity={0.28}
                   />
                   <stop
                     offset="95%"
-                    stopColor={metricMeta.color}
+                    stopColor={marketMetricMeta.color}
                     stopOpacity={0.02}
                   />
                 </linearGradient>
@@ -625,17 +585,192 @@ export function BedelliCalculator({ snapshot }: { snapshot: MarketSnapshot }) {
                 cursor={{ stroke: 'var(--border)' }}
               />
               <Area
-                activeDot={{ r: 5, fill: metricMeta.color }}
+                activeDot={{ r: 5, fill: marketMetricMeta.color }}
                 animationDuration={650}
-                dataKey={metric}
+                dataKey={marketMetric}
                 fill="url(#bedelliChartFill)"
-                stroke={metricMeta.color}
+                stroke={marketMetricMeta.color}
                 strokeWidth={3}
                 type="monotone"
               />
             </AreaChart>
           </ChartContainer>
         </div>
+      </section>
+
+      <section className="bedelli-context-cta" aria-labelledby="prep-cta-title">
+        <div>
+          <p className="bedelli-kicker">Sıradaki adım</p>
+          <h2 id="prep-cta-title">Ücreti öğrendin, hazırlığı da planla.</h2>
+          <p>
+            Yanına alacaklarını sadeleştir; celp ve sevk takvimini resmî
+            tarihlerle birlikte takip et.
+          </p>
+        </div>
+        <div>
+          <Link href="/blog/askere-giderken-canta-nasil-sadelesir">
+            Hazırlık rehberine git{' '}
+            <ArrowRight className="size-4" aria-hidden="true" />
+          </Link>
+          <Link
+            className="is-secondary"
+            href="/blog/2026-askerlik-celp-sevk-tarihleri"
+          >
+            Celp ve sevk rehberi
+          </Link>
+        </div>
+      </section>
+
+      <section className="bedelli-data-section" aria-labelledby="data-title">
+        <details>
+          <summary>
+            <span>
+              <b id="data-title">Detaylı yıllık verileri göster</b>
+              <small>Kesin tutarlar ve karşılıkları tek tabloda incele.</small>
+            </span>
+            <ChevronDown className="size-5" aria-hidden="true" />
+          </summary>
+          <div className="bedelli-table-scroll">
+            <table>
+              <caption>
+                Her satır ilgili yılın ikinci yarı bedelini ve aynı aya
+                hizalanan piyasa karşılıklarını gösterir.
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col">Yıl</th>
+                  <th scope="col">Bedelli ücreti</th>
+                  <th scope="col">Euro</th>
+                  <th scope="col">Gram altın</th>
+                  <th scope="col">Net asgari ücret</th>
+                  <th scope="col">Maaş karşılığı</th>
+                </tr>
+              </thead>
+              <tbody>
+                {annualRows.map((row) => (
+                  <tr key={row.period.year}>
+                    <th scope="row">
+                      {row.period.year}
+                      <small>{formatEvdsPeriod(row.market.gold.date)}</small>
+                    </th>
+                    <td>
+                      <a
+                        href={row.period.sourceUrl}
+                        rel="noreferrer"
+                        target="_blank"
+                      >
+                        {currency.format(row.period.amount)}
+                      </a>
+                    </td>
+                    <td>{decimal.format(row.eur)} EUR</td>
+                    <td>{decimal.format(row.gold)} gr</td>
+                    <td>{currency.format(row.minimumWage)}</td>
+                    <td>{decimal.format(row.salaries)} maaş</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </details>
+      </section>
+
+      <section
+        className="bedelli-section bedelli-related"
+        aria-labelledby="related-title"
+      >
+        <div className="bedelli-section-heading">
+          <p className="bedelli-kicker">Devamını keşfet</p>
+          <h2 id="related-title">Bunlara da bak</h2>
+        </div>
+        <div className="bedelli-related-grid">
+          {bedelliRelatedContent.map((item) => (
+            <Link href={item.href} key={item.href}>
+              <span>
+                <CalendarDays className="size-4" aria-hidden="true" />
+              </span>
+              <strong>{item.title}</strong>
+              <p>{item.description}</p>
+              <i>
+                Rehberi oku <ArrowRight className="size-4" aria-hidden="true" />
+              </i>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <section className="bedelli-section bedelli-faq" aria-labelledby="faq-title">
+        <div className="bedelli-section-heading">
+          <p className="bedelli-kicker">Kısa ve net</p>
+          <h2 id="faq-title">Sık sorulan sorular</h2>
+        </div>
+        <div className="bedelli-faq-list">
+          {bedelliFaqs.map((item) => (
+            <details key={item.question}>
+              <summary>
+                {item.question}
+                <ChevronDown className="size-5" aria-hidden="true" />
+              </summary>
+              <p>{item.answer}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+
+      <section className="bedelli-sources" aria-labelledby="sources-title">
+        <div>
+          <p className="bedelli-kicker">Şeffaf veri</p>
+          <h2 id="sources-title">Veri kaynakları</h2>
+          <p>
+            Sonuçlar resmî tutarlar ve günlük önbelleklenen piyasa verileriyle
+            hesaplanır; etkileşimler yeni ağ isteği oluşturmaz.
+          </p>
+        </div>
+        <ul>
+          {[bedelliSources.market, bedelliSources.minimumWage].map((source) => (
+            <li key={source.id}>
+              <Check className="size-4" aria-hidden="true" />
+              <span>
+                <b>{source.organization}</b>
+                <a href={source.url} rel="noreferrer" target="_blank">
+                  {source.title}{' '}
+                  <ExternalLink className="size-3" aria-hidden="true" />
+                </a>
+              </span>
+            </li>
+          ))}
+          <li>
+            <Check className="size-4" aria-hidden="true" />
+            <span>
+              <b>Resmî bedelli askerlik tutarları</b>
+              <span className="bedelli-source-links">
+                {bedelliPeriods.map((period) => (
+                  <a
+                    href={period.sourceUrl}
+                    key={period.year}
+                    rel="noreferrer"
+                    target="_blank"
+                  >
+                    {period.year} <ExternalLink className="size-3" aria-hidden="true" />
+                  </a>
+                ))}
+              </span>
+            </span>
+          </li>
+        </ul>
+      </section>
+
+      <section className="bedelli-final-cta" aria-labelledby="final-cta-title">
+        <div>
+          <p className="bedelli-kicker">Devrem uygulaması</p>
+          <h2 id="final-cta-title">Kaç gün kaldı?</h2>
+          <p>
+            Sevk tarihini Devrem’e ekle; geri sayımını, hazırlığını ve aynı
+            birlikteki devrelerini tek yerde takip et.
+          </p>
+        </div>
+        <Link href="/#uygulama">
+          Devrem’i keşfet <ArrowRight className="size-4" aria-hidden="true" />
+        </Link>
       </section>
     </>
   );

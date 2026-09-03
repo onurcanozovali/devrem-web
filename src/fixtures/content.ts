@@ -77,6 +77,7 @@ export type BlogPost = {
   author: string;
   tone: 'mint' | 'amber' | 'slate' | 'sand';
   featured?: boolean;
+  noindex?: boolean;
   coverImage?: { src: string; alt: string; caption?: string };
   ogImage?: { src: string; alt: string; caption?: string };
   sections: ArticleSection[];

@@ -113,7 +113,7 @@ export function HomeHero() {
                         alt=""
                         className="h-full w-full object-contain"
                         height={47}
-                        src="/kuvvetler/hava.png"
+                        src="/kuvvetler/hava-optimized.png"
                         width={47}
                       />
                     </div>

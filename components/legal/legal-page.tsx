@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { ArrowLeft, ArrowUpRight, CalendarDays, Check } from 'lucide-react';
 import { Container } from '@/components/site/container';
 import { siteConfig } from '@/src/config/site';
+import { createPageMetadata } from '@/src/config/seo';
 import {
   legalDocuments,
   type LegalBlock,
@@ -10,27 +11,11 @@ import {
 } from '@/src/fixtures/legal';
 
 export function createLegalMetadata(document: LegalDocument): Metadata {
-  const canonical = `/${document.slug}`;
-
-  return {
+  return createPageMetadata({
     title: document.title,
     description: document.description,
-    alternates: { canonical },
-    robots: { index: true, follow: true },
-    openGraph: {
-      type: 'website',
-      locale: 'tr_TR',
-      siteName: 'Devrem',
-      title: document.title,
-      description: document.description,
-      url: canonical,
-    },
-    twitter: {
-      card: 'summary',
-      title: document.title,
-      description: document.description,
-    },
-  };
+    path: `/${document.slug}`,
+  });
 }
 
 function LegalLinkItem({

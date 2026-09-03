@@ -12,6 +12,16 @@ import {
   type AccountStatus,
   type ReportStatus,
 } from '@/src/admin/domain';
+import {
+  aggregateProvinceValues,
+  dashboardDateKey,
+  emptyProvinceCounts,
+  fillDailyRegistrations,
+  isMilitaryProfileComplete,
+  normalizeAggregateCounts,
+  periodKey,
+  periodLabel,
+} from '@/src/admin/dashboard';
 
 type RecordData = Record<string, unknown>;
 
@@ -560,5 +570,257 @@ export async function getAdminDashboardMetrics() {
     publishedPosts,
     conversations,
     resolvedReports,
+  };
+}
+
+type DashboardDataSource = 'aggregate' | 'bounded-server-fallback' | 'unavailable';
+
+function aggregateNumber(value: unknown) {
+  return typeof value === 'number' && Number.isFinite(value)
+    ? Math.max(0, Math.trunc(value))
+    : null;
+}
+
+function aggregateDate(value: unknown) {
+  return typeof value === 'string' && !Number.isNaN(Date.parse(value)) ? value : null;
+}
+
+function registrationsFromAggregate(value: Record<string, unknown> | null) {
+  const registrations: Record<string, number> = {};
+  const source = value?.registrations ?? value?.days;
+  if (source && typeof source === 'object' && !Array.isArray(source)) {
+    for (const [date, count] of Object.entries(source as Record<string, unknown>)) {
+      if (/^\d{4}-\d{2}-\d{2}$/.test(date) && aggregateNumber(count) !== null) {
+        registrations[date] = aggregateNumber(count)!;
+      }
+    }
+  }
+  const buckets = value?.buckets;
+  if (Array.isArray(buckets)) {
+    for (const bucket of buckets) {
+      if (!bucket || typeof bucket !== 'object') continue;
+      const item = bucket as Record<string, unknown>;
+      if (typeof item.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(item.date)) {
+        registrations[item.date] = aggregateNumber(item.registrations) ?? 0;
+      }
+    }
+  }
+  return registrations;
+}
+
+function periodsFromAggregate(value: unknown, currentPeriod: string) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return [];
+  return Object.entries(value as Record<string, unknown>)
+    .flatMap(([key, rawCount]) => {
+      const count = aggregateNumber(rawCount);
+      return /^\d{4}-\d{2}$/.test(key) && key >= currentPeriod && count !== null
+        ? [{ key, label: periodLabel(key), count }]
+        : [];
+    })
+    .sort((a, b) => a.key.localeCompare(b.key))
+    .slice(0, 8);
+}
+
+async function listDashboardModerationQueue() {
+  try {
+    return await queryFirestoreDocuments({
+      collection: 'moderationReports',
+      filters: [{ field: 'status', op: 'IN', value: ['open', 'reviewing'] }],
+      orderBy: [{ field: 'createdAt', direction: 'DESCENDING' }],
+      limit: 6,
+    });
+  } catch {
+    // The composite index may still be building. Keep the dashboard operational
+    // with a bounded recent-report window instead of issuing an unbounded scan.
+    return queryFirestoreDocuments({
+      collection: 'moderationReports',
+      orderBy: [{ field: 'createdAt', direction: 'DESCENDING' }],
+      limit: 100,
+    });
+  }
+}
+
+export type AdminOperationsDashboard = Awaited<ReturnType<typeof getAdminOperationsDashboard>>;
+
+/**
+ * Dashboard reads precomputed `_adminStats/*` documents first. If they do not
+ * exist yet, a complete server-only fallback is allowed only while the entire
+ * users collection fits in a hard 100-record ceiling. Individual profiles are
+ * never serialized to the browser, and larger installations receive an
+ * explicit unavailable state until the reconciliation job has run.
+ */
+export async function getAdminOperationsDashboard() {
+  const now = new Date();
+  const thirtyDays = new Date(now);
+  thirtyDays.setUTCDate(thirtyDays.getUTCDate() - 30);
+  const sixtyDays = new Date(now);
+  sixtyDays.setUTCDate(sixtyDays.getUTCDate() - 60);
+  const currentPeriod = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Europe/Istanbul',
+    year: 'numeric',
+    month: '2-digit',
+  }).format(now);
+
+  const [
+    users,
+    last30,
+    previous30,
+    onboarding,
+    groups,
+    disabledGroups,
+    openReports,
+    memberships,
+    blogPosts,
+    publishedPosts,
+    geographyDocument,
+    dailyDocument,
+    journeyDocument,
+    moderationResult,
+    contentResult,
+  ] = await Promise.all([
+    countFirestoreDocuments({ collection: 'users' }),
+    countFirestoreDocuments({
+      collection: 'users',
+      filters: [{ field: 'createdAt', op: 'GREATER_THAN_OR_EQUAL', value: thirtyDays.toISOString() }],
+    }),
+    countFirestoreDocuments({
+      collection: 'users',
+      filters: [
+        { field: 'createdAt', op: 'GREATER_THAN_OR_EQUAL', value: sixtyDays.toISOString() },
+        { field: 'createdAt', op: 'LESS_THAN', value: thirtyDays.toISOString() },
+      ],
+    }),
+    countFirestoreDocuments({ collection: 'users', filters: [{ field: 'onboardingCompleted', op: 'EQUAL', value: true }] }),
+    countFirestoreDocuments({ collection: 'devreGroups' }),
+    countFirestoreDocuments({ collection: '_adminGroupControls', filters: [{ field: 'status', op: 'EQUAL', value: 'disabled' }] }),
+    countFirestoreDocuments({ collection: 'moderationReports', filters: [{ field: 'status', op: 'IN', value: ['open', 'reviewing'] }] }),
+    countFirestoreDocuments({ collection: '_devreGroupMemberships' }),
+    countFirestoreDocuments({ collection: 'blogPosts' }),
+    countFirestoreDocuments({ collection: 'blogPosts', filters: [{ field: 'status', op: 'EQUAL', value: 'published' }] }),
+    getFirestoreDocument('_adminStats', 'geography'),
+    getFirestoreDocument('_adminStats', 'daily'),
+    getFirestoreDocument('_adminStats', 'dashboard'),
+    listDashboardModerationQueue(),
+    queryFirestoreDocuments({
+      collection: 'blogPosts',
+      orderBy: [{ field: 'updatedAt', direction: 'DESCENDING' }],
+      limit: 4,
+    }),
+  ]);
+
+  const requiresFallback = !geographyDocument || !dailyDocument || !journeyDocument;
+  const canUseCompleteFallback = users <= 100;
+  const fallbackResult = requiresFallback && canUseCompleteFallback && users > 0
+    ? await queryFirestoreDocuments({
+      collection: 'users',
+        orderBy: [{ field: 'createdAt', direction: 'DESCENDING' }],
+        limit: 100,
+      })
+    : { records: [], nextCursor: null };
+  const fallbackUsers = fallbackResult.records.map((record) => record.data);
+  const fallbackComplete = canUseCompleteFallback && fallbackUsers.length === users;
+
+  let geographySource: DashboardDataSource = 'unavailable';
+  let residence = { counts: emptyProvinceCounts(), matched: 0, unmatched: 0 };
+  let military = { counts: emptyProvinceCounts(), matched: 0, unmatched: 0 };
+  let geographyUpdatedAt: string | null = null;
+  if (geographyDocument) {
+    residence = normalizeAggregateCounts(geographyDocument.data.residence);
+    military = normalizeAggregateCounts(geographyDocument.data.military);
+    residence.unmatched = aggregateNumber(geographyDocument.data.unmatchedResidence) ?? residence.unmatched;
+    military.unmatched = aggregateNumber(geographyDocument.data.unmatchedMilitary) ?? military.unmatched;
+    geographySource = 'aggregate';
+    geographyUpdatedAt = aggregateDate(geographyDocument.data.updatedAt);
+  } else if (fallbackComplete) {
+    residence = aggregateProvinceValues(fallbackUsers.map((user) => user.residenceCity));
+    military = aggregateProvinceValues(fallbackUsers.map((user) => user.militaryCity));
+    geographySource = 'bounded-server-fallback';
+  }
+
+  let growthSource: DashboardDataSource = 'unavailable';
+  let registrationBuckets: Record<string, number> = {};
+  if (dailyDocument) {
+    registrationBuckets = registrationsFromAggregate(dailyDocument.data);
+    growthSource = 'aggregate';
+  } else if (fallbackComplete) {
+    for (const user of fallbackUsers) {
+      const key = dashboardDateKey(typeof user.createdAt === 'string' ? user.createdAt : '');
+      if (key) registrationBuckets[key] = (registrationBuckets[key] ?? 0) + 1;
+    }
+    growthSource = 'bounded-server-fallback';
+  }
+
+  let serviceProfileCompleted: number | null = null;
+  let periods: ReturnType<typeof periodsFromAggregate> = [];
+  let journeySource: DashboardDataSource = 'unavailable';
+  let communityInteraction: number | null = null;
+  if (journeyDocument) {
+    serviceProfileCompleted = aggregateNumber(journeyDocument.data.serviceProfileCompleted);
+    communityInteraction = aggregateNumber(journeyDocument.data.communityInteraction);
+    periods = periodsFromAggregate(journeyDocument.data.periods, currentPeriod);
+    journeySource = 'aggregate';
+  } else if (fallbackComplete) {
+    serviceProfileCompleted = fallbackUsers.filter(isMilitaryProfileComplete).length;
+    const periodCounts: Record<string, number> = {};
+    for (const user of fallbackUsers) {
+      const key = periodKey(user.militaryPeriodYear, user.militaryPeriodMonth);
+      if (key) periodCounts[key] = (periodCounts[key] ?? 0) + 1;
+    }
+    periods = periodsFromAggregate(periodCounts, currentPeriod);
+    journeySource = 'bounded-server-fallback';
+  }
+
+  return {
+    generatedAt: now.toISOString(),
+    kpis: {
+      users,
+      last30,
+      previous30,
+      last30TrendPercent: previous30 > 0
+        ? Math.round(((last30 - previous30) / previous30) * 1000) / 10
+        : null,
+      activeGroups: Math.max(0, groups - disabledGroups),
+      openReports,
+    },
+    geography: {
+      source: geographySource,
+      updatedAt: geographyUpdatedAt,
+      residence,
+      military,
+    },
+    growth: {
+      source: growthSource,
+      points: fillDailyRegistrations(registrationBuckets, 90, now),
+    },
+    funnel: {
+      source: journeySource,
+      stages: [
+        { key: 'registered', label: 'Kayıt', count: users },
+        { key: 'onboarding', label: 'Onboarding tamamlandı', count: onboarding },
+        { key: 'service-profile', label: 'Askerlik profili tamamlandı', count: serviceProfileCompleted },
+        { key: 'assigned', label: 'Devre atandı', count: Math.min(users, memberships) },
+        { key: 'community', label: 'Topluluk etkileşimi', count: communityInteraction },
+      ],
+    },
+    periods: {
+      source: journeySource,
+      items: periods,
+    },
+    moderation: moderationResult.records
+      .map((record) => mapReport(record.id, record.data))
+      .filter((report) => report.status === 'open' || report.status === 'reviewing')
+      .slice(0, 6),
+    groupActivityAvailable: false,
+    content: {
+      total: blogPosts,
+      published: publishedPosts,
+      drafts: Math.max(0, blogPosts - publishedPosts),
+      latest: contentResult.records.map((record) => ({
+        id: record.id,
+        title: text(record.data.title, 'Başlıksız yazı'),
+        status: record.data.status === 'published' ? 'published' as const : 'draft' as const,
+        updatedAt: isoDate(record.data.updatedAt),
+      })),
+    },
   };
 }

@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowLeft, Check, Clock3 } from 'lucide-react';
+import { Check, ChevronRight, Clock3 } from 'lucide-react';
 import { ArticleToc } from '@/components/content/article-toc';
 import { getQuickSummary, type ArticleTocItem } from '@/lib/content';
 import type { BlogPost } from '@/src/fixtures/content';
@@ -18,14 +18,19 @@ export function ArticleHeader({
   return (
     <header className="article-hero page-hero">
       <nav aria-label="İçerik yolu">
-        <Link className="article-back-link page-back-link" href="/blog">
-          <ArrowLeft className="size-4" aria-hidden="true" /> Bloga dön
-        </Link>
+        <ol className="article-breadcrumb">
+          <li><Link href="/">Ana Sayfa</Link></li>
+          <li><ChevronRight className="size-3.5" aria-hidden="true" /><Link href="/blog">Blog</Link></li>
+          <li aria-current="page"><ChevronRight className="size-3.5" aria-hidden="true" /><span>{post.title}</span></li>
+        </ol>
       </nav>
 
       <div className="article-meta page-hero-meta">
         <span className="article-category-badge">{post.category}</span>
         <time dateTime={post.publishedIso}>{post.publishedAt}</time>
+        {post.updatedIso && post.updatedIso !== post.publishedIso ? (
+          <time dateTime={post.updatedIso}>Güncellendi: {post.updatedAt}</time>
+        ) : null}
         <span className="inline-flex items-center gap-1.5">
           <Clock3 className="size-3.5" aria-hidden="true" /> {post.readingTime}{' '}
           okuma

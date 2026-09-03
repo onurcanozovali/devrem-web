@@ -82,6 +82,7 @@ export type BlogPostFields = {
   coverImage: BlogImage | null;
   ogImage: BlogImage | null;
   featured: boolean;
+  noindex: boolean;
   lastVerifiedAt: string | null;
 };
 

@@ -132,6 +132,7 @@ export function legacyPostToFields(post: BlogPost): BlogPostFields {
       : null,
     ogImage: null,
     featured: Boolean(post.featured),
+    noindex: Boolean(post.noindex),
     lastVerifiedAt: null,
   };
 }
@@ -248,6 +249,7 @@ export function firestorePostToView(post: BlogPostDocument): BlogPost {
     author: post.author,
     tone: categoryTones[post.category as keyof typeof categoryTones] ?? 'mint',
     featured: post.featured,
+    noindex: post.noindex,
     coverImage: post.coverImage
       ? {
           src: blogMediaUrl(post.coverImage),

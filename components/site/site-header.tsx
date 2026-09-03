@@ -96,7 +96,7 @@ export function SiteHeader() {
             <Menu className="size-5" aria-hidden="true" />
           </SheetTrigger>
           <SheetContent
-            className="mobile-menu-panel h-[100dvh] max-h-[100dvh] w-full gap-0 overflow-y-auto overscroll-contain border-0 bg-background p-0 shadow-none"
+            className="mobile-menu-panel w-full gap-0 overflow-y-auto overscroll-contain border-x-0 border-t-0 bg-background p-0"
             side="top"
           >
             <SheetHeader className="mobile-menu-header min-h-[72px] flex-row items-center border-b border-border/80 px-5 py-4 text-left sm:px-8">

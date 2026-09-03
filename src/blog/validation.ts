@@ -355,11 +355,14 @@ export function parseBlogPostInput(
       220,
     ),
     searchIntent: searchIntent as BlogSearchIntent,
-    seoTitle: plainText(input.seoTitle, 'SEO başlığı', textLimits.seoTitle),
+    seoTitle: plainText(input.seoTitle, 'SEO başlığı', textLimits.seoTitle, {
+      required: false,
+    }),
     metaDescription: plainText(
       input.metaDescription,
       'Meta description',
       textLimits.metaDescription,
+      { required: false },
     ),
     primaryIntent: plainText(input.primaryIntent, 'Ana konu', 500),
     excludedTopics: textList(
@@ -384,6 +387,7 @@ export function parseBlogPostInput(
     coverImage,
     ogImage,
     featured: Boolean(input.featured),
+    noindex: Boolean(input.noindex),
     lastVerifiedAt: optionalDate(input.lastVerifiedAt, 'Son doğrulama tarihi'),
   };
 }

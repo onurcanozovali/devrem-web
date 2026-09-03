@@ -69,9 +69,9 @@ export function SiteFooter() {
         <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
           {footerGroups.map((group) => (
             <div key={group.title}>
-              <h2 className="text-xs font-bold uppercase tracking-[0.12em] text-foreground">
+              <p className="text-xs font-bold uppercase tracking-[0.12em] text-foreground">
                 {group.title}
-              </h2>
+              </p>
               <ul className="mt-5 space-y-3 text-sm text-secondary-foreground">
                 {group.links.map((item) => (
                   <li key={item.label}>

@@ -1,9 +1,16 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowLeft, Clock3, Video } from 'lucide-react';
+import { ChevronRight, Clock3, Video } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { Container } from '@/components/site/container';
+import { JsonLd } from '@/components/seo/json-ld';
+import {
+  breadcrumbSchema,
+  graphSchema,
+  webPageSchema,
+} from '@/lib/seo/structured-data';
+import { createPageMetadata } from '@/src/config/seo';
 import { getVlogPost, vlogPosts } from '@/src/fixtures/content';
 
 type VlogDetailProps = { params: Promise<{ slug: string }> };
@@ -18,22 +25,11 @@ export async function generateMetadata({
   const { slug } = await params;
   const post = getVlogPost(slug);
   if (!post) return {};
-  return {
+  return createPageMetadata({
     title: post.title,
     description: post.excerpt,
-    alternates: { canonical: `/vlog/${post.slug}` },
-    openGraph: {
-      title: `${post.title} | Devrem Vlog`,
-      description: post.excerpt,
-      images: [],
-    },
-    twitter: {
-      card: 'summary',
-      title: `${post.title} | Devrem Vlog`,
-      description: post.excerpt,
-      images: [],
-    },
-  };
+    path: `/vlog/${post.slug}`,
+  });
 }
 
 export default async function VlogDetailPage({ params }: VlogDetailProps) {
@@ -41,13 +37,31 @@ export default async function VlogDetailPage({ params }: VlogDetailProps) {
   const post = getVlogPost(slug);
   if (!post) notFound();
 
+  const structuredData = graphSchema(
+    webPageSchema({
+      path: `/vlog/${post.slug}`,
+      name: post.title,
+      description: post.excerpt,
+    }),
+    breadcrumbSchema([
+      { name: 'Ana Sayfa', path: '/' },
+      { name: 'Blog', path: '/blog' },
+      { name: post.title, path: `/vlog/${post.slug}` },
+    ]),
+  );
+
   return (
     <main className="vlog-page" id="ana-icerik">
+      <JsonLd data={structuredData} />
       <Container>
         <header className="vlog-hero page-hero">
-          <Link className="page-back-link" href="/blog">
-            <ArrowLeft className="size-4" aria-hidden="true" /> Bloga dön
-          </Link>
+          <nav aria-label="İçerik yolu">
+            <ol className="article-breadcrumb">
+              <li><Link href="/">Ana Sayfa</Link></li>
+              <li><ChevronRight className="size-3.5" aria-hidden="true" /><Link href="/blog">Blog</Link></li>
+              <li aria-current="page"><ChevronRight className="size-3.5" aria-hidden="true" /><span>{post.title}</span></li>
+            </ol>
+          </nav>
           <div className="page-hero-meta flex flex-wrap items-center gap-3 text-xs font-semibold text-secondary-foreground">
             <span className="rounded-full bg-primary-subtle px-3 py-1.5 font-bold text-primary-ink">
               Devrem Vlog

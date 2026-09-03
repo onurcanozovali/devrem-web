@@ -1,43 +1,50 @@
-import { Apple, Play } from 'lucide-react';
+import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { siteConfig } from '@/src/config/site';
 
 type StoreButtonProps = {
   className?: string;
   compact?: boolean;
+  tone?: 'dark' | 'light';
 };
 
 const stores = [
   {
     key: 'app-store',
-    label: 'App Store',
-    icon: Apple,
+    label: 'App Store’dan indir',
+    badges: {
+      dark: '/store-badges/app-store-dark.webp',
+      light: '/store-badges/app-store-light.webp',
+    },
     href: siteConfig.release.appStoreUrl,
   },
   {
     key: 'google-play',
-    label: 'Google Play',
-    icon: Play,
+    label: 'Google Play’den indir',
+    badges: {
+      dark: '/store-badges/google-play-dark.webp',
+      light: '/store-badges/google-play-light.webp',
+    },
     href: siteConfig.release.googlePlayUrl,
   },
 ] as const;
 
-export function StoreButtons({ className, compact = false }: StoreButtonProps) {
+export function StoreButtons({
+  className,
+  compact = false,
+  tone = 'dark',
+}: StoreButtonProps) {
   return (
     <div className={cn('flex flex-wrap items-center gap-3', className)}>
       {stores.map((store) => {
-        const Icon = store.icon;
         const badge = (
-          <>
-            <Icon
-              className={cn(
-                'size-5 shrink-0',
-                store.key === 'google-play' && 'fill-current',
-              )}
-              aria-hidden="true"
-            />
-            <span>{store.label}</span>
-          </>
+          <Image
+            alt={store.label}
+            className="store-badge-image"
+            height={802}
+            src={store.badges[tone]}
+            width={2500}
+          />
         );
 
         return store.href ? (

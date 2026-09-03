@@ -123,9 +123,9 @@ function MainFeatured({ post }: { post: BlogPost }) {
       </Link>
       <div className="blog-index-featured-copy">
         <Meta post={post} />
-        <h1>
+        <h2>
           <Link href={`/blog/${post.slug}`}>{listingTitle(post)}</Link>
-        </h1>
+        </h2>
         <p>{post.excerpt}</p>
         <Link className="blog-index-read-link" href={`/blog/${post.slug}`}>
           Yazıyı oku <ArrowRight className="size-4" aria-hidden="true" />
@@ -220,6 +220,16 @@ export function BlogIndex({ posts }: { posts: BlogPost[] }) {
 
   return (
     <>
+      <header className="blog-index-intro">
+        <div>
+          <span>Devrem Blog</span>
+          <h1>Askerlik rehberleri ve güncel bilgiler</h1>
+        </div>
+        <p>
+          Resmî kaynakları sadeleştiren rehberler, Bedelli analizleri ve
+          askerlik sürecinde işine yarayacak açıklamalar.
+        </p>
+      </header>
       <section
         aria-label="Öne çıkan blog yazıları"
         className={`blog-index-featured-layout ${highlights.length ? '' : 'blog-index-featured-layout-single'}`}

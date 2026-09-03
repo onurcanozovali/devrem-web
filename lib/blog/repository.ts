@@ -15,6 +15,7 @@ import type {
   BlogSource,
 } from '@/src/blog/types';
 import { blogPosts, type BlogPost } from '@/src/fixtures/content';
+import { isPubliclyPublished } from '@/src/blog/publication';
 
 const collection = 'blogPosts';
 
@@ -124,6 +125,7 @@ function asDocument(id: string, data: Record<string, unknown>) {
     coverImage: raw.coverImage ?? null,
     ogImage: raw.ogImage ?? null,
     featured: Boolean(raw.featured),
+    noindex: Boolean(raw.noindex),
     lastVerifiedAt:
       typeof raw.lastVerifiedAt === 'string' ? raw.lastVerifiedAt : null,
     publishedAt: typeof raw.publishedAt === 'string' ? raw.publishedAt : null,
@@ -168,8 +170,9 @@ export async function listAdminBlogPosts() {
 
 export async function listPublishedBlogDocuments() {
   const posts = await listDocuments();
+  const now = new Date().toISOString();
   return posts
-    .filter((post) => post.status === 'published' && post.publishedAt)
+    .filter((post) => isPubliclyPublished(post, now))
     .sort((a, b) =>
       (b.publishedAt ?? b.updatedAt).localeCompare(
         a.publishedAt ?? a.updatedAt,

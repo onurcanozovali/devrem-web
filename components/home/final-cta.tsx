@@ -17,7 +17,7 @@ export function FinalCTA() {
             Devrem’i indir; aynı dönem ve birlikteki devrelerinle daha askere
             gitmeden tanış.
           </p>
-          <StoreButtons className="mt-8" />
+          <StoreButtons className="mt-8" tone="light" />
         </div>
         <div
           className="final-landing-signal final-landing-signal-a"

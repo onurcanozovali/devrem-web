@@ -37,6 +37,7 @@ import type {
 } from '@/src/blog/types';
 import { BLOG_CATEGORIES } from '@/src/blog/types';
 import { normalizeBlogSlug } from '@/src/blog/validation';
+import { siteConfig } from '@/src/config/site';
 
 type RelatedOption = {
   id: string;
@@ -69,6 +70,7 @@ const emptyPost: BlogPostWriteInput = {
   coverImage: null,
   ogImage: null,
   featured: false,
+  noindex: false,
   lastVerifiedAt: null,
 };
 
@@ -1291,12 +1293,22 @@ export function BlogEditor({
     postId,
     publishedAt,
   ]);
-  const canonicalUrl = `https://devrem.co/blog/${draft.slug || 'yazi-slug'}`;
+  const canonicalUrl = `${siteConfig.url}/blog/${draft.slug || 'yazi-slug'}`;
   const hasLegacyCategory = !BLOG_CATEGORIES.some(
     (category) => category === draft.category,
   );
   const slugWillRedirect = Boolean(
     publishedAt && savedSlug && draft.slug !== savedSlug,
+  );
+  const hasInternalLink = Boolean(
+    draft.relatedArticleIds.length ||
+      draft.contentBlocks.some((block) => {
+        if (block.type === 'cta') return block.href.startsWith('/');
+        if (block.type === 'paragraph') {
+          return /href=["']\//i.test(block.text);
+        }
+        return false;
+      }),
   );
 
   async function save(status: BlogStatus) {
@@ -1552,7 +1564,45 @@ export function BlogEditor({
                   {draft.metaDescription.length} karakter · 155–160 önerilir
                 </small>
               </label>
+              <label className="admin-field-full admin-checkbox-field">
+                <input
+                  checked={draft.noindex}
+                  onChange={(event) =>
+                    setDraft({ ...draft, noindex: event.target.checked })
+                  }
+                  type="checkbox"
+                />
+                <span>
+                  Arama motorlarından gizle (noindex; sitemap dışında tutulur)
+                </span>
+              </label>
             </div>
+            {draft.status === 'published' && draft.noindex ? (
+              <output className="admin-field-warning">
+                Bu yazı yayınlandığında erişilebilir kalır; ancak arama
+                motorlarına noindex gönderilir ve sitemap’e eklenmez.
+              </output>
+            ) : null}
+            {draft.status === 'published' &&
+            (!draft.seoTitle.trim() || !draft.metaDescription.trim()) ? (
+              <output className="admin-field-warning">
+                Yayın öncesi SEO başlığı ve meta açıklamasını tamamlayın.
+              </output>
+            ) : null}
+            {draft.status === 'published' &&
+            !draft.ogImage &&
+            !draft.coverImage ? (
+              <output className="admin-field-warning">
+                Yazıya özel OG veya kapak görseli yok; varsayılan Devrem görseli
+                kullanılacak.
+              </output>
+            ) : null}
+            {draft.status === 'published' && !hasInternalLink ? (
+              <output className="admin-field-warning">
+                Yazıda ölçülebilen bir iç bağlantı yok. İlgili bir rehber veya
+                araç bağlantısı eklemeyi değerlendirin.
+              </output>
+            ) : null}
             <div
               className="admin-serp-preview"
               aria-label="Google arama sonucu önizlemesi"

@@ -1,8 +1,14 @@
+import type { Metadata } from 'next';
 import { AdminNav } from '@/components/admin/admin-nav';
 import { Toaster } from '@/components/ui/toast';
 import { getCurrentAdmin } from '@/lib/admin/session';
 
 export const dynamic = 'force-dynamic';
+
+export const metadata: Metadata = {
+  title: 'Yönetim',
+  robots: { index: false, follow: false, nocache: true },
+};
 
 export default async function AdminRootLayout({
   children,
