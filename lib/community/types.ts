@@ -36,7 +36,11 @@ export type CommunityReply = {
   updatedAt: string;
   likeCount: number;
   status: CommunityContentStatus;
+  replyToId: string | null;
+  replyToAuthorDisplayName: string | null;
 };
+
+export type CommunityMessageTarget = 'topic' | 'reply';
 
 export type CommunityTopicListQuery = {
   category?: CommunityCategoryId | 'all';

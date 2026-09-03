@@ -5,7 +5,11 @@ import {
   createCommunityReply,
   listPublishedCommunityReplies,
 } from '@/lib/community/repository';
-import { normalizePlainText, validateNickname, validateReplyBody } from '@/lib/community/text';
+import {
+  normalizePlainText,
+  validateNickname,
+  validateReplyBody,
+} from '@/lib/community/text';
 
 type RouteContext = { params: Promise<{ topicId: string }> };
 
@@ -28,8 +32,10 @@ export async function POST(request: Request, { params }: RouteContext) {
     const payload = (await request.json()) as Record<string, unknown>;
     const body = normalizePlainText(payload.body);
     const nickname = normalizePlainText(payload.nickname);
+    const replyToId = normalizePlainText(payload.replyToId);
     const bodyError = validateReplyBody(body);
-    if (bodyError) return NextResponse.json({ error: bodyError }, { status: 400 });
+    if (bodyError)
+      return NextResponse.json({ error: bodyError }, { status: 400 });
     const nicknameError = validateNickname(nickname);
     if (nicknameError) {
       return NextResponse.json({ error: nicknameError }, { status: 400 });
@@ -39,14 +45,21 @@ export async function POST(request: Request, { params }: RouteContext) {
       topicId,
       body,
       nickname,
+      replyToId: replyToId || null,
     });
     return NextResponse.json({ reply });
   } catch (error) {
     if (error instanceof CommunityAuthError) {
-      return NextResponse.json({ error: error.message }, { status: error.status });
+      return NextResponse.json(
+        { error: error.message },
+        { status: error.status },
+      );
     }
     if (error instanceof CommunityWriteError) {
-      return NextResponse.json({ error: error.message }, { status: error.status });
+      return NextResponse.json(
+        { error: error.message },
+        { status: error.status },
+      );
     }
     return NextResponse.json(
       { error: 'Yanıt gönderilemedi. Lütfen tekrar dene.' },

@@ -1066,7 +1066,7 @@ service cloud.firestore {
 
     function hasValidCommunityReplyShape(topicId, replyId) {
       let data = request.resource.data;
-      return data.keys().hasOnly([
+      return data.keys().hasAll([
           'id',
           'topicId',
           'body',
@@ -1076,7 +1076,23 @@ service cloud.firestore {
           'createdAt',
           'updatedAt',
           'likeCount',
-          'status'
+          'status',
+          'replyToId',
+          'replyToAuthorDisplayName'
+        ])
+        && data.keys().hasOnly([
+          'id',
+          'topicId',
+          'body',
+          'authorId',
+          'authorDisplayName',
+          'authorIsAnonymous',
+          'createdAt',
+          'updatedAt',
+          'likeCount',
+          'status',
+          'replyToId',
+          'replyToAuthorDisplayName'
         ])
         && data.id == replyId
         && data.topicId == topicId
@@ -1089,7 +1105,26 @@ service cloud.firestore {
         && data.createdAt is timestamp
         && data.updatedAt is timestamp
         && data.likeCount == 0
-        && data.status == 'published';
+        && data.status == 'published'
+        && (
+          (
+            data.replyToId == null
+            && data.replyToAuthorDisplayName == null
+          )
+          || (
+            data.replyToId is string
+            && data.replyToId.size() >= 8
+            && data.replyToId.size() <= 80
+            && isValidCommunityDisplayName(data.replyToAuthorDisplayName)
+            && (
+              data.replyToId == topicId
+              || (
+                exists(/databases/$(database)/documents/communityTopics/$(topicId)/replies/$(data.replyToId))
+                && get(/databases/$(database)/documents/communityTopics/$(topicId)/replies/$(data.replyToId)).data.status == 'published'
+              )
+            )
+          )
+        );
     }
 
     match /communityTopics/{topicId} {
@@ -1100,21 +1135,43 @@ service cloud.firestore {
         && request.resource.data.updatedAt == request.time
         && request.resource.data.lastActivityAt == request.time;
       allow update: if isCommunityWriter()
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-          'replyCount',
-          'lastReplyId',
-          'lastActivityAt',
-          'updatedAt'
-        ])
-        && request.resource.data.replyCount == resource.data.replyCount + 1
-        && request.resource.data.lastReplyId is string
-        && request.resource.data.lastReplyId.size() >= 8
-        && request.resource.data.lastReplyId.size() <= 80
-        && request.resource.data.lastActivityAt == request.time
-        && request.resource.data.updatedAt == request.time
-        && !exists(/databases/$(database)/documents/communityTopics/$(topicId)/replies/$(request.resource.data.lastReplyId))
-        && existsAfter(/databases/$(database)/documents/communityTopics/$(topicId)/replies/$(request.resource.data.lastReplyId))
-        && getAfter(/databases/$(database)/documents/communityTopics/$(topicId)/replies/$(request.resource.data.lastReplyId)).data.authorId == request.auth.uid;
+        && (
+          (
+            request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+              'replyCount',
+              'lastReplyId',
+              'lastActivityAt',
+              'updatedAt'
+            ])
+            && request.resource.data.replyCount == resource.data.replyCount + 1
+            && request.resource.data.lastReplyId is string
+            && request.resource.data.lastReplyId.size() >= 8
+            && request.resource.data.lastReplyId.size() <= 80
+            && request.resource.data.lastActivityAt == request.time
+            && request.resource.data.updatedAt == request.time
+            && !exists(/databases/$(database)/documents/communityTopics/$(topicId)/replies/$(request.resource.data.lastReplyId))
+            && existsAfter(/databases/$(database)/documents/communityTopics/$(topicId)/replies/$(request.resource.data.lastReplyId))
+            && getAfter(/databases/$(database)/documents/communityTopics/$(topicId)/replies/$(request.resource.data.lastReplyId)).data.authorId == request.auth.uid
+          )
+          || (
+            request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likeCount'])
+            && request.resource.data.likeCount is int
+            && request.resource.data.likeCount >= 0
+            && (
+              (
+                request.resource.data.likeCount == resource.data.likeCount + 1
+                && !exists(/databases/$(database)/documents/communityTopics/$(topicId)/messageLikes/topic/$(topicId)/$(request.auth.uid))
+                && existsAfter(/databases/$(database)/documents/communityTopics/$(topicId)/messageLikes/topic/$(topicId)/$(request.auth.uid))
+              )
+              || (
+                resource.data.likeCount > 0
+                && request.resource.data.likeCount == resource.data.likeCount - 1
+                && exists(/databases/$(database)/documents/communityTopics/$(topicId)/messageLikes/topic/$(topicId)/$(request.auth.uid))
+                && !existsAfter(/databases/$(database)/documents/communityTopics/$(topicId)/messageLikes/topic/$(topicId)/$(request.auth.uid))
+              )
+            )
+          )
+        );
       allow delete: if false;
 
       match /replies/{replyId} {
@@ -1127,7 +1184,74 @@ service cloud.firestore {
           && hasValidCommunityReplyShape(topicId, replyId)
           && request.resource.data.createdAt == request.time
           && request.resource.data.updatedAt == request.time;
-        allow update, delete: if false;
+        allow update: if isCommunityWriter()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likeCount'])
+          && request.resource.data.likeCount is int
+          && request.resource.data.likeCount >= 0
+          && (
+            (
+              request.resource.data.likeCount == resource.data.likeCount + 1
+              && !exists(/databases/$(database)/documents/communityTopics/$(topicId)/messageLikes/reply/$(replyId)/$(request.auth.uid))
+              && existsAfter(/databases/$(database)/documents/communityTopics/$(topicId)/messageLikes/reply/$(replyId)/$(request.auth.uid))
+            )
+            || (
+              resource.data.likeCount > 0
+              && request.resource.data.likeCount == resource.data.likeCount - 1
+              && exists(/databases/$(database)/documents/communityTopics/$(topicId)/messageLikes/reply/$(replyId)/$(request.auth.uid))
+              && !existsAfter(/databases/$(database)/documents/communityTopics/$(topicId)/messageLikes/reply/$(replyId)/$(request.auth.uid))
+            )
+          );
+        allow delete: if false;
+      }
+
+      match /messageLikes/{messageType}/{messageId}/{uid} {
+        allow get: if isCommunityWriter() && request.auth.uid == uid;
+        allow list: if false;
+        allow create: if isCommunityWriter()
+          && request.auth.uid == uid
+          && request.resource.data.keys().hasOnly([
+            'messageType',
+            'messageId',
+            'userId',
+            'createdAt'
+          ])
+          && messageType in ['topic', 'reply']
+          && request.resource.data.messageType == messageType
+          && request.resource.data.messageId is string
+          && request.resource.data.messageId.size() >= 8
+          && request.resource.data.messageId.size() <= 80
+          && request.resource.data.messageId == messageId
+          && request.resource.data.userId == request.auth.uid
+          && request.resource.data.createdAt == request.time
+          && (
+            (
+              request.resource.data.messageType == 'topic'
+              && request.resource.data.messageId == topicId
+              && get(/databases/$(database)/documents/communityTopics/$(topicId)).data.status == 'published'
+              && getAfter(/databases/$(database)/documents/communityTopics/$(topicId)).data.likeCount == get(/databases/$(database)/documents/communityTopics/$(topicId)).data.likeCount + 1
+            )
+            || (
+              request.resource.data.messageType == 'reply'
+              && exists(/databases/$(database)/documents/communityTopics/$(topicId)/replies/$(request.resource.data.messageId))
+              && get(/databases/$(database)/documents/communityTopics/$(topicId)/replies/$(request.resource.data.messageId)).data.status == 'published'
+              && getAfter(/databases/$(database)/documents/communityTopics/$(topicId)/replies/$(request.resource.data.messageId)).data.likeCount == get(/databases/$(database)/documents/communityTopics/$(topicId)/replies/$(request.resource.data.messageId)).data.likeCount + 1
+            )
+          );
+        allow delete: if isCommunityWriter()
+          && request.auth.uid == uid
+          && resource.data.userId == request.auth.uid
+          && (
+            (
+              resource.data.messageType == 'topic'
+              && resource.data.messageId == topicId
+              && getAfter(/databases/$(database)/documents/communityTopics/$(topicId)).data.likeCount == get(/databases/$(database)/documents/communityTopics/$(topicId)).data.likeCount - 1
+            )
+            || (
+              resource.data.messageType == 'reply'
+              && getAfter(/databases/$(database)/documents/communityTopics/$(topicId)/replies/$(resource.data.messageId)).data.likeCount == get(/databases/$(database)/documents/communityTopics/$(topicId)/replies/$(resource.data.messageId)).data.likeCount - 1
+            )
+          );
+        allow update: if false;
       }
     }
 

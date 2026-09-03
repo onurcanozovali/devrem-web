@@ -1,17 +1,20 @@
 'use client';
 
 import { useState } from 'react';
-import { CommunityReportButton } from '@/components/community/report-button';
-import { formatCommunityDate } from '@/lib/community/text';
+import { CommunityThreadMessage } from '@/components/community/community-thread-message';
 import type { CommunityReply } from '@/lib/community/types';
 import { Button } from '@/components/ui/button';
 
 export function MoreReplies({
   topicId,
+  topicSlug,
   cursor,
+  startPostNumber,
 }: {
   topicId: string;
+  topicSlug: string;
   cursor: string;
+  startPostNumber: number;
 }) {
   const [items, setItems] = useState<CommunityReply[]>([]);
   const [nextCursor, setNextCursor] = useState<string | null>(cursor);
@@ -21,32 +24,22 @@ export function MoreReplies({
   if (!nextCursor && items.length === 0) return null;
 
   return (
-    <div className="mt-3 space-y-3">
-      {items.map((reply) => (
-        <article
-          className="rounded-2xl border border-border bg-surface px-4 py-4"
+    <div>
+      {items.map((reply, index) => (
+        <CommunityThreadMessage
           key={reply.id}
-        >
-          <p className="text-xs text-muted-foreground">
-            {reply.authorDisplayName}
-            {' · '}
-            {formatCommunityDate(reply.createdAt)}
-          </p>
-          <p className="mt-2 whitespace-pre-wrap text-sm leading-6">
-            {reply.body}
-          </p>
-          <div className="mt-2 flex justify-end">
-            <CommunityReportButton
-              targetType="reply"
-              targetId={reply.id}
-              topicId={topicId}
-            />
-          </div>
-        </article>
+          topicId={topicId}
+          topicSlug={topicSlug}
+          message={reply}
+          messageType="reply"
+          postNumber={startPostNumber + index}
+        />
       ))}
-      {error ? <p className="text-sm text-destructive">{error}</p> : null}
+      {error ? (
+        <p className="px-5 py-3 text-sm text-destructive">{error}</p>
+      ) : null}
       {nextCursor ? (
-        <div className="text-center">
+        <div className="border-t border-border p-4 text-center">
           <Button
             type="button"
             variant="outline"

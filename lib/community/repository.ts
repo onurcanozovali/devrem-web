@@ -22,10 +22,11 @@ import {
   type CommunityCategoryId,
   type CommunitySortId,
 } from './constants';
-import { contentFingerprint, slugifyTitle } from './text';
+import { communityDisplayName, contentFingerprint, slugifyTitle } from './text';
 import type {
   CommunityAuthIdentity,
   CommunityContentStatus,
+  CommunityMessageTarget,
   CommunityReply,
   CommunityTopic,
   CommunityTopicListQuery,
@@ -57,22 +58,31 @@ function createId() {
   return crypto.randomUUID().replace(/-/g, '');
 }
 
-function mapTopic(id: string, data: Record<string, unknown>): CommunityTopic | null {
+function mapTopic(
+  id: string,
+  data: Record<string, unknown>,
+): CommunityTopic | null {
   const category = text(data.category);
   if (!isCommunityCategoryId(category)) return null;
   const slug = text(data.slug, id);
   const title = text(data.title);
   const body = text(data.body);
   if (!slug || !title || !body) return null;
+  const authorId = text(data.authorId);
+  const authorIsAnonymous = boolean(data.authorIsAnonymous);
   return {
     id,
     slug,
     title,
     body,
     category,
-    authorId: text(data.authorId),
-    authorDisplayName: text(data.authorDisplayName, 'Anonim Devre'),
-    authorIsAnonymous: boolean(data.authorIsAnonymous),
+    authorId,
+    authorDisplayName: communityDisplayName(
+      text(data.authorDisplayName),
+      authorId,
+      authorIsAnonymous,
+    ),
+    authorIsAnonymous,
     createdAt: isoDate(data.createdAt),
     updatedAt: isoDate(data.updatedAt),
     lastActivityAt: isoDate(data.lastActivityAt, isoDate(data.createdAt)),
@@ -95,17 +105,25 @@ function mapReply(
   const body = text(data.body);
   const topicId = text(data.topicId);
   if (!body || !topicId) return null;
+  const authorId = text(data.authorId);
+  const authorIsAnonymous = boolean(data.authorIsAnonymous);
   return {
     id,
     topicId,
     body,
-    authorId: text(data.authorId),
-    authorDisplayName: text(data.authorDisplayName, 'Anonim Devre'),
-    authorIsAnonymous: boolean(data.authorIsAnonymous),
+    authorId,
+    authorDisplayName: communityDisplayName(
+      text(data.authorDisplayName),
+      authorId,
+      authorIsAnonymous,
+    ),
+    authorIsAnonymous,
     createdAt: isoDate(data.createdAt),
     updatedAt: isoDate(data.updatedAt),
     likeCount: number(data.likeCount),
     status: statusOf(data.status),
+    replyToId: text(data.replyToId) || null,
+    replyToAuthorDisplayName: text(data.replyToAuthorDisplayName) || null,
   };
 }
 
@@ -117,7 +135,8 @@ export async function listPublishedCommunityTopics(
       'Topluluk için FIREBASE_PROJECT_ID ve FIREBASE_WEB_API_KEY gerekli.',
     );
   }
-  const category = query.category && query.category !== 'all' ? query.category : null;
+  const category =
+    query.category && query.category !== 'all' ? query.category : null;
   const sort: CommunitySortId = query.sort ?? 'aktif';
   const orderField =
     sort === 'yeni'
@@ -244,7 +263,9 @@ async function resolveAuthorDisplayName(
   );
   const storedName = text(existing?.data.displayName);
   if (nickname) return nickname;
-  if (storedName) return storedName;
+  if (storedName) {
+    return communityDisplayName(storedName, identity.uid, identity.isAnonymous);
+  }
   if (!identity.isAnonymous) {
     const profile = await getFirestoreDocumentAsUser(
       `users/${identity.uid}`,
@@ -395,6 +416,7 @@ export async function createCommunityReply(input: {
   topicId: string;
   body: string;
   nickname: string;
+  replyToId?: string | null;
 }) {
   await assertCanWrite(input.identity);
   const topic = await getPublishedCommunityTopicById(input.topicId);
@@ -403,6 +425,27 @@ export async function createCommunityReply(input: {
   }
   if (topic.isLocked) {
     throw new CommunityWriteError('Bu konu yanıtlara kapatıldı.', 403);
+  }
+  let replyToId: string | null = null;
+  let replyToAuthorDisplayName: string | null = null;
+  const requestedReplyToId = input.replyToId?.trim() ?? '';
+  if (requestedReplyToId) {
+    if (requestedReplyToId === topic.id) {
+      replyToId = topic.id;
+      replyToAuthorDisplayName = topic.authorDisplayName;
+    } else {
+      const targetDocument = await getPublicFirestoreDocumentPath(
+        `${COMMUNITY_TOPIC_COLLECTION}/${topic.id}/${COMMUNITY_REPLY_COLLECTION}/${requestedReplyToId}`,
+      );
+      const targetReply = targetDocument
+        ? mapReply(targetDocument.id, targetDocument.data)
+        : null;
+      if (!targetReply || targetReply.status !== 'published') {
+        throw new CommunityWriteError('Yanıtlanan mesaj bulunamadı.', 404);
+      }
+      replyToId = targetReply.id;
+      replyToAuthorDisplayName = targetReply.authorDisplayName;
+    }
   }
   const fingerprint = contentFingerprint(topic.id, input.body);
   await assertWriteCooldown(input.identity, fingerprint);
@@ -426,6 +469,8 @@ export async function createCommunityReply(input: {
     updatedAt: now,
     likeCount: 0,
     status: 'published',
+    replyToId,
+    replyToAuthorDisplayName,
   };
   const {
     createdAt: _createdAt,
@@ -455,6 +500,77 @@ export async function createCommunityReply(input: {
     userWrite,
   ]);
   return reply;
+}
+
+export async function toggleCommunityMessageLike(input: {
+  identity: CommunityAuthIdentity;
+  topicId: string;
+  messageId: string;
+  messageType: CommunityMessageTarget;
+}) {
+  await assertCanWrite(input.identity);
+  const topic = await getPublishedCommunityTopicById(input.topicId);
+  if (!topic) throw new CommunityWriteError('Konu bulunamadı.', 404);
+
+  let currentLikeCount: number;
+  let messagePath: string;
+  if (input.messageType === 'topic') {
+    if (input.messageId !== topic.id) {
+      throw new CommunityWriteError('Mesaj konu ile eşleşmiyor.');
+    }
+    currentLikeCount = topic.likeCount;
+    messagePath = `${COMMUNITY_TOPIC_COLLECTION}/${topic.id}`;
+  } else {
+    const replyDocument = await getPublicFirestoreDocumentPath(
+      `${COMMUNITY_TOPIC_COLLECTION}/${topic.id}/${COMMUNITY_REPLY_COLLECTION}/${input.messageId}`,
+    );
+    const reply = replyDocument
+      ? mapReply(replyDocument.id, replyDocument.data)
+      : null;
+    if (!reply || reply.status !== 'published') {
+      throw new CommunityWriteError('Mesaj bulunamadı.', 404);
+    }
+    currentLikeCount = reply.likeCount;
+    messagePath = `${COMMUNITY_TOPIC_COLLECTION}/${topic.id}/${COMMUNITY_REPLY_COLLECTION}/${reply.id}`;
+  }
+
+  const likePath = `${COMMUNITY_TOPIC_COLLECTION}/${topic.id}/messageLikes/${input.messageType}/${input.messageId}/${input.identity.uid}`;
+  const existingLike = await getFirestoreDocumentAsUser(
+    likePath,
+    input.identity.idToken,
+  );
+  const liked = !existingLike;
+  const likeCount = liked
+    ? currentLikeCount + 1
+    : Math.max(0, currentLikeCount - 1);
+
+  try {
+    await commitFirestoreWritesAsUser(input.identity.idToken, [
+      {
+        path: messagePath,
+        data: { likeCount },
+        updateFields: ['likeCount'],
+      },
+      liked
+        ? {
+            path: likePath,
+            data: {
+              messageType: input.messageType,
+              messageId: input.messageId,
+              userId: input.identity.uid,
+            },
+            serverTimestampFields: ['createdAt'],
+          }
+        : { path: likePath, delete: true },
+    ]);
+  } catch {
+    throw new CommunityWriteError(
+      'Beğeni güncellenemedi. Lütfen tekrar dene.',
+      409,
+    );
+  }
+
+  return { liked, likeCount };
 }
 
 export async function createCommunityReport(input: {

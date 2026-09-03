@@ -19,7 +19,10 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select';
+import {
+  NativeSelect,
+  NativeSelectOption,
+} from '@/components/ui/native-select';
 import { Textarea } from '@/components/ui/textarea';
 
 export function CreateTopicDialog({
@@ -142,7 +145,7 @@ export function CreateTopicDialog({
               maxLength={32}
               value={nickname}
               onChange={(event) => setNickname(event.target.value)}
-              placeholder="Boş bırakırsan Anonim Devre görünür"
+              placeholder="Boş bırakırsan DevreXXXX atanır"
             />
           </div>
           {error ? <p className="text-sm text-destructive">{error}</p> : null}

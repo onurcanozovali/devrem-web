@@ -7,6 +7,7 @@ import {
 import { discussionForumPostingSchema } from '../lib/community/structured-data';
 import {
   anonymousDisplayName,
+  communityDisplayName,
   seoDescriptionFromBody,
   slugifyTitle,
   validateNickname,
@@ -41,15 +42,16 @@ const nameB = anonymousDisplayName('uid-stable-1');
 const nameC = anonymousDisplayName('uid-stable-2');
 assert.equal(nameA, nameB);
 assert.notEqual(nameA, nameC);
-assert.match(nameA, /^Anonim Devre \d{4}$/);
+assert.match(nameA, /^Devre\d{4}$/);
+assert.equal(
+  communityDisplayName('Anonim Devre 4821', 'legacy-uid', true),
+  'Devre4821',
+);
 
 const slug = slugifyTitle('Sevk belgesi nedir?', 'abc123zz');
 assert.match(slug, /^sevk-belgesi-nedir-abc123zz$/);
 
-assert.equal(
-  seoDescriptionFromBody('  Deneyim   metni  '),
-  'Deneyim metni',
-);
+assert.equal(seoDescriptionFromBody('  Deneyim   metni  '), 'Deneyim metni');
 
 const schema = discussionForumPostingSchema(
   {
@@ -59,7 +61,7 @@ const schema = discussionForumPostingSchema(
     body: 'Celp dönemim yaklaştı, sevk belgesini bekliyorum.',
     category: 'celp-donemleri',
     authorId: 'u1',
-    authorDisplayName: 'Anonim Devre 4821',
+    authorDisplayName: 'Devre4821',
     authorIsAnonymous: true,
     createdAt: '2026-09-03T10:00:00.000Z',
     updatedAt: '2026-09-03T10:00:00.000Z',
@@ -76,17 +78,14 @@ const schema = discussionForumPostingSchema(
   },
   [
     {
-      author: 'Anonim Devre 1102',
+      author: 'Devre1102',
       body: 'Bende bir hafta içinde geldi.',
       createdAt: '2026-09-03T11:00:00.000Z',
     },
   ],
 );
 assert.equal(schema['@type'], 'DiscussionForumPosting');
-assert.equal(
-  schema.url,
-  'https://devrem.co/topluluk/sevk-belgesi',
-);
+assert.equal(schema.url, 'https://devrem.co/topluluk/sevk-belgesi');
 assert.equal(schema.commentCount, 1);
 
 assert.equal(
@@ -97,9 +96,6 @@ assert.equal(
   pageSitemapEntries.some((item) => item.path === '/topluluk'),
   true,
 );
-assert.equal(
-  sitemapGroups.includes('/sitemaps/community.xml'),
-  true,
-);
+assert.equal(sitemapGroups.includes('/sitemaps/community.xml'), true);
 
 console.log('Community unit checks passed.');

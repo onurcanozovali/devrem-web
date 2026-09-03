@@ -32,7 +32,19 @@ export function anonymousDisplayName(uid: string) {
     hash = Math.imul(hash, 16777619);
   }
   const suffix = 1000 + (Math.abs(hash) % 9000);
-  return `Anonim Devre ${suffix}`;
+  return `Devre${suffix}`;
+}
+
+export function communityDisplayName(
+  value: string,
+  uid: string,
+  isAnonymous: boolean,
+) {
+  const name = value.trim();
+  if (!isAnonymous) return name || 'Devrem Üyesi';
+  const legacy = /^Anonim Devre\s+(\d{4})$/i.exec(name);
+  if (legacy) return `Devre${legacy[1]}`;
+  return name || anonymousDisplayName(uid);
 }
 
 export function slugifyTitle(title: string, suffix: string) {
@@ -49,7 +61,10 @@ export function slugifyTitle(title: string, suffix: string) {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
     .slice(0, 72);
-  const token = suffix.replace(/[^a-z0-9]/gi, '').slice(0, 8).toLowerCase();
+  const token = suffix
+    .replace(/[^a-z0-9]/gi, '')
+    .slice(0, 8)
+    .toLowerCase();
   return `${base || 'konu'}-${token || 'devre'}`;
 }
 

@@ -456,7 +456,10 @@ async function queryFirestoreResponse(
   const orderBy = spec.orderBy ?? [];
   const lastRecord = records.at(-1);
   const nextCursor =
-    records.length === (spec.limit ?? 25) && lastDocument && lastRecord && orderBy.length
+    records.length === (spec.limit ?? 25) &&
+    lastDocument &&
+    lastRecord &&
+    orderBy.length
       ? encodeQueryCursor({
           values: orderBy.map((order) =>
             cursorValueForDocument(lastDocument, lastRecord.data, order),
@@ -536,7 +539,8 @@ export async function getFirestoreDocumentPath(path: string) {
 
 export type FirestoreCommitWrite = {
   path: string;
-  data: Record<string, unknown>;
+  data?: Record<string, unknown>;
+  delete?: boolean;
   updateFields?: string[];
   serverTimestampFields?: string[];
 };
@@ -546,23 +550,29 @@ function firestoreCommitBody(
   writes: FirestoreCommitWrite[],
 ) {
   return {
-    writes: writes.map((write) => ({
-      update: {
-        name: `projects/${projectId}/databases/(default)/documents/${write.path}`,
-        fields: encodeFields(write.data),
-      },
-      ...(write.updateFields?.length
-        ? { updateMask: { fieldPaths: write.updateFields } }
-        : {}),
-      ...(write.serverTimestampFields?.length
-        ? {
-            updateTransforms: write.serverTimestampFields.map((fieldPath) => ({
-              fieldPath,
-              setToServerValue: 'REQUEST_TIME',
-            })),
-          }
-        : {}),
-    })),
+    writes: writes.map((write) => {
+      const name = `projects/${projectId}/databases/(default)/documents/${write.path}`;
+      if (write.delete) return { delete: name };
+      return {
+        update: {
+          name,
+          fields: encodeFields(write.data ?? {}),
+        },
+        ...(write.updateFields?.length
+          ? { updateMask: { fieldPaths: write.updateFields } }
+          : {}),
+        ...(write.serverTimestampFields?.length
+          ? {
+              updateTransforms: write.serverTimestampFields.map(
+                (fieldPath) => ({
+                  fieldPath,
+                  setToServerValue: 'REQUEST_TIME',
+                }),
+              ),
+            }
+          : {}),
+      };
+    }),
   };
 }
 
@@ -620,7 +630,9 @@ export async function getFirestoreDocumentAsUser(
   const response = await firebaseUserFetch(`/${normalized}`, idToken);
   if (response.status === 404) return null;
   if (!response.ok) {
-    throw new Error(`Firestore kullanıcı belgesi alınamadı (${response.status}).`);
+    throw new Error(
+      `Firestore kullanıcı belgesi alınamadı (${response.status}).`,
+    );
   }
   const document = (await response.json()) as FirestoreDocument;
   return {

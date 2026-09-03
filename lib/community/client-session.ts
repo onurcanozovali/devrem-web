@@ -78,15 +78,23 @@ async function sessionFromResponse(response: Response) {
     displayName?: string;
     isAnonymous?: boolean;
   };
-  if (!response.ok || !payload.idToken || !payload.refreshToken || !payload.uid) {
-    throw new Error(payload.error || 'Oturum başlatılamadı. Lütfen tekrar dene.');
+  if (
+    !response.ok ||
+    !payload.idToken ||
+    !payload.refreshToken ||
+    !payload.uid
+  ) {
+    throw new Error(
+      payload.error || 'Oturum başlatılamadı. Lütfen tekrar dene.',
+    );
   }
   const session: StoredSession = {
     idToken: payload.idToken,
     refreshToken: payload.refreshToken,
-    expiresAt: Date.now() + Math.max(60, (payload.expiresIn ?? 3600) - 60) * 1000,
+    expiresAt:
+      Date.now() + Math.max(60, (payload.expiresIn ?? 3600) - 60) * 1000,
     uid: payload.uid,
-    displayName: payload.displayName || 'Anonim Devre',
+    displayName: payload.displayName || 'Devre',
     isAnonymous: payload.isAnonymous !== false,
   };
   writeSession(session);
@@ -125,8 +133,10 @@ export function markCommunityWrite() {
 export async function communityRequest<T>(
   path: string,
   body: Record<string, unknown>,
+  options: { cooldown?: boolean } = {},
 ) {
-  const remaining = getCommunityWriteCooldownRemaining();
+  const usesCooldown = options.cooldown !== false;
+  const remaining = usesCooldown ? getCommunityWriteCooldownRemaining() : 0;
   if (remaining > 0) {
     throw new Error('Biraz yavaş ol. Yeni bir gönderi için kısa süre bekle.');
   }
@@ -143,6 +153,6 @@ export async function communityRequest<T>(
   if (!response.ok) {
     throw new Error(payload.error || 'İşlem tamamlanamadı.');
   }
-  markCommunityWrite();
+  if (usesCooldown) markCommunityWrite();
   return payload;
 }

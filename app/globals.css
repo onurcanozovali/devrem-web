@@ -49,6 +49,19 @@
   --radius-2xl: 2rem;
 }
 
+/* Community post permalinks keep the selected message visible without turning
+   the thread into a stack of heavy cards. */
+.community-thread-message {
+  transition:
+    background-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.community-thread-message:target {
+  background: color-mix(in srgb, var(--primary) 8%, var(--surface));
+  box-shadow: inset 3px 0 0 var(--primary);
+}
+
 :root {
   color-scheme: light;
   --background: #f4f7f5;
