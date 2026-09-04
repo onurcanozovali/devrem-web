@@ -3649,6 +3649,68 @@ body:has(.admin-shell) {
   margin-top: 1.75rem;
 }
 
+.admin-mfa-enrollment {
+  display: grid;
+  gap: 1rem;
+}
+
+.admin-mfa-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  color: #247658;
+}
+
+.admin-mfa-heading strong {
+  color: #17211d;
+  font-size: 0.9rem;
+}
+
+.admin-mfa-heading p,
+.admin-mfa-note {
+  margin-top: 0.2rem;
+  color: #607069;
+  font-size: 0.75rem;
+  line-height: 1.55;
+}
+
+.admin-mfa-enrollment img {
+  width: min(100%, 15rem);
+  height: auto;
+  justify-self: center;
+  border: 1px solid #d8e2dd;
+  border-radius: 1rem;
+}
+
+.admin-mfa-secret {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+  color: #607069;
+  font-size: 0.7rem;
+}
+
+.admin-mfa-secret code {
+  overflow-wrap: anywhere;
+  border-radius: 0.7rem;
+  background: #f1f5f3;
+  padding: 0.65rem 0.75rem;
+  color: #17211d;
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+}
+
+.admin-login-form .admin-mfa-back {
+  display: inline-flex;
+  min-height: 2.25rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  color: #526159;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
 .admin-login-form label,
 .admin-form-grid label,
 .admin-block-card label,

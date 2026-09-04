@@ -5,6 +5,17 @@ import { getCurrentAdmin } from '@/lib/admin/session';
 
 export const dynamic = 'force-dynamic';
 
+function firebaseClientConfig() {
+  const apiKey = process.env.FIREBASE_WEB_API_KEY?.trim();
+  const projectId = process.env.FIREBASE_PROJECT_ID?.trim();
+  if (!apiKey || !projectId) return null;
+  return {
+    apiKey,
+    authDomain: `${projectId}.firebaseapp.com`,
+    projectId,
+  };
+}
+
 export default async function AdminLoginPage() {
   if (await getCurrentAdmin()) redirect('/admin/dashboard');
   return (
@@ -16,7 +27,7 @@ export default async function AdminLoginPage() {
         <p className="admin-kicker">Devrem yayın paneli</p>
         <h1>Blog yönetimi</h1>
         <p>Yazıları oluşturmak, önizlemek ve yayınlamak için giriş yap.</p>
-        <AdminLoginForm />
+        <AdminLoginForm firebaseConfig={firebaseClientConfig()} />
       </section>
     </main>
   );

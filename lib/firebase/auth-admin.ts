@@ -12,11 +12,26 @@ import { Buffer } from 'node:buffer';
 type FirebaseAuthUser = {
   localId?: string;
   email?: string;
+  emailVerified?: boolean;
   displayName?: string;
   disabled?: boolean;
   customAttributes?: string;
+  mfaInfo?: Array<{
+    mfaEnrollmentId?: string;
+    totpInfo?: Record<string, never>;
+  }>;
   createdAt?: string;
   lastLoginAt?: string;
+};
+
+type FirebaseIdTokenClaims = {
+  adminRole?: unknown;
+  email?: unknown;
+  email_verified?: unknown;
+  firebase?: { sign_in_second_factor?: unknown };
+  name?: unknown;
+  sub?: unknown;
+  user_id?: unknown;
 };
 
 function projectId() {
@@ -50,13 +65,22 @@ function identityFromUser(user: FirebaseAuthUser): AdminIdentity | null {
   };
 }
 
-function identityFromIdToken(token: string): AdminIdentity | null {
+function claimsFromIdToken(token: string): FirebaseIdTokenClaims | null {
   try {
     const encoded = token.split('.')[1];
     if (!encoded) return null;
-    const claims = JSON.parse(
+    return JSON.parse(
       Buffer.from(encoded, 'base64url').toString('utf8'),
-    ) as Record<string, unknown>;
+    ) as FirebaseIdTokenClaims;
+  } catch {
+    return null;
+  }
+}
+
+function identityFromIdToken(token: string): AdminIdentity | null {
+  try {
+    const claims = claimsFromIdToken(token);
+    if (!claims) return null;
     if (!isAdminRole(claims.adminRole)) return null;
     const uid =
       typeof claims.user_id === 'string'
@@ -79,6 +103,76 @@ function identityFromIdToken(token: string): AdminIdentity | null {
   }
 }
 
+async function lookupFirebaseUserByIdToken(idToken: string) {
+  const apiKey = webApiKey();
+  if (!apiKey || idToken.length < 100 || idToken.length > 8_192) return null;
+  const lookup = await fetch(
+    `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${encodeURIComponent(apiKey)}`,
+    {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ idToken }),
+      cache: 'no-store',
+    },
+  );
+  if (!lookup.ok) return null;
+  const payload = (await lookup.json()) as { users?: FirebaseAuthUser[] };
+  return payload.users?.[0] ?? null;
+}
+
+export type FirebaseAdminMfaAuthentication = {
+  identity: AdminIdentity;
+  emailVerified: boolean;
+  totpEnrolled: boolean;
+  totpSecondFactorVerified: boolean;
+};
+
+export async function authenticateFirebaseAdminIdToken(
+  idToken: string,
+): Promise<FirebaseAdminMfaAuthentication | null> {
+  const user = await lookupFirebaseUserByIdToken(idToken);
+  const tokenIdentity = identityFromIdToken(idToken);
+  const userIdentity = user
+    ? identityFromUser(user) ??
+      (user.customAttributes === undefined ? tokenIdentity : null)
+    : null;
+  if (
+    !user ||
+    !tokenIdentity ||
+    !userIdentity ||
+    tokenIdentity.uid !== userIdentity.uid ||
+    tokenIdentity.role !== userIdentity.role
+  ) {
+    return null;
+  }
+  const claims = claimsFromIdToken(idToken);
+  return {
+    identity: userIdentity,
+    emailVerified:
+      user.emailVerified === true && claims?.email_verified === true,
+    totpEnrolled: Boolean(
+      user.mfaInfo?.some(
+        (factor) => factor.mfaEnrollmentId && factor.totpInfo !== undefined,
+      ),
+    ),
+    totpSecondFactorVerified:
+      claims?.firebase?.sign_in_second_factor === 'totp',
+  };
+}
+
+export function adminMfaAllowsSession(
+  authentication: Pick<
+    FirebaseAdminMfaAuthentication,
+    'totpEnrolled' | 'totpSecondFactorVerified'
+  >,
+  enrollmentTicketMatches: boolean,
+) {
+  return (
+    authentication.totpEnrolled &&
+    (authentication.totpSecondFactorVerified || enrollmentTicketMatches)
+  );
+}
+
 export async function authenticateFirebaseAdmin(
   email: string,
   password: string,
@@ -97,20 +191,9 @@ export async function authenticateFirebaseAdmin(
   if (!signIn.ok) return null;
   const token = (await signIn.json()) as { idToken?: string };
   if (!token.idToken) return null;
-  const lookup = await fetch(
-    `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${encodeURIComponent(apiKey)}`,
-    {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ idToken: token.idToken }),
-      cache: 'no-store',
-    },
-  );
-  if (!lookup.ok) return null;
-  const payload = (await lookup.json()) as { users?: FirebaseAuthUser[] };
+  const user = await lookupFirebaseUserByIdToken(token.idToken);
   return (
-    identityFromUser(payload.users?.[0] ?? {}) ??
-    identityFromIdToken(token.idToken)
+    (user ? identityFromUser(user) : null) ?? identityFromIdToken(token.idToken)
   );
 }
 

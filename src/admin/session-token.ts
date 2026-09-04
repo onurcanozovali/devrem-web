@@ -10,6 +10,12 @@ type LegacySessionPayload = {
   version: 1;
 };
 
+type AdminMfaEnrollmentTicket = {
+  expiresAt: number;
+  uid: string;
+  version: 1;
+};
+
 export type SignedAdminSession = AdminIdentity & {
   expiresAt: number;
   version: 2;
@@ -68,6 +74,25 @@ export async function verifySignedAdminSession(token: string | undefined, secret
       return { uid: `legacy:${payload.username}`, email: payload.username, displayName: payload.username, role: 'super_admin', provider: 'legacy', expiresAt: payload.expiresAt, version: 2 } satisfies SignedAdminSession;
     }
     if (payload.version !== 2 || !payload.uid || !payload.displayName || !isAdminRole(payload.role) || !payload.provider) return null;
+    return payload;
+  } catch {
+    return null;
+  }
+}
+
+export async function createSignedAdminMfaEnrollmentTicket(uid: string, expiresAt: number, secret: string) {
+  const encoded = encode(JSON.stringify({ uid, expiresAt, version: 1 } satisfies AdminMfaEnrollmentTicket));
+  return `${encoded}.${await signature(`mfa-enrollment:${encoded}`, secret)}`;
+}
+
+export async function verifySignedAdminMfaEnrollmentTicket(token: string | undefined, secret: string) {
+  if (!token) return null;
+  const [encoded, suppliedSignature, extra] = token.split('.');
+  if (!encoded || !suppliedSignature || extra) return null;
+  if (!constantEqual(suppliedSignature, await signature(`mfa-enrollment:${encoded}`, secret))) return null;
+  try {
+    const payload = JSON.parse(Buffer.from(encoded, 'base64url').toString('utf8')) as AdminMfaEnrollmentTicket;
+    if (payload.version !== 1 || !payload.uid || !payload.expiresAt || payload.expiresAt <= Date.now()) return null;
     return payload;
   } catch {
     return null;

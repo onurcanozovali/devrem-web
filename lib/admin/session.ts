@@ -8,13 +8,17 @@ import {
 } from '@/src/admin/access';
 import {
   createSignedAdminSession,
+  createSignedAdminMfaEnrollmentTicket,
   secureValueMatches,
+  verifySignedAdminMfaEnrollmentTicket,
   verifySignedAdminSession,
   type SignedAdminSession,
 } from '@/src/admin/session-token';
 
 const cookieName = 'devrem_admin_session';
+const mfaEnrollmentCookieName = 'devrem_admin_mfa_enrollment';
 const sessionSeconds = 8 * 60 * 60;
+const mfaEnrollmentSeconds = 10 * 60;
 
 export type AdminSession = SignedAdminSession;
 
@@ -62,13 +66,25 @@ export async function verifyAdminSessionToken(token: string | undefined) {
   return verifySignedAdminSession(token, sessionSecret(), process.env.ADMIN_USERNAME);
 }
 
-function tokenFromCookieHeader(header: string | null) {
+function tokenFromCookieHeader(header: string | null, name = cookieName) {
   if (!header) return undefined;
   return header
     .split(';')
     .map((part) => part.trim())
-    .find((part) => part.startsWith(`${cookieName}=`))
-    ?.slice(cookieName.length + 1);
+    .find((part) => part.startsWith(`${name}=`))
+    ?.slice(name.length + 1);
+}
+
+export async function createAdminMfaEnrollmentTicket(uid: string) {
+  return createSignedAdminMfaEnrollmentTicket(uid, Date.now() + mfaEnrollmentSeconds * 1_000, sessionSecret());
+}
+
+export async function verifyAdminMfaEnrollmentTicket(request: Request, uid: string) {
+  const ticket = await verifySignedAdminMfaEnrollmentTicket(
+    tokenFromCookieHeader(request.headers.get('cookie'), mfaEnrollmentCookieName),
+    sessionSecret(),
+  );
+  return ticket?.uid === uid;
 }
 
 export async function getCurrentAdmin() {
@@ -123,5 +139,16 @@ export const adminSessionCookie = {
     sameSite: 'lax' as const,
     path: '/',
     maxAge: sessionSeconds,
+  },
+};
+
+export const adminMfaEnrollmentCookie = {
+  name: mfaEnrollmentCookieName,
+  options: {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict' as const,
+    path: '/api/admin/login',
+    maxAge: mfaEnrollmentSeconds,
   },
 };

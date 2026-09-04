@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import { buildAuditEntry } from '../lib/admin/audit';
 import { buildAdminUserQuerySpec, mapAdminGroup } from '../lib/admin/mobile-repository';
 import { createSignedAdminSession, verifySignedAdminSession } from '../src/admin/session-token';
+import { createSignedAdminMfaEnrollmentTicket, verifySignedAdminMfaEnrollmentTicket } from '../src/admin/session-token';
+import { adminMfaAllowsSession, authenticateFirebaseAdminIdToken } from '../lib/firebase/auth-admin';
 import { adminRoles, canChangeFinalSuperAdmin, hasPermission } from '../src/admin/access';
 import { appConfigIsConnected, canTransitionReport, canUsePush, canUseSocialFeatures, isAccountStatus } from '../src/admin/domain';
 
@@ -12,6 +14,31 @@ async function run() {
   const session = await verifySignedAdminSession(token, secret);
   assert.equal(session?.uid, identity.uid, 'admin authentication/session round trip');
   assert.equal(session?.role, 'moderator');
+
+  const enrollmentTicket = await createSignedAdminMfaEnrollmentTicket(identity.uid, Date.now() + 60_000, secret);
+  assert.equal((await verifySignedAdminMfaEnrollmentTicket(enrollmentTicket, secret))?.uid, identity.uid, 'MFA enrollment ticket round trip');
+  assert.equal(await verifySignedAdminMfaEnrollmentTicket(`${enrollmentTicket}x`, secret), null, 'tampered MFA enrollment ticket rejected');
+
+  const originalFetch = globalThis.fetch;
+  const originalApiKey = process.env.FIREBASE_WEB_API_KEY;
+  process.env.FIREBASE_WEB_API_KEY = 'test-web-api-key';
+  const tokenPayload = Buffer.from(JSON.stringify({ adminRole: 'moderator', email: identity.email, email_verified: true, firebase: { sign_in_second_factor: 'totp' }, user_id: identity.uid })).toString('base64url');
+  const idToken = `header.${tokenPayload}.${'signature'.repeat(8)}`;
+  globalThis.fetch = async () => new Response(JSON.stringify({ users: [{ localId: identity.uid, email: identity.email, emailVerified: true, customAttributes: JSON.stringify({ adminRole: 'moderator' }), mfaInfo: [{ mfaEnrollmentId: 'totp-1', totpInfo: {} }] }] }), { status: 200 });
+  try {
+    const mfaAuthentication = await authenticateFirebaseAdminIdToken(idToken);
+    assert.equal(mfaAuthentication?.identity.uid, identity.uid);
+    assert.equal(mfaAuthentication?.totpEnrolled, true);
+    assert.equal(mfaAuthentication?.totpSecondFactorVerified, true);
+    assert.equal(mfaAuthentication?.emailVerified, true);
+    assert.equal(adminMfaAllowsSession({ totpEnrolled: true, totpSecondFactorVerified: true }, false), true, 'verified TOTP permits admin session');
+    assert.equal(adminMfaAllowsSession({ totpEnrolled: false, totpSecondFactorVerified: false }, true), false, 'enrollment ticket cannot bypass TOTP enrollment');
+    assert.equal(adminMfaAllowsSession({ totpEnrolled: true, totpSecondFactorVerified: false }, false), false, 'password-only token cannot create an admin session');
+  } finally {
+    globalThis.fetch = originalFetch;
+    if (originalApiKey === undefined) delete process.env.FIREBASE_WEB_API_KEY;
+    else process.env.FIREBASE_WEB_API_KEY = originalApiKey;
+  }
 
   assert.equal(hasPermission(identity, 'reports.moderate'), true, 'moderator authorization');
   assert.equal(hasPermission({ ...identity, role: 'support' }, 'reports.moderate'), false, 'permission denial');
