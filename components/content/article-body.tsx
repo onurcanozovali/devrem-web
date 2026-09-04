@@ -34,7 +34,11 @@ const calloutIcons = {
 
 function ArticleBlockView({ block }: { block: ArticleBlock }) {
   if (block.type === 'paragraph') {
-    return <p><SafeRichText text={block.text} /></p>;
+    return (
+      <p>
+        <SafeRichText text={block.text} />
+      </p>
+    );
   }
 
   if (block.type === 'bullet-list') {
@@ -62,31 +66,57 @@ function ArticleBlockView({ block }: { block: ArticleBlock }) {
       <div>
         <div className="article-table-wrap">
           <Table className="min-w-[620px]">
-          {block.caption ? <TableCaption>{block.caption}</TableCaption> : null}
-          <TableHeader>
-            <TableRow>
-              {block.headers.map((header) => (
-                <TableHead className="whitespace-normal" key={header}>
-                  {header}
-                </TableHead>
-              ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {block.rows.map((row, rowIndex) => (
-              <TableRow key={`${row[0]}-${rowIndex}`}>
-                {row.map((cell, cellIndex) => (
-                  <TableCell
-                    className="whitespace-normal"
-                    key={`${cell}-${cellIndex}`}
-                  >
-                    {cell}
-                  </TableCell>
+            {block.caption ? (
+              <TableCaption>{block.caption}</TableCaption>
+            ) : null}
+            <TableHeader>
+              <TableRow>
+                {block.headers.map((header) => (
+                  <TableHead className="whitespace-normal" key={header}>
+                    {header}
+                  </TableHead>
                 ))}
               </TableRow>
-            ))}
-          </TableBody>
+            </TableHeader>
+            <TableBody>
+              {block.rows.map((row, rowIndex) => (
+                <TableRow key={`${row[0]}-${rowIndex}`}>
+                  {row.map((cell, cellIndex) => (
+                    <TableCell
+                      className="whitespace-normal"
+                      key={`${cell}-${cellIndex}`}
+                    >
+                      {cell}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
           </Table>
+        </div>
+        <div className="article-table-mobile">
+          {block.caption ? (
+            <p className="article-table-mobile-caption">{block.caption}</p>
+          ) : null}
+          {block.rows.map((row, rowIndex) => (
+            <details key={`${row[0]}-mobile-${rowIndex}`}>
+              <summary>
+                <span>
+                  <small>Satır {rowIndex + 1}</small>
+                  <strong>{row[0] || `Satır ${rowIndex + 1}`}</strong>
+                </span>
+                <ChevronDown className="size-4" aria-hidden="true" />
+              </summary>
+              <dl>
+                {block.headers.map((header, cellIndex) => (
+                  <div key={`${header}-${cellIndex}`}>
+                    <dt>{header || `Sütun ${cellIndex + 1}`}</dt>
+                    <dd>{row[cellIndex] || '—'}</dd>
+                  </div>
+                ))}
+              </dl>
+            </details>
+          ))}
         </div>
         {block.note ? <p className="article-table-note">{block.note}</p> : null}
       </div>
@@ -243,17 +273,6 @@ export function ArticleBody({
           </div>
         </aside>
       ) : null}
-
-      <aside className="article-callout article-callout-note article-editorial-note">
-        <NotebookPen className="size-5 shrink-0" aria-hidden="true" />
-        <div>
-          <strong>Önemli not</strong>
-          <p>
-            Devrem bağımsız bir platformdur. Resmî işlem, tarih ve belge
-            bilgilerinde MSB ile e-Devlet kayıtlarını esas al.
-          </p>
-        </div>
-      </aside>
 
       {post.faqs?.length ? (
         <section className="article-faq" id="sik-sorulan-sorular">

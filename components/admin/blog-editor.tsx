@@ -9,6 +9,7 @@ import {
   ArrowUp,
   Bold,
   Check,
+  ChevronDown,
   Eye,
   ImagePlus,
   Italic,
@@ -157,6 +158,248 @@ const blockTypeButtons: Array<{
   { type: 'image', label: 'Görsel' },
   { type: 'cta', label: 'CTA' },
 ];
+
+function EditorSection({
+  kicker,
+  title,
+  defaultOpen = false,
+  className = '',
+  children,
+}: {
+  kicker: string;
+  title: string;
+  defaultOpen?: boolean;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+
+  return (
+    <section
+      className={`admin-editor-section admin-collapsible-section ${className}`.trim()}
+    >
+      <div className="admin-section-heading admin-collapsible-heading">
+        <button
+          aria-expanded={isOpen}
+          className="admin-section-toggle"
+          onClick={() => setIsOpen((current) => !current)}
+          type="button"
+        >
+          <span>
+            <span className="admin-kicker">{kicker}</span>
+            <strong>{title}</strong>
+          </span>
+          <ChevronDown className="size-5" aria-hidden="true" />
+        </button>
+      </div>
+      <div className="admin-collapsible-body" hidden={!isOpen}>
+        {children}
+      </div>
+    </section>
+  );
+}
+
+type TableBlogBlock = Extract<BlogContentBlock, { type: 'table' }>;
+
+function TableBlockEditor({
+  block,
+  onChange,
+}: {
+  block: TableBlogBlock;
+  onChange: (block: TableBlogBlock) => void;
+}) {
+  const columns = block.columns.length ? block.columns : [''];
+  const normalizedRows = block.rows.map((row) =>
+    columns.map((_, columnIndex) => row[columnIndex] ?? ''),
+  );
+
+  const updateColumn = (columnIndex: number, value: string) => {
+    const nextColumns = columns.map((column, index) =>
+      index === columnIndex ? value : column,
+    );
+    onChange({ ...block, columns: nextColumns, rows: normalizedRows });
+  };
+
+  const addColumn = () => {
+    if (columns.length >= 12) return;
+    onChange({
+      ...block,
+      columns: [...columns, ''],
+      rows: normalizedRows.map((row) => [...row, '']),
+    });
+  };
+
+  const removeColumn = (columnIndex: number) => {
+    if (columns.length === 1) return;
+    onChange({
+      ...block,
+      columns: columns.filter((_, index) => index !== columnIndex),
+      rows: normalizedRows.map((row) =>
+        row.filter((_, index) => index !== columnIndex),
+      ),
+    });
+  };
+
+  const updateCell = (rowIndex: number, columnIndex: number, value: string) => {
+    onChange({
+      ...block,
+      columns,
+      rows: normalizedRows.map((row, index) =>
+        index === rowIndex
+          ? row.map((cell, cellIndex) =>
+              cellIndex === columnIndex ? value : cell,
+            )
+          : row,
+      ),
+    });
+  };
+
+  const addRow = () => {
+    if (normalizedRows.length >= 200) return;
+    onChange({
+      ...block,
+      columns,
+      rows: [...normalizedRows, columns.map(() => '')],
+    });
+  };
+
+  const removeRow = (rowIndex: number) => {
+    onChange({
+      ...block,
+      columns,
+      rows: normalizedRows.filter((_, index) => index !== rowIndex),
+    });
+  };
+
+  return (
+    <div className="admin-table-builder">
+      <div className="admin-table-builder-group">
+        <div className="admin-table-builder-heading">
+          <div>
+            <strong>Sütun başlıkları</strong>
+            <small>Okuyucunun göreceği alan adlarını ayrı ayrı yaz.</small>
+          </div>
+          <button
+            disabled={columns.length >= 12}
+            onClick={addColumn}
+            type="button"
+          >
+            <Plus className="size-4" aria-hidden="true" /> Sütun ekle
+          </button>
+        </div>
+        <div className="admin-table-columns">
+          {columns.map((column, columnIndex) => (
+            <label key={`column-${columnIndex}`}>
+              <span>Sütun {columnIndex + 1}</span>
+              <span className="admin-table-field-with-action">
+                <input
+                  aria-label={`Sütun ${columnIndex + 1} başlığı`}
+                  onChange={(event) =>
+                    updateColumn(columnIndex, event.target.value)
+                  }
+                  placeholder={`Sütun ${columnIndex + 1}`}
+                  value={column}
+                />
+                <button
+                  aria-label={`${columnIndex + 1}. sütunu kaldır`}
+                  disabled={columns.length === 1}
+                  onClick={() => removeColumn(columnIndex)}
+                  type="button"
+                >
+                  <Trash2 className="size-4" aria-hidden="true" />
+                </button>
+              </span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      <div className="admin-table-builder-group">
+        <div className="admin-table-builder-heading">
+          <div>
+            <strong>Tablo satırları</strong>
+            <small>Her satırın hücrelerini doğrudan doldur.</small>
+          </div>
+          <button
+            disabled={normalizedRows.length >= 200}
+            onClick={addRow}
+            type="button"
+          >
+            <Plus className="size-4" aria-hidden="true" /> Satır ekle
+          </button>
+        </div>
+
+        {normalizedRows.length ? (
+          <div className="admin-table-rows">
+            {normalizedRows.map((row, rowIndex) => (
+              <details className="admin-table-row" key={`row-${rowIndex}`}>
+                <summary>
+                  <span>
+                    <strong>Satır {rowIndex + 1}</strong>
+                    <small>{row.find(Boolean) || 'Henüz veri girilmedi'}</small>
+                  </span>
+                  <ChevronDown className="size-4" aria-hidden="true" />
+                </summary>
+                <div
+                  className="admin-table-row-fields"
+                  style={{
+                    gridTemplateColumns: `repeat(${columns.length}, minmax(8rem, 1fr)) auto`,
+                  }}
+                >
+                  {columns.map((column, columnIndex) => (
+                    <label key={`row-${rowIndex}-cell-${columnIndex}`}>
+                      <span>{column || `Sütun ${columnIndex + 1}`}</span>
+                      <input
+                        aria-label={`${rowIndex + 1}. satır, ${column || `${columnIndex + 1}. sütun`}`}
+                        onChange={(event) =>
+                          updateCell(rowIndex, columnIndex, event.target.value)
+                        }
+                        value={row[columnIndex] ?? ''}
+                      />
+                    </label>
+                  ))}
+                  <button
+                    aria-label={`${rowIndex + 1}. satırı kaldır`}
+                    className="admin-table-row-remove"
+                    onClick={() => removeRow(rowIndex)}
+                    type="button"
+                  >
+                    <Trash2 className="size-4" aria-hidden="true" />
+                  </button>
+                </div>
+              </details>
+            ))}
+          </div>
+        ) : (
+          <p className="admin-table-empty">
+            İlk satırı ekleyerek tabloyu oluştur.
+          </p>
+        )}
+      </div>
+
+      <div className="admin-grid-two">
+        <label>
+          <span>Tablo başlığı</span>
+          <input
+            onChange={(event) =>
+              onChange({ ...block, caption: event.target.value })
+            }
+            value={block.caption ?? ''}
+          />
+        </label>
+        <label>
+          <span>Tablo notu</span>
+          <input
+            onChange={(event) =>
+              onChange({ ...block, note: event.target.value })
+            }
+            value={block.note ?? ''}
+          />
+        </label>
+      </div>
+    </div>
+  );
+}
 
 function TextListEditor({
   label,
@@ -701,14 +944,11 @@ function ContentBlockEditor({
   };
 
   return (
-    <section className="admin-editor-section admin-block-editor">
-      <div className="admin-section-heading">
-        <div>
-          <p className="admin-kicker">Makale gövdesi</p>
-          <h2>İçerik blokları</h2>
-        </div>
-      </div>
-
+    <EditorSection
+      className="admin-block-editor"
+      kicker="Makale gövdesi"
+      title="İçerik blokları"
+    >
       <div className="admin-block-list" ref={blockListRef}>
         {blocks.map((block, index) => (
           <article
@@ -841,59 +1081,10 @@ function ContentBlockEditor({
               </div>
             ) : null}
             {block.type === 'table' ? (
-              <div className="admin-table-fields">
-                <label>
-                  <span>Sütunlar (| ile ayır)</span>
-                  <input
-                    onChange={(event) =>
-                      update(index, {
-                        ...block,
-                        columns: event.target.value
-                          .split('|')
-                          .map((item) => item.trim()),
-                      })
-                    }
-                    value={block.columns.join(' | ')}
-                  />
-                </label>
-                <label>
-                  <span>Satırlar (her satırda | ile ayır)</span>
-                  <textarea
-                    onChange={(event) =>
-                      update(index, {
-                        ...block,
-                        rows: event.target.value
-                          .split('\n')
-                          .map((row) =>
-                            row.split('|').map((cell) => cell.trim()),
-                          ),
-                      })
-                    }
-                    rows={6}
-                    value={block.rows.map((row) => row.join(' | ')).join('\n')}
-                  />
-                </label>
-                <div className="admin-grid-two">
-                  <label>
-                    <span>Tablo başlığı</span>
-                    <input
-                      onChange={(event) =>
-                        update(index, { ...block, caption: event.target.value })
-                      }
-                      value={block.caption ?? ''}
-                    />
-                  </label>
-                  <label>
-                    <span>Tablo notu</span>
-                    <input
-                      onChange={(event) =>
-                        update(index, { ...block, note: event.target.value })
-                      }
-                      value={block.note ?? ''}
-                    />
-                  </label>
-                </div>
-              </div>
+              <TableBlockEditor
+                block={block}
+                onChange={(tableBlock) => update(index, tableBlock)}
+              />
             ) : null}
             {block.type === 'callout' ? (
               <div className="admin-table-fields">
@@ -1050,7 +1241,7 @@ function ContentBlockEditor({
           </div>
         </div>
       </div>
-    </section>
+    </EditorSection>
   );
 }
 
@@ -1145,7 +1336,8 @@ function BlogPreviewDialog({
       previewStyle,
     );
     previewDocument.documentElement.lang = 'tr';
-    previewDocument.documentElement.className = document.documentElement.className;
+    previewDocument.documentElement.className =
+      document.documentElement.className;
     previewDocument.body.className = document.body.className;
 
     const root = previewDocument.createElement('div');
@@ -1170,10 +1362,7 @@ function BlogPreviewDialog({
           <span>Kaydetmeden önce güncel taslağı gösterir.</span>
         </div>
         <div className="admin-preview-tools">
-          <div
-            className="admin-preview-toggle"
-            aria-label="Önizleme genişliği"
-          >
+          <div className="admin-preview-toggle" aria-label="Önizleme genişliği">
             <button
               aria-pressed={viewport === 'desktop'}
               onClick={() => onViewportChange('desktop')}
@@ -1302,13 +1491,13 @@ export function BlogEditor({
   );
   const hasInternalLink = Boolean(
     draft.relatedArticleIds.length ||
-      draft.contentBlocks.some((block) => {
-        if (block.type === 'cta') return block.href.startsWith('/');
-        if (block.type === 'paragraph') {
-          return /href=["']\//i.test(block.text);
-        }
-        return false;
-      }),
+    draft.contentBlocks.some((block) => {
+      if (block.type === 'cta') return block.href.startsWith('/');
+      if (block.type === 'paragraph') {
+        return /href=["']\//i.test(block.text);
+      }
+      return false;
+    }),
   );
 
   async function save(status: BlogStatus) {
@@ -1377,13 +1566,11 @@ export function BlogEditor({
 
       <div className="admin-editor-layout">
         <div className="admin-editor-content">
-          <section className="admin-editor-section">
-            <div className="admin-section-heading">
-              <div>
-                <p className="admin-kicker">Temel bilgiler</p>
-                <h2>Yazı bilgileri</h2>
-              </div>
-            </div>
+          <EditorSection
+            defaultOpen
+            kicker="Temel bilgiler"
+            title="Yazı bilgileri"
+          >
             <div className="admin-form-grid">
               <label className="admin-field-full">
                 <span>Başlık</span>
@@ -1469,15 +1656,9 @@ export function BlogEditor({
                 <span>Öne çıkan yazı olarak göster</span>
               </label>
             </div>
-          </section>
+          </EditorSection>
 
-          <section className="admin-editor-section">
-            <div className="admin-section-heading">
-              <div>
-                <p className="admin-kicker">Arama görünümü</p>
-                <h2>SEO</h2>
-              </div>
-            </div>
+          <EditorSection kicker="Arama görünümü" title="SEO">
             <div className="admin-form-grid">
               <label className="admin-field-full">
                 <span>Primary Search Query *</span>
@@ -1653,15 +1834,9 @@ export function BlogEditor({
                 </button>
               )}
             </div>
-          </section>
+          </EditorSection>
 
-          <section className="admin-editor-section">
-            <div className="admin-section-heading">
-              <div>
-                <p className="admin-kicker">Editoryal kapsam</p>
-                <h2>İçerik odağı</h2>
-              </div>
-            </div>
+          <EditorSection kicker="Editoryal kapsam" title="İçerik odağı">
             <div className="admin-form-grid">
               <label className="admin-field-full">
                 <span>Ana konu / Primary intent</span>
@@ -1715,23 +1890,27 @@ export function BlogEditor({
                 </button>
               </div>
             </div>
-          </section>
+          </EditorSection>
 
-          <section className="admin-editor-section admin-summary-grid">
-            <TextListEditor
-              label="Giriş / standfirst"
-              max={2}
-              onChange={(standfirst) => setDraft({ ...draft, standfirst })}
-              values={draft.standfirst}
-            />
-            <TextListEditor
-              label="Kısa Özet"
-              max={5}
-              reorderable
-              onChange={(quickSummary) => setDraft({ ...draft, quickSummary })}
-              values={draft.quickSummary}
-            />
-          </section>
+          <EditorSection kicker="Makale girişi" title="Giriş ve kısa özet">
+            <div className="admin-summary-grid">
+              <TextListEditor
+                label="Giriş / standfirst"
+                max={2}
+                onChange={(standfirst) => setDraft({ ...draft, standfirst })}
+                values={draft.standfirst}
+              />
+              <TextListEditor
+                label="Kısa Özet"
+                max={5}
+                reorderable
+                onChange={(quickSummary) =>
+                  setDraft({ ...draft, quickSummary })
+                }
+                values={draft.quickSummary}
+              />
+            </div>
+          </EditorSection>
 
           <ContentBlockEditor
             postId={postId}
@@ -1739,12 +1918,12 @@ export function BlogEditor({
             onChange={(contentBlocks) => setDraft({ ...draft, contentBlocks })}
           />
 
-          <section className="admin-editor-section admin-pair-editor">
-            <div className="admin-section-heading">
-              <div>
-                <p className="admin-kicker">Yapılandırılmış içerik</p>
-                <h2>SSS</h2>
-              </div>
+          <EditorSection
+            className="admin-pair-editor"
+            kicker="Yapılandırılmış içerik"
+            title="SSS"
+          >
+            <div className="admin-section-body-actions">
               <button
                 onClick={() =>
                   setDraft({
@@ -1806,14 +1985,14 @@ export function BlogEditor({
                 </button>
               </div>
             ))}
-          </section>
+          </EditorSection>
 
-          <section className="admin-editor-section admin-pair-editor">
-            <div className="admin-section-heading">
-              <div>
-                <p className="admin-kicker">Referanslar</p>
-                <h2>Kaynaklar</h2>
-              </div>
+          <EditorSection
+            className="admin-pair-editor"
+            kicker="Referanslar"
+            title="Kaynaklar"
+          >
+            <div className="admin-section-body-actions">
               <button
                 onClick={() =>
                   setDraft({
@@ -1932,15 +2111,9 @@ export function BlogEditor({
                 </div>
               </div>
             ))}
-          </section>
+          </EditorSection>
 
-          <section className="admin-editor-section">
-            <div className="admin-section-heading">
-              <div>
-                <p className="admin-kicker">İç bağlantılar</p>
-                <h2>İlgili yazılar</h2>
-              </div>
-            </div>
+          <EditorSection kicker="İç bağlantılar" title="İlgili yazılar">
             <RelatedArticleSelect
               onChange={(relatedArticleIds) =>
                 setDraft({ ...draft, relatedArticleIds })
@@ -1948,15 +2121,11 @@ export function BlogEditor({
               options={relatedOptions.filter((option) => option.id !== postId)}
               value={draft.relatedArticleIds}
             />
-          </section>
+          </EditorSection>
 
-          <section className="admin-editor-section">
-            <div className="admin-section-heading">
-              <div>
-                <p className="admin-kicker">Opsiyonel</p>
-                <h2>Kapak görseli</h2>
-              </div>
-              {draft.coverImage ? (
+          <EditorSection kicker="Opsiyonel" title="Kapak görseli">
+            {draft.coverImage ? (
+              <div className="admin-section-body-actions">
                 <button
                   onClick={() =>
                     setDraft((current) => ({
@@ -1974,8 +2143,8 @@ export function BlogEditor({
                 >
                   <Trash2 className="size-4" aria-hidden="true" /> Kaldır
                 </button>
-              ) : null}
-            </div>
+              </div>
+            ) : null}
             {draft.coverImage ? (
               <ImageUploader
                 kind="cover"
@@ -2031,7 +2200,7 @@ export function BlogEditor({
               />
               <span>OG görseli olarak da kullan</span>
             </label>
-          </section>
+          </EditorSection>
         </div>
 
         <aside className="admin-editor-actions">
