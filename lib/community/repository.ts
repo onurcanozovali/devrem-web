@@ -4,6 +4,7 @@ import {
   getFirestoreDocumentAsUser,
   getPublicFirestoreDocumentPath,
   isFirebasePublicConfigured,
+  queryFirestoreDocuments,
   queryPublicFirestoreDocuments,
   type FirestoreQueryFilter,
   type FirestoreQueryOrder,
@@ -22,12 +23,21 @@ import {
   type CommunityCategoryId,
   type CommunitySortId,
 } from './constants';
-import { communityDisplayName, contentFingerprint, slugifyTitle } from './text';
+import {
+  communityDisplayName,
+  communitySearchTerms,
+  communitySearchTokens,
+  contentFingerprint,
+  matchesCommunitySearch,
+  previewText,
+  slugifyTitle,
+} from './text';
 import type {
   CommunityAuthIdentity,
   CommunityContentStatus,
   CommunityMessageTarget,
   CommunityReply,
+  CommunitySearchResult,
   CommunityTopic,
   CommunityTopicListQuery,
 } from './types';
@@ -228,6 +238,116 @@ export async function listPublishedCommunityReplies(
   };
 }
 
+export async function searchPublishedCommunity(
+  query: string,
+  limit = 24,
+): Promise<CommunitySearchResult[]> {
+  const terms = communitySearchTerms(query);
+  if (!terms.length) return [];
+  const lookupToken = [...terms].sort((a, b) => b.length - a.length)[0];
+  const queryLimit = Math.min(Math.max(limit * 2, 24), 60);
+  const [topicMatches, replyMatches] = await Promise.all([
+    queryFirestoreDocuments({
+      collection: COMMUNITY_TOPIC_COLLECTION,
+      filters: [
+        { field: 'status', op: 'EQUAL', value: 'published' },
+        { field: 'searchTokens', op: 'ARRAY_CONTAINS', value: lookupToken },
+      ],
+      limit: queryLimit,
+    }),
+    queryFirestoreDocuments({
+      collection: COMMUNITY_REPLY_COLLECTION,
+      allDescendants: true,
+      filters: [
+        { field: 'status', op: 'EQUAL', value: 'published' },
+        { field: 'searchTokens', op: 'ARRAY_CONTAINS', value: lookupToken },
+      ],
+      limit: queryLimit,
+    }),
+  ]);
+
+  const topics = topicMatches.records.flatMap(({ id, data }) => {
+    const topic = mapTopic(id, data);
+    return topic && matchesCommunitySearch(query, topic.title, topic.body)
+      ? [topic]
+      : [];
+  });
+  const replies = replyMatches.records.flatMap(({ id, data }) => {
+    const reply = mapReply(id, data);
+    return reply && matchesCommunitySearch(query, reply.body) ? [reply] : [];
+  });
+  const missingTopicIds = [
+    ...new Set(
+      replies
+        .map((reply) => reply.topicId)
+        .filter((topicId) => !topics.some((topic) => topic.id === topicId)),
+    ),
+  ].slice(0, 30);
+  const relatedTopics = missingTopicIds.length
+    ? await queryFirestoreDocuments({
+        collection: COMMUNITY_TOPIC_COLLECTION,
+        filters: [
+          {
+            field: 'id',
+            op: missingTopicIds.length === 1 ? 'EQUAL' : 'IN',
+            value:
+              missingTopicIds.length === 1
+                ? missingTopicIds[0]
+                : missingTopicIds,
+          },
+        ],
+        limit: missingTopicIds.length,
+      })
+    : { records: [] };
+  const topicById = new Map(
+    [...topicMatches.records, ...relatedTopics.records].flatMap(
+      ({ id, data }) => {
+        const topic = mapTopic(id, data);
+        return topic?.status === 'published'
+          ? [[topic.id, topic] as const]
+          : [];
+      },
+    ),
+  );
+
+  return [
+    ...topics.map(
+      (topic): CommunitySearchResult => ({
+        id: topic.id,
+        type: 'topic',
+        topicId: topic.id,
+        topicSlug: topic.slug,
+        topicTitle: topic.title,
+        category: topic.category,
+        authorDisplayName: topic.authorDisplayName,
+        createdAt: topic.createdAt,
+        excerpt: previewText(topic.body, 180),
+        href: `/topluluk/${topic.slug}`,
+      }),
+    ),
+    ...replies.flatMap((reply): CommunitySearchResult[] => {
+      const topic = topicById.get(reply.topicId);
+      if (!topic) return [];
+      return [
+        {
+          id: reply.id,
+          type: 'reply',
+          topicId: topic.id,
+          topicSlug: topic.slug,
+          topicTitle: topic.title,
+          category: topic.category,
+          authorDisplayName: reply.authorDisplayName,
+          createdAt: reply.createdAt,
+          excerpt: previewText(reply.body, 180),
+          href: `/topluluk/${topic.slug}#mesaj-${reply.id}`,
+        },
+      ];
+    }),
+  ]
+    .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))
+    .slice(0, limit);
+}
+
 export async function listCommunitySitemapEntries(limit = 400) {
   const { topics } = await listPublishedCommunityTopics({
     sort: 'yeni',
@@ -403,7 +523,10 @@ export async function createCommunityTopic(input: {
   await commitFirestoreWritesAsUser(input.identity.idToken, [
     {
       path: `${COMMUNITY_TOPIC_COLLECTION}/${id}`,
-      data: topicFields,
+      data: {
+        ...topicFields,
+        searchTokens: communitySearchTokens(input.title, input.body),
+      },
       serverTimestampFields: ['createdAt', 'updatedAt', 'lastActivityAt'],
     },
     userWrite,
@@ -485,7 +608,10 @@ export async function createCommunityReply(input: {
   await commitFirestoreWritesAsUser(input.identity.idToken, [
     {
       path: `${COMMUNITY_TOPIC_COLLECTION}/${topic.id}/${COMMUNITY_REPLY_COLLECTION}/${id}`,
-      data: replyFields,
+      data: {
+        ...replyFields,
+        searchTokens: communitySearchTokens(input.body),
+      },
       serverTimestampFields: ['createdAt', 'updatedAt'],
     },
     {

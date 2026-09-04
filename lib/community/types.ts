@@ -42,6 +42,19 @@ export type CommunityReply = {
 
 export type CommunityMessageTarget = 'topic' | 'reply';
 
+export type CommunitySearchResult = {
+  id: string;
+  type: CommunityMessageTarget;
+  topicId: string;
+  topicSlug: string;
+  topicTitle: string;
+  category: CommunityCategoryId;
+  authorDisplayName: string;
+  createdAt: string;
+  excerpt: string;
+  href: string;
+};
+
 export type CommunityTopicListQuery = {
   category?: CommunityCategoryId | 'all';
   sort?: CommunitySortId;

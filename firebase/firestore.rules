@@ -1014,7 +1014,8 @@ service cloud.firestore {
           'status',
           'isPinned',
           'isLocked',
-          'lastReplyId'
+          'lastReplyId',
+          'searchTokens'
         ])
         && data.keys().hasOnly([
           'id',
@@ -1036,7 +1037,8 @@ service cloud.firestore {
           'lastReplyId',
           'militaryUnitId',
           'militaryUnitName',
-          'celpPeriod'
+          'celpPeriod',
+          'searchTokens'
         ])
         && data.id == topicId
         && data.slug is string
@@ -1061,6 +1063,8 @@ service cloud.firestore {
         && data.isPinned == false
         && data.isLocked == false
         && data.lastReplyId == null
+        && data.searchTokens is list
+        && data.searchTokens.size() <= 800
         && isValidOptionalCommunityRelation();
     }
 
@@ -1078,7 +1082,8 @@ service cloud.firestore {
           'likeCount',
           'status',
           'replyToId',
-          'replyToAuthorDisplayName'
+          'replyToAuthorDisplayName',
+          'searchTokens'
         ])
         && data.keys().hasOnly([
           'id',
@@ -1092,7 +1097,8 @@ service cloud.firestore {
           'likeCount',
           'status',
           'replyToId',
-          'replyToAuthorDisplayName'
+          'replyToAuthorDisplayName',
+          'searchTokens'
         ])
         && data.id == replyId
         && data.topicId == topicId
@@ -1106,6 +1112,8 @@ service cloud.firestore {
         && data.updatedAt is timestamp
         && data.likeCount == 0
         && data.status == 'published'
+        && data.searchTokens is list
+        && data.searchTokens.size() <= 800
         && (
           (
             data.replyToId == null

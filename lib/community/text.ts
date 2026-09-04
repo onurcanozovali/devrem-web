@@ -25,6 +25,55 @@ export function seoDescriptionFromBody(body: string) {
   return text || 'Devrem topluluğunda askerlik soruları ve deneyimleri.';
 }
 
+export function normalizeCommunitySearchText(value: string) {
+  return value
+    .toLocaleLowerCase('tr-TR')
+    .replace(/ı/g, 'i')
+    .replace(/ğ/g, 'g')
+    .replace(/ü/g, 'u')
+    .replace(/ş/g, 's')
+    .replace(/ö/g, 'o')
+    .replace(/ç/g, 'c')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim()
+    .replace(/\s+/g, ' ');
+}
+
+export function communitySearchTerms(value: string) {
+  return normalizeCommunitySearchText(value)
+    .split(' ')
+    .filter((term) => term.length >= 2)
+    .slice(0, 8);
+}
+
+export function communitySearchTokens(...values: string[]) {
+  const tokens = new Set<string>();
+  const words = normalizeCommunitySearchText(values.join(' '))
+    .split(' ')
+    .filter((term) => term.length >= 2);
+  for (const word of words) {
+    for (let size = 2; size <= Math.min(word.length, 24); size += 1) {
+      tokens.add(word.slice(0, size));
+    }
+    tokens.add(word);
+    if (tokens.size >= 800) break;
+  }
+  return [...tokens].slice(0, 800);
+}
+
+export function matchesCommunitySearch(query: string, ...values: string[]) {
+  const terms = communitySearchTerms(query);
+  if (!terms.length) return false;
+  const searchableWords = normalizeCommunitySearchText(values.join(' ')).split(
+    ' ',
+  );
+  return terms.every((term) =>
+    searchableWords.some((word) => word.startsWith(term)),
+  );
+}
+
 export function anonymousDisplayName(uid: string) {
   let hash = 2166136261;
   for (let index = 0; index < uid.length; index += 1) {

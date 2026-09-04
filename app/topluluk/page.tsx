@@ -5,6 +5,7 @@ import {
   CommunitySortNavigation,
 } from '@/components/community/community-filters';
 import { CreateTopicDialog } from '@/components/community/create-topic-dialog';
+import { CommunitySearch } from '@/components/community/community-search';
 import { TopicListItem } from '@/components/community/topic-list-item';
 import { JsonLd } from '@/components/seo/json-ld';
 import { Container } from '@/components/site/container';
@@ -16,7 +17,12 @@ import {
 } from '@/lib/community/constants';
 import { listPublishedCommunityTopics } from '@/lib/community/repository';
 import type { CommunityTopic } from '@/lib/community/types';
-import { breadcrumbSchema, graphSchema, organizationSchema, webPageSchema } from '@/lib/seo/structured-data';
+import {
+  breadcrumbSchema,
+  graphSchema,
+  organizationSchema,
+  webPageSchema,
+} from '@/lib/seo/structured-data';
 import { createPageMetadata } from '@/src/config/seo';
 
 export const dynamic = 'force-dynamic';
@@ -112,50 +118,54 @@ export default async function CommunityPage({ searchParams }: PageProps) {
             className="min-w-0 overflow-hidden rounded-2xl border border-border bg-surface shadow-[0_14px_40px_rgba(24,33,30,0.04)]"
             aria-label="Topluluk konuları"
           >
-            <div className="flex min-w-0 flex-col gap-1 border-b border-border px-3 pt-3 sm:flex-row sm:items-center sm:justify-between sm:px-5 sm:py-2.5">
-              <h2 className="px-1 text-sm font-bold tracking-[-0.02em] text-foreground">
-                Konular
-              </h2>
-              <CommunitySortNavigation category={category} sort={sort} />
-            </div>
-
-            {loadFailed ? (
-              <div className="px-4 py-12 text-center">
-                <p className="font-semibold">
-                  Topluluk konuları şu anda yüklenemiyor.
-                </p>
-                <p className="mt-1 text-sm text-secondary-foreground">
-                  Lütfen kısa süre sonra tekrar dene.
-                </p>
-              </div>
-            ) : topics.length ? (
-              <div>
-                {topics.map((topic) => (
-                  <TopicListItem key={topic.id} topic={topic} />
-                ))}
-              </div>
-            ) : (
-              <div className="px-4 py-12 text-center">
-                <p className="font-semibold">Henüz burada bir konu yok.</p>
-                <p className="mt-1 text-sm text-secondary-foreground">
-                  İlk soruyu sen sor.
-                </p>
-                <div className="mt-4 flex justify-center">
-                  <CreateTopicDialog />
+            <CommunitySearch
+              toolbar={
+                <div className="flex min-w-0 flex-col gap-1 sm:flex-row sm:items-center sm:gap-4">
+                  <h2 className="px-1 text-sm font-bold tracking-[-0.02em] text-foreground">
+                    Konular
+                  </h2>
+                  <CommunitySortNavigation category={category} sort={sort} />
                 </div>
-              </div>
-            )}
+              }
+            >
+              {loadFailed ? (
+                <div className="px-4 py-12 text-center">
+                  <p className="font-semibold">
+                    Topluluk konuları şu anda yüklenemiyor.
+                  </p>
+                  <p className="mt-1 text-sm text-secondary-foreground">
+                    Lütfen kısa süre sonra tekrar dene.
+                  </p>
+                </div>
+              ) : topics.length ? (
+                <div>
+                  {topics.map((topic) => (
+                    <TopicListItem key={topic.id} topic={topic} />
+                  ))}
+                </div>
+              ) : (
+                <div className="px-4 py-12 text-center">
+                  <p className="font-semibold">Henüz burada bir konu yok.</p>
+                  <p className="mt-1 text-sm text-secondary-foreground">
+                    İlk soruyu sen sor.
+                  </p>
+                  <div className="mt-4 flex justify-center">
+                    <CreateTopicDialog />
+                  </div>
+                </div>
+              )}
 
-            {nextCursor ? (
-              <div className="border-t border-border px-4 py-4 text-center">
-                <Link
-                  className="text-sm font-bold text-primary-ink hover:underline"
-                  href={`/topluluk?${moreParams.toString()}`}
-                >
-                  Daha fazla konu
-                </Link>
-              </div>
-            ) : null}
+              {nextCursor ? (
+                <div className="border-t border-border px-4 py-4 text-center">
+                  <Link
+                    className="text-sm font-bold text-primary-ink hover:underline"
+                    href={`/topluluk?${moreParams.toString()}`}
+                  >
+                    Daha fazla konu
+                  </Link>
+                </div>
+              ) : null}
+            </CommunitySearch>
           </section>
         </div>
       </Container>

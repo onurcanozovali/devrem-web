@@ -8,6 +8,10 @@ import { discussionForumPostingSchema } from '../lib/community/structured-data';
 import {
   anonymousDisplayName,
   communityDisplayName,
+  communitySearchTerms,
+  communitySearchTokens,
+  matchesCommunitySearch,
+  normalizeCommunitySearchText,
   seoDescriptionFromBody,
   slugifyTitle,
   validateNickname,
@@ -46,6 +50,23 @@ assert.match(nameA, /^Devre\d{4}$/);
 assert.equal(
   communityDisplayName('Anonim Devre 4821', 'legacy-uid', true),
   'Devre4821',
+);
+assert.equal(normalizeCommunitySearchText('ÇÖL, İçtiması!'), 'col ictimasi');
+assert.deepEqual(communitySearchTerms('  askerlik   yol parası '), [
+  'askerlik',
+  'yol',
+  'parasi',
+]);
+assert.equal(
+  communitySearchTokens('Sevk belgesi ne zaman alınır?').includes('sev'),
+  true,
+);
+assert.equal(
+  matchesCommunitySearch(
+    'telefon kullanım',
+    'Askerde telefon kullanım saatleri birliğe göre değişebilir.',
+  ),
+  true,
 );
 
 const slug = slugifyTitle('Sevk belgesi nedir?', 'abc123zz');
