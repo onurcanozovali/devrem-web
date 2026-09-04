@@ -12,9 +12,9 @@ export const seoConfig = {
   titleTemplate: '%s | Devrem',
   defaultDescription: siteConfig.description,
   defaultImage: {
-    path: '/og.webp',
-    width: 1731,
-    height: 909,
+    path: '/og.jpg',
+    width: 1200,
+    height: 630,
     alt: 'Devrem — Askere gitmeden önce devrelerinle tanış',
   },
   logoPath: '/web-logo.png',
