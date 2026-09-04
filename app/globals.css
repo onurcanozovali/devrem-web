@@ -6445,8 +6445,29 @@ body:has(.admin-shell) {
 .store-badge-pending {
   opacity: 0.92;
 }
+.store-badge-soon {
+  position: absolute;
+  top: 0.2rem;
+  right: 0.2rem;
+  z-index: 1;
+  border-radius: 999px;
+  background: #f6cf4d;
+  padding: 0.12rem 0.28rem;
+  color: #101614;
+  font-size: 0.48rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
+}
 .store-badge-compact {
   height: 2.25rem;
+}
+.store-badge-compact .store-badge-soon {
+  top: 0.12rem;
+  right: 0.12rem;
+  padding: 0.1rem 0.22rem;
+  font-size: 0.4rem;
 }
 .store-badge-image {
   display: block;

@@ -67,6 +67,9 @@ export function StoreButtons({
             key={store.key}
           >
             {badge}
+            <span aria-hidden="true" className="store-badge-soon">
+              Yakında
+            </span>
           </span>
         );
       })}
