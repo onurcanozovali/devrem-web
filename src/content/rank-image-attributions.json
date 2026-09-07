@@ -1,0 +1,602 @@
+[
+  {
+    "id": "kara-orgeneral",
+    "rankImage": "/asker-sozlugu/ranks/kara-orgeneral.png",
+    "sourceFile": "File:Turkey-army-OF-9a.svg",
+    "source": "Wikimedia Commons",
+    "author": "Arturolorioli",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Turkey-army-OF-9a.svg"
+  },
+  {
+    "id": "kara-korgeneral",
+    "rankImage": "/asker-sozlugu/ranks/kara-korgeneral.png",
+    "sourceFile": "File:Turkey-army-OF-8.svg",
+    "source": "Wikimedia Commons",
+    "author": "Jakednb",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Turkey-army-OF-8.svg"
+  },
+  {
+    "id": "kara-tumgeneral",
+    "rankImage": "/asker-sozlugu/ranks/kara-tumgeneral.png",
+    "sourceFile": "File:Turkey-army-OF-7.svg",
+    "source": "Wikimedia Commons",
+    "author": "Jakednb",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Turkey-army-OF-7.svg"
+  },
+  {
+    "id": "kara-tuggeneral",
+    "rankImage": "/asker-sozlugu/ranks/kara-tuggeneral.png",
+    "sourceFile": "File:Turkey-army-OF-6.svg",
+    "source": "Wikimedia Commons",
+    "author": "Jakednb",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Turkey-army-OF-6.svg"
+  },
+  {
+    "id": "kara-albay",
+    "rankImage": "/asker-sozlugu/ranks/kara-albay.png",
+    "sourceFile": "File:Turkey-army-OF-5.svg",
+    "source": "Wikimedia Commons",
+    "author": "Jakednb",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Turkey-army-OF-5.svg"
+  },
+  {
+    "id": "kara-yarbay",
+    "rankImage": "/asker-sozlugu/ranks/kara-yarbay.png",
+    "sourceFile": "File:Turkey-army-OF-4.svg",
+    "source": "Wikimedia Commons",
+    "author": "Jakednb",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Turkey-army-OF-4.svg"
+  },
+  {
+    "id": "kara-binbasi",
+    "rankImage": "/asker-sozlugu/ranks/kara-binbasi.png",
+    "sourceFile": "File:Turkey-army-OF-3.svg",
+    "source": "Wikimedia Commons",
+    "author": "Jakednb",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Turkey-army-OF-3.svg"
+  },
+  {
+    "id": "kara-yuzbasi",
+    "rankImage": "/asker-sozlugu/ranks/kara-yuzbasi.png",
+    "sourceFile": "File:Turkey-army-OF-2.svg",
+    "source": "Wikimedia Commons",
+    "author": "Jakednb",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Turkey-army-OF-2.svg"
+  },
+  {
+    "id": "kara-ustegmen",
+    "rankImage": "/asker-sozlugu/ranks/kara-ustegmen.png",
+    "sourceFile": "File:Turkey-army-OF-1.svg",
+    "source": "Wikimedia Commons",
+    "author": "Jakednb",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Turkey-army-OF-1.svg"
+  },
+  {
+    "id": "kara-tegmen",
+    "rankImage": "/asker-sozlugu/ranks/kara-tegmen.png",
+    "sourceFile": "File:Turkey-army-OF-1b.svg",
+    "source": "Wikimedia Commons",
+    "author": "Jakednb",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Turkey-army-OF-1b.svg"
+  },
+  {
+    "id": "kara-astegmen",
+    "rankImage": "/asker-sozlugu/ranks/kara-astegmen.png",
+    "sourceFile": "File:Turkey-army-OF-0.svg",
+    "source": "Wikimedia Commons",
+    "author": "Arturolorioli",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Turkey-army-OF-0.svg"
+  },
+  {
+    "id": "hava-orgeneral",
+    "rankImage": "/asker-sozlugu/ranks/hava-orgeneral.png",
+    "sourceFile": "File:Turkey-air-force-OF-9a.svg",
+    "source": "Wikimedia Commons",
+    "author": "Skjoldbro",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Turkey-air-force-OF-9a.svg"
+  },
+  {
+    "id": "hava-korgeneral",
+    "rankImage": "/asker-sozlugu/ranks/hava-korgeneral.png",
+    "sourceFile": "File:Turkey-air-force-OF-8.svg",
+    "source": "Wikimedia Commons",
+    "author": "Skjoldbro",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Turkey-air-force-OF-8.svg"
+  },
+  {
+    "id": "hava-tumgeneral",
+    "rankImage": "/asker-sozlugu/ranks/hava-tumgeneral.png",
+    "sourceFile": "File:Turkey-air-force-OF-7.svg",
+    "source": "Wikimedia Commons",
+    "author": "Skjoldbro",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Turkey-air-force-OF-7.svg"
+  },
+  {
+    "id": "hava-tuggeneral",
+    "rankImage": "/asker-sozlugu/ranks/hava-tuggeneral.png",
+    "sourceFile": "File:Turkey-air-force-OF-6.svg",
+    "source": "Wikimedia Commons",
+    "author": "Skjoldbro",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Turkey-air-force-OF-6.svg"
+  },
+  {
+    "id": "hava-albay",
+    "rankImage": "/asker-sozlugu/ranks/hava-albay.png",
+    "sourceFile": "File:Turkey-air-force-OF-5.svg",
+    "source": "Wikimedia Commons",
+    "author": "Skjoldbro",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Turkey-air-force-OF-5.svg"
+  },
+  {
+    "id": "hava-yarbay",
+    "rankImage": "/asker-sozlugu/ranks/hava-yarbay.png",
+    "sourceFile": "File:Turkey-air-force-OF-4.svg",
+    "source": "Wikimedia Commons",
+    "author": "Skjoldbro",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Turkey-air-force-OF-4.svg"
+  },
+  {
+    "id": "hava-binbasi",
+    "rankImage": "/asker-sozlugu/ranks/hava-binbasi.png",
+    "sourceFile": "File:Turkey-air-force-OF-3.svg",
+    "source": "Wikimedia Commons",
+    "author": "Skjoldbro",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Turkey-air-force-OF-3.svg"
+  },
+  {
+    "id": "hava-yuzbasi",
+    "rankImage": "/asker-sozlugu/ranks/hava-yuzbasi.png",
+    "sourceFile": "File:Turkey-air-force-OF-2.svg",
+    "source": "Wikimedia Commons",
+    "author": "Skjoldbro",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Turkey-air-force-OF-2.svg"
+  },
+  {
+    "id": "hava-ustegmen",
+    "rankImage": "/asker-sozlugu/ranks/hava-ustegmen.png",
+    "sourceFile": "File:Turkey-air-force-OF-1b.svg",
+    "source": "Wikimedia Commons",
+    "author": "Skjoldbro",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Turkey-air-force-OF-1b.svg"
+  },
+  {
+    "id": "hava-tegmen",
+    "rankImage": "/asker-sozlugu/ranks/hava-tegmen.png",
+    "sourceFile": "File:Turkey-air-force-OF-1a.svg",
+    "source": "Wikimedia Commons",
+    "author": "Skjoldbro",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Turkey-air-force-OF-1a.svg"
+  },
+  {
+    "id": "hava-astegmen",
+    "rankImage": "/asker-sozlugu/ranks/hava-astegmen.png",
+    "sourceFile": "File:Turkey-air-force-OF-(D).svg",
+    "source": "Wikimedia Commons",
+    "author": "Skjoldbro",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Turkey-air-force-OF-(D).svg"
+  },
+  {
+    "id": "deniz-oramiral",
+    "rankImage": "/asker-sozlugu/ranks/deniz-oramiral.png",
+    "sourceFile": "File:Turkey-Navy-OF-9.svg",
+    "source": "Wikimedia Commons",
+    "author": "Jelican9",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Turkey-Navy-OF-9.svg"
+  },
+  {
+    "id": "deniz-koramiral",
+    "rankImage": "/asker-sozlugu/ranks/deniz-koramiral.png",
+    "sourceFile": "File:Turkey-Navy-OF-8.svg",
+    "source": "Wikimedia Commons",
+    "author": "Jelican9",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Turkey-Navy-OF-8.svg"
+  },
+  {
+    "id": "deniz-tumamiral",
+    "rankImage": "/asker-sozlugu/ranks/deniz-tumamiral.png",
+    "sourceFile": "File:Turkey-Navy-OF-7.svg",
+    "source": "Wikimedia Commons",
+    "author": "Jelican9",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Turkey-Navy-OF-7.svg"
+  },
+  {
+    "id": "deniz-tugamiral",
+    "rankImage": "/asker-sozlugu/ranks/deniz-tugamiral.png",
+    "sourceFile": "File:Turkey-Navy-OF-6.svg",
+    "source": "Wikimedia Commons",
+    "author": "Skjoldbro",
+    "license": "Public domain",
+    "licenseUrl": "https://commons.wikimedia.org/wiki/File:Turkey-Navy-OF-6.svg",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Turkey-Navy-OF-6.svg"
+  },
+  {
+    "id": "deniz-albay",
+    "rankImage": "/asker-sozlugu/ranks/deniz-albay.png",
+    "sourceFile": "File:Generic-Navy-8.svg",
+    "source": "Wikimedia Commons",
+    "author": "Skjoldbro",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Generic-Navy-8.svg"
+  },
+  {
+    "id": "deniz-yarbay",
+    "rankImage": "/asker-sozlugu/ranks/deniz-yarbay.png",
+    "sourceFile": "File:Generic-Navy-7.svg",
+    "source": "Wikimedia Commons",
+    "author": "Skjoldbro",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Generic-Navy-7.svg"
+  },
+  {
+    "id": "deniz-binbasi",
+    "rankImage": "/asker-sozlugu/ranks/deniz-binbasi.png",
+    "sourceFile": "File:Generic-Navy-6.svg",
+    "source": "Wikimedia Commons",
+    "author": "Skjoldbro",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Generic-Navy-6.svg"
+  },
+  {
+    "id": "deniz-yuzbasi",
+    "rankImage": "/asker-sozlugu/ranks/deniz-yuzbasi.png",
+    "sourceFile": "File:Generic-Navy-4.svg",
+    "source": "Wikimedia Commons",
+    "author": "Skjoldbro",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Generic-Navy-4.svg"
+  },
+  {
+    "id": "deniz-ustegmen",
+    "rankImage": "/asker-sozlugu/ranks/deniz-ustegmen.png",
+    "sourceFile": "File:Generic-Navy-3.svg",
+    "source": "Wikimedia Commons",
+    "author": "Skjoldbro",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Generic-Navy-3.svg"
+  },
+  {
+    "id": "deniz-tegmen",
+    "rankImage": "/asker-sozlugu/ranks/deniz-tegmen.png",
+    "sourceFile": "File:Generic-Navy-2.svg",
+    "source": "Wikimedia Commons",
+    "author": "Skjoldbro",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Generic-Navy-2.svg"
+  },
+  {
+    "id": "deniz-astegmen",
+    "rankImage": "/asker-sozlugu/ranks/deniz-astegmen.png",
+    "sourceFile": "File:Generic-Navy-1.svg",
+    "source": "Wikimedia Commons",
+    "author": "Skjoldbro",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Generic-Navy-1.svg"
+  },
+  {
+    "id": "kara-astsubay-kidemli-bascavus",
+    "rankImage": "/asker-sozlugu/ranks/kara-astsubay-kidemli-bascavus.png",
+    "sourceFile": "File:Army-TUR-OR-07-1.svg",
+    "source": "Wikimedia Commons",
+    "author": "Jelican9",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Army-TUR-OR-07-1.svg"
+  },
+  {
+    "id": "kara-astsubay-bascavus",
+    "rankImage": "/asker-sozlugu/ranks/kara-astsubay-bascavus.png",
+    "sourceFile": "File:Army-TUR-OR-07-2.svg",
+    "source": "Wikimedia Commons",
+    "author": "Jelican9",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Army-TUR-OR-07-2.svg"
+  },
+  {
+    "id": "kara-astsubay-kidemli-ustcavus",
+    "rankImage": "/asker-sozlugu/ranks/kara-astsubay-kidemli-ustcavus.png",
+    "sourceFile": "File:Army-TUR-OR-07.svg",
+    "source": "Wikimedia Commons",
+    "author": "Pierpao  at  Italian Wikipedia",
+    "license": "Public domain",
+    "licenseUrl": "https://commons.wikimedia.org/wiki/File:Army-TUR-OR-07.svg",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Army-TUR-OR-07.svg"
+  },
+  {
+    "id": "kara-astsubay-ustcavus",
+    "rankImage": "/asker-sozlugu/ranks/kara-astsubay-ustcavus.png",
+    "sourceFile": "File:Army-TUR-OR-07a.svg",
+    "source": "Wikimedia Commons",
+    "author": "F l a n k e r",
+    "license": "Public domain",
+    "licenseUrl": "https://commons.wikimedia.org/wiki/File:Army-TUR-OR-07a.svg",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Army-TUR-OR-07a.svg"
+  },
+  {
+    "id": "kara-astsubay-kidemli-cavus",
+    "rankImage": "/asker-sozlugu/ranks/kara-astsubay-kidemli-cavus.png",
+    "sourceFile": "File:Army-TUR-OR-06a.svg",
+    "source": "Wikimedia Commons",
+    "author": "F l a n k e r",
+    "license": "Public domain",
+    "licenseUrl": "https://commons.wikimedia.org/wiki/File:Army-TUR-OR-06a.svg",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Army-TUR-OR-06a.svg"
+  },
+  {
+    "id": "kara-astsubay-cavus",
+    "rankImage": "/asker-sozlugu/ranks/kara-astsubay-cavus.png",
+    "sourceFile": "File:Army-TUR-OR-06b.svg",
+    "source": "Wikimedia Commons",
+    "author": "F l a n k e r",
+    "license": "Public domain",
+    "licenseUrl": "https://commons.wikimedia.org/wiki/File:Army-TUR-OR-06b.svg",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Army-TUR-OR-06b.svg"
+  },
+  {
+    "id": "kara-astsubay-astcavus",
+    "rankImage": "/asker-sozlugu/ranks/kara-astsubay-astcavus.png",
+    "sourceFile": "File:Army-TUR-OR-06c.svg",
+    "source": "Wikimedia Commons",
+    "author": "Pierpao",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Army-TUR-OR-06c.svg"
+  },
+  {
+    "id": "hava-astsubay-kidemli-bascavus",
+    "rankImage": "/asker-sozlugu/ranks/hava-astsubay-kidemli-bascavus.png",
+    "sourceFile": "File:Turkey-air-force-OR-9.svg",
+    "source": "Wikimedia Commons",
+    "author": "Skjoldbro",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Turkey-air-force-OR-9.svg"
+  },
+  {
+    "id": "hava-astsubay-bascavus",
+    "rankImage": "/asker-sozlugu/ranks/hava-astsubay-bascavus.png",
+    "sourceFile": "File:Turkey-air-force-OR-8.svg",
+    "source": "Wikimedia Commons",
+    "author": "Skjoldbro",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Turkey-air-force-OR-8.svg"
+  },
+  {
+    "id": "hava-astsubay-kidemli-ustcavus",
+    "rankImage": "/asker-sozlugu/ranks/hava-astsubay-kidemli-ustcavus.png",
+    "sourceFile": "File:Turkey-air-force-OR-7b.svg",
+    "source": "Wikimedia Commons",
+    "author": "Skjoldbro",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Turkey-air-force-OR-7b.svg"
+  },
+  {
+    "id": "hava-astsubay-ustcavus",
+    "rankImage": "/asker-sozlugu/ranks/hava-astsubay-ustcavus.png",
+    "sourceFile": "File:Turkey-air-force-OR-7a.svg",
+    "source": "Wikimedia Commons",
+    "author": "Skjoldbro",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Turkey-air-force-OR-7a.svg"
+  },
+  {
+    "id": "hava-astsubay-kidemli-cavus",
+    "rankImage": "/asker-sozlugu/ranks/hava-astsubay-kidemli-cavus.png",
+    "sourceFile": "File:Turkey-air-force-OR-6b.svg",
+    "source": "Wikimedia Commons",
+    "author": "Skjoldbro",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Turkey-air-force-OR-6b.svg"
+  },
+  {
+    "id": "hava-astsubay-cavus",
+    "rankImage": "/asker-sozlugu/ranks/hava-astsubay-cavus.png",
+    "sourceFile": "File:Turkey-air-force-OR-6a.svg",
+    "source": "Wikimedia Commons",
+    "author": "Skjoldbro",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Turkey-air-force-OR-6a.svg"
+  },
+  {
+    "id": "hava-astsubay-astcavus",
+    "rankImage": "/asker-sozlugu/ranks/hava-astsubay-astcavus.png",
+    "sourceFile": "File:Turkey-air-force-OR-6b-1.svg",
+    "source": "Wikimedia Commons",
+    "author": "Jelican9",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Turkey-air-force-OR-6b-1.svg"
+  },
+  {
+    "id": "deniz-astsubay-kidemli-bascavus",
+    "rankImage": "/asker-sozlugu/ranks/deniz-astsubay-kidemli-bascavus.png",
+    "sourceFile": "File:Navy-TUR-OR-09.svg",
+    "source": "Wikimedia Commons",
+    "author": "Marinaio56",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Navy-TUR-OR-09.svg"
+  },
+  {
+    "id": "deniz-astsubay-bascavus",
+    "rankImage": "/asker-sozlugu/ranks/deniz-astsubay-bascavus.png",
+    "sourceFile": "File:Navy-TUR-OR-08.svg",
+    "source": "Wikimedia Commons",
+    "author": "Marinaio56",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Navy-TUR-OR-08.svg"
+  },
+  {
+    "id": "deniz-astsubay-kidemli-ustcavus",
+    "rankImage": "/asker-sozlugu/ranks/deniz-astsubay-kidemli-ustcavus.png",
+    "sourceFile": "File:Navy-TUR-OR-07a.svg",
+    "source": "Wikimedia Commons",
+    "author": "Marinaio56",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Navy-TUR-OR-07a.svg"
+  },
+  {
+    "id": "deniz-astsubay-ustcavus",
+    "rankImage": "/asker-sozlugu/ranks/deniz-astsubay-ustcavus.png",
+    "sourceFile": "File:Navy-TUR-OR-07b.svg",
+    "source": "Wikimedia Commons",
+    "author": "Marinaio56",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Navy-TUR-OR-07b.svg"
+  },
+  {
+    "id": "deniz-astsubay-kidemli-cavus",
+    "rankImage": "/asker-sozlugu/ranks/deniz-astsubay-kidemli-cavus.png",
+    "sourceFile": "File:Navy-TUR-OR-06a.svg",
+    "source": "Wikimedia Commons",
+    "author": "Marinaio56",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Navy-TUR-OR-06a.svg"
+  },
+  {
+    "id": "deniz-astsubay-cavus",
+    "rankImage": "/asker-sozlugu/ranks/deniz-astsubay-cavus.png",
+    "sourceFile": "File:Navy-TUR-OR-06b.svg",
+    "source": "Wikimedia Commons",
+    "author": "Marinaio56",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Navy-TUR-OR-06b.svg"
+  },
+  {
+    "id": "deniz-astsubay-astcavus",
+    "rankImage": "/asker-sozlugu/ranks/deniz-astsubay-astcavus.png",
+    "sourceFile": "File:Navy-TUR-OR-06c.svg",
+    "source": "Wikimedia Commons",
+    "author": "Jelican9",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Navy-TUR-OR-06c.svg"
+  },
+  {
+    "id": "kara-cavus",
+    "rankImage": "/asker-sozlugu/ranks/kara-cavus.png",
+    "sourceFile": "File:Army-TUR-OR-05.svg",
+    "source": "Wikimedia Commons",
+    "author": "F l a n k e r",
+    "license": "Public domain",
+    "licenseUrl": "https://commons.wikimedia.org/wiki/File:Army-TUR-OR-05.svg",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Army-TUR-OR-05.svg"
+  },
+  {
+    "id": "kara-onbasi",
+    "rankImage": "/asker-sozlugu/ranks/kara-onbasi.png",
+    "sourceFile": "File:Army-TUR-OR-04.svg",
+    "source": "Wikimedia Commons",
+    "author": "F l a n k e r",
+    "license": "Public domain",
+    "licenseUrl": "https://commons.wikimedia.org/wiki/File:Army-TUR-OR-04.svg",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Army-TUR-OR-04.svg"
+  },
+  {
+    "id": "hava-cavus",
+    "rankImage": "/asker-sozlugu/ranks/hava-cavus.png",
+    "sourceFile": "File:Turkey-air-force-OR-4.svg",
+    "source": "Wikimedia Commons",
+    "author": "Skjoldbro",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Turkey-air-force-OR-4.svg"
+  },
+  {
+    "id": "hava-onbasi",
+    "rankImage": "/asker-sozlugu/ranks/hava-onbasi.png",
+    "sourceFile": "File:Turkey-air-force-OR-2.svg",
+    "source": "Wikimedia Commons",
+    "author": "Skjoldbro",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Turkey-air-force-OR-2.svg"
+  },
+  {
+    "id": "deniz-cavus",
+    "rankImage": "/asker-sozlugu/ranks/deniz-cavus.png",
+    "sourceFile": "File:Navy-TUR-OR-05.svg",
+    "source": "Wikimedia Commons",
+    "author": "Marinaio56",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Navy-TUR-OR-05.svg"
+  },
+  {
+    "id": "deniz-onbasi",
+    "rankImage": "/asker-sozlugu/ranks/deniz-onbasi.png",
+    "sourceFile": "File:Navy-TUR-OR-04.svg",
+    "source": "Wikimedia Commons",
+    "author": "Marinaio56",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Navy-TUR-OR-04.svg"
+  }
+]

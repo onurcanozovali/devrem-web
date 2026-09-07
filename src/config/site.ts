@@ -39,6 +39,11 @@ export const mainNavigation = [
     description: 'Güncel rehber ve analizleri oku',
   },
   {
+    href: '/asker-sozlugu',
+    label: 'Asker Sözlüğü',
+    description: 'Terimleri, rütbeleri ve süreçleri öğren',
+  },
+  {
     href: '/topluluk',
     label: 'Topluluk',
     description: 'Sorularını sor, deneyimini paylaş',
