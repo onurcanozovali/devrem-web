@@ -37,6 +37,7 @@ import {
 import {
   extractTurkishMobileDigits,
   formatTurkishMobile,
+  formatTurkishMobileNational,
   toTurkishE164,
 } from '@/lib/firebase/phone';
 
@@ -260,18 +261,21 @@ export function PhoneAuthForm() {
             <span className="mb-2 block text-sm font-semibold text-foreground">
               Telefon numarası
             </span>
-            <input
-              autoComplete="tel-national"
-              className="h-14 w-full rounded-2xl border border-border bg-background px-4 text-lg font-semibold outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10"
-              inputMode="tel"
-              name="phone"
-              onChange={(event) =>
-                setPhoneDigits(extractTurkishMobileDigits(event.target.value))
-              }
-              placeholder="+90 5xx xxx xx xx"
-              type="tel"
-              value={formatTurkishMobile(phoneDigits)}
-            />
+            <span className="flex h-14 items-center rounded-2xl border border-border bg-background px-4 text-lg font-semibold transition focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10">
+              <span className="shrink-0 text-muted-foreground">+90</span>
+              <input
+                autoComplete="tel-national"
+                className="h-full min-w-0 flex-1 bg-transparent pl-2 font-semibold outline-none"
+                inputMode="tel"
+                name="phone"
+                onChange={(event) =>
+                  setPhoneDigits(extractTurkishMobileDigits(event.target.value))
+                }
+                placeholder="5xx xxx xx xx"
+                type="tel"
+                value={formatTurkishMobileNational(phoneDigits)}
+              />
+            </span>
           </label>
           <button
             className="flex h-13 w-full items-center justify-center gap-2 rounded-2xl bg-primary px-5 text-sm font-bold text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
