@@ -19,7 +19,7 @@ export type GlossaryTerm = {
   usage?: 'Gündelik kullanım';
 };
 
-export const glossaryTerms: GlossaryTerm[] = [
+const glossaryTermsUnsorted: GlossaryTerm[] = [
   {
     term: 'Acemi',
     definition:
@@ -423,6 +423,10 @@ export const glossaryTerms: GlossaryTerm[] = [
     category: 'Askerlik Türleri',
   },
 ];
+
+export const glossaryTerms = [...glossaryTermsUnsorted].sort((a, b) =>
+  a.term.localeCompare(b.term, 'tr'),
+);
 
 export type RankGroup =
   | 'General / Amiral'

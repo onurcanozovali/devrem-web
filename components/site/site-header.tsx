@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { ArrowRight, Mail, Menu } from 'lucide-react';
+import { ArrowRight, ChevronDown, Menu } from 'lucide-react';
 import { BlogSearch } from '@/components/content/blog-search';
 import { mainNavigation } from '@/src/config/site';
 import { Container } from '@/components/site/container';
@@ -55,16 +55,32 @@ export function SiteHeader() {
             aria-label="Ana menü"
             className="header-desktop-nav"
           >
-            {mainNavigation.map((item) => (
-              <Link
-                className="nav-link"
-                href={item.href}
-                key={item.href}
-                tabIndex={desktopSearchOpen ? -1 : undefined}
-              >
-                {item.label}
-              </Link>
-            ))}
+            {mainNavigation.map((item) =>
+              'items' in item ? (
+                <details className="header-guide-menu" key={item.label}>
+                  <summary className="nav-link">
+                    {item.label} <ChevronDown aria-hidden="true" />
+                  </summary>
+                  <div className="header-guide-dropdown">
+                    {item.items.map((child) => (
+                      <Link href={child.href} key={child.href}>
+                        <strong>{child.label}</strong>
+                        <small>{child.description}</small>
+                      </Link>
+                    ))}
+                  </div>
+                </details>
+              ) : (
+                <Link
+                  className="nav-link"
+                  href={item.href}
+                  key={item.href}
+                  tabIndex={desktopSearchOpen ? -1 : undefined}
+                >
+                  {item.label}
+                </Link>
+              ),
+            )}
           </nav>
           <BlogSearch
             headerExpanded={desktopSearchOpen}
@@ -127,43 +143,52 @@ export function SiteHeader() {
               {!mobileSearching ? (
                 <>
                   <nav aria-label="Mobil menü" className="mobile-menu-nav">
-                    {mainNavigation.map((item, index) => (
-                      <Link
-                        className="mobile-menu-link group"
-                        href={item.href}
-                        key={item.href}
-                        onClick={() => setMobileOpen(false)}
-                      >
-                        <span className="mobile-menu-index">0{index + 1}</span>
-                        <span className="mobile-menu-link-copy">
-                          <strong>{item.label}</strong>
-                          <small>{item.description}</small>
-                        </span>
-                        <ArrowRight className="size-5" aria-hidden="true" />
-                      </Link>
-                    ))}
+                    {mainNavigation.map((item, index) =>
+                      'items' in item ? (
+                        <details className="mobile-guide-menu" key={item.label}>
+                          <summary className="mobile-menu-link">
+                            <span className="mobile-menu-index">
+                              0{index + 1}
+                            </span>
+                            <span className="mobile-menu-link-copy">
+                              <strong>{item.label}</strong>
+                            </span>
+                            <ChevronDown
+                              className="size-5"
+                              aria-hidden="true"
+                            />
+                          </summary>
+                          <div>
+                            {item.items.map((child) => (
+                              <Link
+                                href={child.href}
+                                key={child.href}
+                                onClick={() => setMobileOpen(false)}
+                              >
+                                <strong>{child.label}</strong>
+                                <ArrowRight aria-hidden="true" />
+                              </Link>
+                            ))}
+                          </div>
+                        </details>
+                      ) : (
+                        <Link
+                          className="mobile-menu-link group"
+                          href={item.href}
+                          key={item.href}
+                          onClick={() => setMobileOpen(false)}
+                        >
+                          <span className="mobile-menu-index">
+                            0{index + 1}
+                          </span>
+                          <span className="mobile-menu-link-copy">
+                            <strong>{item.label}</strong>
+                          </span>
+                          <ArrowRight className="size-5" aria-hidden="true" />
+                        </Link>
+                      ),
+                    )}
                   </nav>
-
-                  <div className="mobile-menu-footer">
-                    <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
-                      <Link
-                        href="/support"
-                        onClick={() => setMobileOpen(false)}
-                      >
-                        Destek
-                      </Link>
-                      <Link
-                        href="/privacy"
-                        onClick={() => setMobileOpen(false)}
-                      >
-                        Gizlilik
-                      </Link>
-                    </div>
-                    <a href="mailto:iletisim@devrem.co">
-                      <Mail className="size-4" aria-hidden="true" />
-                      iletisim@devrem.co
-                    </a>
-                  </div>
                 </>
               ) : (
                 <p className="mobile-search-hint">

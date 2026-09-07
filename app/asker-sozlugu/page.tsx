@@ -12,10 +12,9 @@ import {
 import { absoluteUrl, createPageMetadata } from '@/src/config/seo';
 import { glossaryTerms, termId } from '@/src/content/military-dictionary';
 
-const title =
-  'Asker Sözlüğü: Askerlik Terimleri, Rütbeler ve Anlamları | Devrem';
+const title = 'Asker Sözlüğü: Askerlik Terimleri ve Anlamları | Devrem';
 const description =
-  'Askerlik terimlerini, Türk Silahlı Kuvvetleri rütbelerini, birlik yapısını, celp ve sevk sürecini sade açıklamalar ve görsellerle öğren.';
+  'Askerlikte kullanılan terimleri, resmî kavramları ve kışla ifadelerini alfabetik sözlükte sade açıklamalarıyla öğren.';
 const path = '/asker-sozlugu';
 
 export const metadata: Metadata = {
@@ -78,8 +77,8 @@ export default function MilitaryDictionaryPage() {
             </p>
             <h1 id="dictionary-title">Asker Sözlüğü</h1>
             <p>
-              Askerlikte duyacağın terimleri, rütbeleri, birlik yapısını ve
-              resmî süreci tek sayfada sade biçimde öğren.
+              Askerlikte duyacağın terimleri ve resmî kavramları A’dan Z’ye sade
+              açıklamalarıyla öğren.
             </p>
             <a href="#sozluk">
               Terimleri keşfet <ArrowDown aria-hidden="true" />
@@ -89,13 +88,13 @@ export default function MilitaryDictionaryPage() {
             <Search aria-hidden="true" />
             <strong>Aradığın kavrama doğrudan ulaş</strong>
             <p>
-              65 temel terim, Kara–Hava–Deniz rütbe rehberi ve askerliğin ilk
-              adımından terhise kadar kısa yol haritası.
+              65 temel terim; resmî tanımlar ve gündelik kışla ifadeleriyle
+              alfabetik olarak bir arada.
             </p>
             <div>
               <span>Terimler</span>
-              <span>Rütbeler</span>
-              <span>Süreç</span>
+              <span>Resmî kavramlar</span>
+              <span>Kışla dili</span>
               <span>Belgeler</span>
             </div>
           </aside>

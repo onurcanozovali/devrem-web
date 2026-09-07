@@ -40,8 +40,25 @@ export const mainNavigation = [
   },
   {
     href: '/asker-sozlugu',
-    label: 'Asker Sözlüğü',
-    description: 'Terimleri, rütbeleri ve süreçleri öğren',
+    label: 'Rehberler',
+    description: 'Sözlük, rütbeler ve askerlik araçları',
+    items: [
+      {
+        href: '/asker-sozlugu',
+        label: 'Asker Sözlüğü',
+        description: 'Askerlik terimlerini alfabetik keşfet',
+      },
+      {
+        href: '/asker-rutbeleri',
+        label: 'Askerî Rütbeler',
+        description: 'Rütbe sıralamasını ve işaretlerini incele',
+      },
+      {
+        href: '/araclar',
+        label: 'Askerlik Araçları',
+        description: 'Devrem’in mevcut araçlarına ulaş',
+      },
+    ],
   },
   {
     href: '/topluluk',
