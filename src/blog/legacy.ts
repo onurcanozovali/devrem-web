@@ -34,6 +34,7 @@ function oldBlockToContent(block: ArticleBlock): BlogContentBlock {
       columns: block.headers,
       rows: block.rows,
       ...(block.caption ? { caption: block.caption } : {}),
+      ...(block.mobileView ? { mobileView: block.mobileView } : {}),
     };
   }
   if (block.type === 'callout') {
@@ -151,6 +152,7 @@ function blockToLegacy(block: BlogContentBlock): ArticleBlock | null {
       rows: block.rows,
       ...(block.caption ? { caption: block.caption } : {}),
       ...(block.note ? { note: block.note } : {}),
+      ...(block.mobileView ? { mobileView: block.mobileView } : {}),
     };
   }
   if (block.type === 'callout') {

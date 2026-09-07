@@ -8,6 +8,7 @@ export type ArticleBlock =
       note?: string;
       headers: string[];
       rows: string[][];
+      mobileView?: 'table' | 'accordion';
     }
   | {
       type: 'callout';

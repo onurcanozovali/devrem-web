@@ -62,8 +62,10 @@ function ArticleBlockView({ block }: { block: ArticleBlock }) {
   }
 
   if (block.type === 'table') {
+    const mobileView = block.mobileView ?? 'accordion';
+
     return (
-      <div>
+      <div className={`article-table-block article-table-block-${mobileView}`}>
         <div className="article-table-wrap">
           <Table className="min-w-[620px]">
             {block.caption ? (

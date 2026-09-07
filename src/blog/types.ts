@@ -32,6 +32,7 @@ export type BlogContentBlock =
       rows: string[][];
       caption?: string;
       note?: string;
+      mobileView?: 'table' | 'accordion';
     }
   | {
       type: 'callout';

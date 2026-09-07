@@ -129,7 +129,14 @@ function newBlock(type: BlogContentBlock['type']): BlogContentBlock {
   if (type === 'paragraph') return { type, text: '' };
   if (type === 'heading') return { type, level: 2, text: '' };
   if (type === 'list') return { type, style: 'bullet', items: [''] };
-  if (type === 'table') return { type, columns: [''], rows: [['']] };
+  if (type === 'table') {
+    return {
+      type,
+      columns: [''],
+      rows: [['']],
+      mobileView: 'accordion',
+    };
+  }
   if (type === 'callout') {
     return { type, tone: 'info', title: '', body: '' };
   }
@@ -200,6 +207,66 @@ function EditorSection({
 }
 
 type TableBlogBlock = Extract<BlogContentBlock, { type: 'table' }>;
+
+function TableRowEditor({
+  columns,
+  row,
+  rowIndex,
+  onCellChange,
+  onRemove,
+}: {
+  columns: string[];
+  row: string[];
+  rowIndex: number;
+  onCellChange: (columnIndex: number, value: string) => void;
+  onRemove: () => void;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className={`admin-table-row${isOpen ? ' is-open' : ''}`}>
+      <button
+        aria-expanded={isOpen}
+        className="admin-table-row-summary"
+        onClick={() => setIsOpen((current) => !current)}
+        type="button"
+      >
+        <span>
+          <strong>Satır {rowIndex + 1}</strong>
+          <small>{row.find(Boolean) || 'Henüz veri girilmedi'}</small>
+        </span>
+        <ChevronDown className="size-4" aria-hidden="true" />
+      </button>
+      <div
+        className="admin-table-row-fields"
+        style={{
+          gridTemplateColumns: `repeat(${columns.length}, minmax(8rem, 1fr)) auto`,
+        }}
+      >
+        {columns.map((column, columnIndex) => (
+          <label key={`row-${rowIndex}-cell-${columnIndex}`}>
+            <span>{column || `Sütun ${columnIndex + 1}`}</span>
+            <input
+              aria-label={`${rowIndex + 1}. satır, ${column || `${columnIndex + 1}. sütun`}`}
+              onChange={(event) =>
+                onCellChange(columnIndex, event.target.value)
+              }
+              value={row[columnIndex] ?? ''}
+            />
+          </label>
+        ))}
+        <button
+          aria-label={`${rowIndex + 1}. satırı kaldır`}
+          className="admin-table-row-remove"
+          onClick={onRemove}
+          type="button"
+        >
+          <Trash2 className="size-4" aria-hidden="true" />
+        </button>
+      </div>
+    </div>
+  );
+}
 
 function TableBlockEditor({
   block,
@@ -332,42 +399,16 @@ function TableBlockEditor({
         {normalizedRows.length ? (
           <div className="admin-table-rows">
             {normalizedRows.map((row, rowIndex) => (
-              <details className="admin-table-row" key={`row-${rowIndex}`}>
-                <summary>
-                  <span>
-                    <strong>Satır {rowIndex + 1}</strong>
-                    <small>{row.find(Boolean) || 'Henüz veri girilmedi'}</small>
-                  </span>
-                  <ChevronDown className="size-4" aria-hidden="true" />
-                </summary>
-                <div
-                  className="admin-table-row-fields"
-                  style={{
-                    gridTemplateColumns: `repeat(${columns.length}, minmax(8rem, 1fr)) auto`,
-                  }}
-                >
-                  {columns.map((column, columnIndex) => (
-                    <label key={`row-${rowIndex}-cell-${columnIndex}`}>
-                      <span>{column || `Sütun ${columnIndex + 1}`}</span>
-                      <input
-                        aria-label={`${rowIndex + 1}. satır, ${column || `${columnIndex + 1}. sütun`}`}
-                        onChange={(event) =>
-                          updateCell(rowIndex, columnIndex, event.target.value)
-                        }
-                        value={row[columnIndex] ?? ''}
-                      />
-                    </label>
-                  ))}
-                  <button
-                    aria-label={`${rowIndex + 1}. satırı kaldır`}
-                    className="admin-table-row-remove"
-                    onClick={() => removeRow(rowIndex)}
-                    type="button"
-                  >
-                    <Trash2 className="size-4" aria-hidden="true" />
-                  </button>
-                </div>
-              </details>
+              <TableRowEditor
+                columns={columns}
+                key={`row-${rowIndex}`}
+                onCellChange={(columnIndex, value) =>
+                  updateCell(rowIndex, columnIndex, value)
+                }
+                onRemove={() => removeRow(rowIndex)}
+                row={row}
+                rowIndex={rowIndex}
+              />
             ))}
           </div>
         ) : (
@@ -375,6 +416,30 @@ function TableBlockEditor({
             İlk satırı ekleyerek tabloyu oluştur.
           </p>
         )}
+      </div>
+
+      <div className="admin-table-mobile-view">
+        <div>
+          <strong>Mobil görünüm</strong>
+          <small>Bu tablo telefonda nasıl gösterilsin?</small>
+        </div>
+        <fieldset>
+          <legend className="sr-only">Mobil tablo görünümü</legend>
+          <button
+            aria-pressed={(block.mobileView ?? 'accordion') === 'accordion'}
+            onClick={() => onChange({ ...block, mobileView: 'accordion' })}
+            type="button"
+          >
+            Akordeon
+          </button>
+          <button
+            aria-pressed={block.mobileView === 'table'}
+            onClick={() => onChange({ ...block, mobileView: 'table' })}
+            type="button"
+          >
+            Tablo
+          </button>
+        </fieldset>
       </div>
 
       <div className="admin-grid-two">

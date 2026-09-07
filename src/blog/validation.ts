@@ -206,12 +206,14 @@ function parseBlock(
     const note = plainText(block.note, `${label} notu`, 800, {
       required: false,
     });
+    const mobileView = block.mobileView === 'table' ? 'table' : 'accordion';
     return {
       type,
       columns,
       rows,
       ...(caption ? { caption } : {}),
       ...(note ? { note } : {}),
+      mobileView,
     };
   }
   if (type === 'callout') {
