@@ -59,6 +59,18 @@ export function isFirebasePublicConfigured() {
   return Boolean(config.projectId && config.webApiKey);
 }
 
+export function getFirebasePublicClientConfig() {
+  const config = getConfig();
+  if (!config.projectId || !config.webApiKey) return null;
+
+  return {
+    apiKey: config.webApiKey,
+    authDomain: `${config.projectId}.firebaseapp.com`,
+    projectId: config.projectId,
+    storageBucket: config.storageBucket || undefined,
+  };
+}
+
 export function getFirebaseStorageBucket() {
   const config = getConfig();
   if (!config.storageBucket) {
