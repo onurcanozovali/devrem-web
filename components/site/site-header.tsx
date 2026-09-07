@@ -22,6 +22,34 @@ export function SiteHeader() {
   const [desktopSearchOpen, setDesktopSearchOpen] = useState(false);
   const mobileScrollPosition = useRef(0);
   const mobileOpenLocation = useRef('');
+  const desktopGuideMenu = useRef<HTMLDetailsElement>(null);
+
+  useEffect(() => {
+    const closeGuideMenu = (event: PointerEvent) => {
+      const menu = desktopGuideMenu.current;
+      if (
+        menu?.open &&
+        event.target instanceof Node &&
+        !menu.contains(event.target)
+      ) {
+        menu.removeAttribute('open');
+      }
+    };
+
+    const closeGuideMenuWithEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        desktopGuideMenu.current?.removeAttribute('open');
+      }
+    };
+
+    document.addEventListener('pointerdown', closeGuideMenu);
+    document.addEventListener('keydown', closeGuideMenuWithEscape);
+
+    return () => {
+      document.removeEventListener('pointerdown', closeGuideMenu);
+      document.removeEventListener('keydown', closeGuideMenuWithEscape);
+    };
+  }, []);
 
   const rememberMobileScroll = () => {
     mobileScrollPosition.current = window.scrollY;
@@ -57,7 +85,11 @@ export function SiteHeader() {
           >
             {mainNavigation.map((item) =>
               'items' in item ? (
-                <details className="header-guide-menu" key={item.label}>
+                <details
+                  className="header-guide-menu"
+                  key={item.label}
+                  ref={desktopGuideMenu}
+                >
                   <summary className="nav-link">
                     {item.label} <ChevronDown aria-hidden="true" />
                   </summary>
