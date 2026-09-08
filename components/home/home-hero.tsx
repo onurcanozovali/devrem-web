@@ -24,7 +24,7 @@ export function HomeHero() {
   return (
     <section className="landing-hero">
       <Container className="grid min-h-[800px] items-center gap-14 py-16 lg:grid-cols-[1.02fr_0.98fr] lg:py-20">
-        <div className="relative z-10 max-w-2xl animate-reveal">
+        <div className="relative z-10 max-w-2xl">
           <div className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3 py-2 text-[10px] font-bold uppercase tracking-[0.1em] text-primary-ink">
             <ShieldCheck className="size-4" aria-hidden="true" /> Askere
             gitmeden önce Devrem var

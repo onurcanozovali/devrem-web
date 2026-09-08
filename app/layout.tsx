@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { Poppins } from 'next/font/google';
-import { UserAuthProvider } from '@/components/auth/user-auth';
+import { UserAuthProvider } from '@/components/auth/user-auth-provider';
 import { SiteFooter } from '@/components/site/site-footer';
 import { SiteHeader } from '@/components/site/site-header';
 import { getFirebasePublicClientConfig } from '@/lib/firebase/server';

@@ -3,27 +3,16 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
-  createContext,
-  useContext,
   useEffect,
-  useMemo,
   useRef,
   useState,
-  type ReactNode,
   type SyntheticEvent,
 } from 'react';
-import { FirebaseError, getApps, initializeApp } from 'firebase/app';
+import { FirebaseError } from 'firebase/app';
 import {
   RecaptchaVerifier,
-  browserLocalPersistence,
-  getAuth,
-  onAuthStateChanged,
-  setPersistence,
   signInWithPhoneNumber,
-  signOut,
-  type Auth,
   type ConfirmationResult,
-  type User,
 } from 'firebase/auth';
 import { doc, getDoc, getFirestore } from 'firebase/firestore';
 import { getDownloadURL, getStorage, ref } from 'firebase/storage';
@@ -40,102 +29,7 @@ import {
   formatTurkishMobileNational,
   toTurkishE164,
 } from '@/lib/firebase/phone';
-
-type PublicFirebaseConfig = {
-  apiKey: string;
-  authDomain: string;
-  projectId: string;
-  storageBucket?: string;
-};
-
-type UserAuthContextValue = {
-  auth: Auth | null;
-  error: string | null;
-  ready: boolean;
-  user: User | null;
-  signOutUser: () => Promise<void>;
-};
-
-const UserAuthContext = createContext<UserAuthContextValue | null>(null);
-const USER_AUTH_APP_NAME = 'devrem-user-auth';
-
-export function UserAuthProvider({
-  children,
-  config,
-}: {
-  children: ReactNode;
-  config: PublicFirebaseConfig | null;
-}) {
-  const [auth, setAuth] = useState<Auth | null>(null);
-  const [user, setUser] = useState<User | null>(null);
-  const [ready, setReady] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let active = true;
-    let unsubscribe: (() => void) | undefined;
-
-    async function start() {
-      if (!config) {
-        setError('Firebase web yapılandırması eksik.');
-        setReady(true);
-        return;
-      }
-
-      try {
-        const app =
-          getApps().find(
-            (candidate) => candidate.name === USER_AUTH_APP_NAME,
-          ) ?? initializeApp(config, USER_AUTH_APP_NAME);
-        const nextAuth = getAuth(app);
-        nextAuth.languageCode = 'tr';
-        await setPersistence(nextAuth, browserLocalPersistence);
-        if (!active) return;
-        setAuth(nextAuth);
-        unsubscribe = onAuthStateChanged(nextAuth, (nextUser) => {
-          if (!active) return;
-          setUser(nextUser);
-          setReady(true);
-        });
-      } catch {
-        if (!active) return;
-        setError('Giriş sistemi başlatılamadı. Lütfen daha sonra tekrar dene.');
-        setReady(true);
-      }
-    }
-
-    void start();
-    return () => {
-      active = false;
-      unsubscribe?.();
-    };
-  }, [config]);
-
-  const value = useMemo<UserAuthContextValue>(
-    () => ({
-      auth,
-      error,
-      ready,
-      user,
-      signOutUser: async () => {
-        if (auth) await signOut(auth);
-      },
-    }),
-    [auth, error, ready, user],
-  );
-
-  return (
-    <UserAuthContext.Provider value={value}>
-      {children}
-    </UserAuthContext.Provider>
-  );
-}
-
-export function useUserAuth() {
-  const value = useContext(UserAuthContext);
-  if (!value) throw new Error('UserAuthProvider bulunamadı.');
-  return value;
-}
+import { useUserAuth } from '@/components/auth/user-auth-provider';
 
 function authErrorMessage(error: unknown) {
   const code = error instanceof FirebaseError ? error.code : '';

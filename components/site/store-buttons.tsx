@@ -42,6 +42,7 @@ export function StoreButtons({
             alt={store.label}
             className="store-badge-image"
             height={802}
+            sizes={compact ? '112px' : '156px'}
             src={store.badges[tone]}
             width={2500}
           />

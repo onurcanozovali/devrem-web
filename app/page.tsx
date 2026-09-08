@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import { AppShowcase } from '@/components/home/app-showcase';
 import { BedelliTeaser } from '@/components/home/bedelli-teaser';
 import { CommunityDiscovery } from '@/components/home/community-discovery';
@@ -28,9 +29,15 @@ export default function HomePage() {
       <JsonLd data={graphSchema(organizationSchema(), websiteSchema())} />
       <HomeHero />
       <CommunityDiscovery />
-      <CommunityForumTeaser />
-      <BedelliTeaser />
-      <EditorialGuides />
+      <Suspense fallback={null}>
+        <CommunityForumTeaser />
+      </Suspense>
+      <Suspense fallback={null}>
+        <BedelliTeaser />
+      </Suspense>
+      <Suspense fallback={null}>
+        <EditorialGuides />
+      </Suspense>
       <AppShowcase />
       <FinalCTA />
       <CookieNotice />

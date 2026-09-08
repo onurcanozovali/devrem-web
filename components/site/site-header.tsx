@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { ArrowRight, ChevronDown, LogOut, Menu, UserRound } from 'lucide-react';
-import { useUserAuth } from '@/components/auth/user-auth';
+import { useUserAuth } from '@/components/auth/user-auth-provider';
 import { BlogSearch } from '@/components/content/blog-search';
 import { mainNavigation } from '@/src/config/site';
 import { Container } from '@/components/site/container';
