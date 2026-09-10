@@ -4,6 +4,7 @@ import {
   ArrowRight,
   BadgeCheck,
   BookOpen,
+  Check,
   ExternalLink,
   MapPin,
   Navigation,
@@ -45,6 +46,41 @@ function FieldSource({ href }: { href: string | null }) {
   ) : null;
 }
 
+function LocationMap({
+  title,
+  location,
+  embedUrl,
+  openUrl,
+}: {
+  title: string;
+  location: string;
+  embedUrl: string;
+  openUrl: string | null;
+}) {
+  return (
+    <div className="mt-5 overflow-hidden rounded-2xl border border-border bg-background shadow-sm">
+      <div className="aspect-[16/10] w-full sm:aspect-[16/7]">
+        <iframe
+          allowFullScreen
+          className="h-full w-full border-0"
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+          src={embedUrl}
+          title={`${title} konum haritası`}
+        />
+      </div>
+      {openUrl ? (
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-4 py-3">
+          <span className="text-sm font-semibold text-secondary-foreground">{location}</span>
+          <a className="inline-flex items-center gap-2 text-sm font-extrabold text-primary" href={openUrl} rel="noreferrer" target="_blank">
+            Büyük haritada aç <ExternalLink className="size-4" aria-hidden="true" />
+          </a>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 export function MilitaryUnitPage({
   unit,
   sameCity,
@@ -58,9 +94,17 @@ export function MilitaryUnitPage({
   const hasLocation = Boolean(unit.address || unit.locationDescription || unit.mapSourceUrl || (unit.latitude !== null && unit.longitude !== null));
   const hasPreparation = Boolean(unit.joining.length || unit.preparationNotes || unit.preparationFacts.length);
   const hasContact = Boolean(unit.contact.officialPhone || unit.contact.officialWebsite || unit.contact.note);
-  const mapUrl = unit.mapSourceUrl ?? (unit.latitude !== null && unit.longitude !== null
-    ? `https://www.google.com/maps?q=${unit.latitude},${unit.longitude}`
+  const mapQuery = unit.latitude !== null && unit.longitude !== null
+    ? `${unit.latitude},${unit.longitude}`
+    : unit.address
+      ? `${unit.address}, ${unit.city}`
+      : null;
+  const mapUrl = unit.mapSourceUrl ?? (mapQuery
+    ? `https://www.google.com/maps?q=${encodeURIComponent(mapQuery)}`
     : null);
+  const mapEmbedUrl = mapQuery
+    ? `https://www.google.com/maps?q=${encodeURIComponent(mapQuery)}&z=15&output=embed`
+    : null;
 
   return (
     <main className="bg-background py-8 sm:py-12" id="ana-icerik">
@@ -100,7 +144,21 @@ export function MilitaryUnitPage({
             <section className="rounded-3xl border border-border bg-surface p-6 shadow-sm sm:p-8">
               <h2 className="text-2xl font-extrabold">Birlik özeti</h2>
               {unit.introduction ? <p className="mt-4 whitespace-pre-line leading-7 text-secondary-foreground">{unit.introduction}</p> : null}
-              {unit.highlights.length ? <ul className="mt-5 grid gap-3 sm:grid-cols-2">{unit.highlights.map((item) => <li className="rounded-2xl bg-primary/7 px-4 py-3 font-semibold" key={item}>{item}</li>)}</ul> : null}
+              {unit.highlights.length ? (
+                <div className="mt-6">
+                  <p className="text-xs font-extrabold uppercase tracking-[0.14em] text-primary">Öne çıkan kısa bilgiler</p>
+                  <ul className="mt-3 grid gap-3 sm:grid-cols-2">
+                    {unit.highlights.map((item) => (
+                      <li className="flex min-h-24 items-start gap-3 rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/10 via-primary/5 to-surface p-4 shadow-[0_8px_24px_rgba(18,92,68,0.06)]" key={item}>
+                        <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-xl bg-primary text-white shadow-sm">
+                          <Check className="size-4" strokeWidth={3} aria-hidden="true" />
+                        </span>
+                        <span className="font-bold leading-6">{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
               <dl className="mt-6 grid gap-5 sm:grid-cols-2">
                 {[
                   ['Kuvvet', unit.force], ['Şehir', unit.city], ['İlçe', unit.district],
@@ -118,7 +176,28 @@ export function MilitaryUnitPage({
             {hasLocation || unit.transportationMethods.length ? (
               <section className="rounded-3xl border border-border bg-surface p-6 shadow-sm sm:p-8">
                 <h2 className="flex items-center gap-3 text-2xl font-extrabold"><Navigation className="size-6 text-primary" aria-hidden="true" /> Konum ve ulaşım</h2>
-                {hasLocation ? <div className="mt-6"><div className="flex flex-wrap items-center justify-between gap-3"><h3 className="font-extrabold">Konum</h3><VerificationBadge status={unit.locationVerificationStatus} /></div>{unit.address ? <p className="mt-2 whitespace-pre-line leading-7 text-secondary-foreground">{unit.address}</p> : null}{unit.locationDescription ? <p className="mt-2 whitespace-pre-line leading-7 text-secondary-foreground">{unit.locationDescription}</p> : null}{mapUrl ? <a className="mt-3 inline-flex items-center gap-2 font-bold text-primary underline underline-offset-4" href={mapUrl} rel="noreferrer" target="_blank">Haritada aç <ExternalLink className="size-4" aria-hidden="true" /></a> : null}</div> : null}
+                {hasLocation ? (
+                  <div className="mt-6">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <h3 className="font-extrabold">Konum</h3>
+                      <VerificationBadge status={unit.locationVerificationStatus} />
+                    </div>
+                    {unit.address ? <p className="mt-2 whitespace-pre-line leading-7 text-secondary-foreground">{unit.address}</p> : null}
+                    {unit.locationDescription ? <p className="mt-2 whitespace-pre-line leading-7 text-secondary-foreground">{unit.locationDescription}</p> : null}
+                    {mapEmbedUrl ? (
+                      <LocationMap
+                        embedUrl={mapEmbedUrl}
+                        location={`${unit.city}${unit.district ? ` · ${unit.district}` : ''}`}
+                        openUrl={mapUrl}
+                        title={unit.name}
+                      />
+                    ) : mapUrl ? (
+                      <a className="mt-3 inline-flex items-center gap-2 font-bold text-primary underline underline-offset-4" href={mapUrl} rel="noreferrer" target="_blank">
+                        Haritada aç <ExternalLink className="size-4" aria-hidden="true" />
+                      </a>
+                    ) : null}
+                  </div>
+                ) : null}
                 {unit.transportationMethods.length ? <div className="mt-7 space-y-5 border-t border-border pt-6">{unit.transportationMethods.map((method) => <div key={method.key}><div className="flex flex-wrap items-center justify-between gap-3"><h3 className="font-extrabold">{method.label}</h3><VerificationBadge status={method.verificationStatus} /></div><p className="mt-2 whitespace-pre-line leading-7 text-secondary-foreground">{method.value}</p><FieldSource href={method.sourceUrl} /></div>)}</div> : null}
               </section>
             ) : null}

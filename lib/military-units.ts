@@ -239,8 +239,10 @@ export function mapMilitaryUnitRecord(id: string, data: RecordData): PublicMilit
     const url = urlValue(source.url);
     if (!title && !url) return [];
     const sourceType = stringValue(source.type);
-    const type = sourceType === 'official' || sourceType === 'map' || sourceType === 'institutional' || sourceType === 'community'
-      ? sourceType : 'other' as const;
+    const type: PublicMilitaryUnit['sources'][number]['type'] =
+      sourceType === 'official' || sourceType === 'map' || sourceType === 'institutional' || sourceType === 'community'
+        ? sourceType
+        : 'other';
     return [{ title, url, type, accessedAt: dateValue(source.accessedAt) ?? stringValue(source.accessedAt), note: stringValue(source.note) }];
   });
   if (!sources.length && (stringValue(data.sourceTitle ?? data.sourceLabel ?? data.source) || urlValue(data.sourceUrl))) {

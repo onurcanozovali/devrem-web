@@ -1,5 +1,7 @@
 'use client';
 
+/* oxlint-disable jsx-a11y/label-has-associated-control -- VerificationSelect renders a native select inside its wrapping label. */
+
 import Link from 'next/link';
 import { useState, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
@@ -79,10 +81,18 @@ function mergeFacility(value: unknown, label: string): MilitaryUnitFacility {
 function initialUnit(initial?: Partial<MilitaryUnitInput>): MilitaryUnitInput {
   const legacy = (initial ?? {}) as Record<string, unknown>;
   const legacyText = (key: string) => typeof legacy[key] === 'string' ? legacy[key] as string : '';
-  const transportation = initial?.transportation && typeof initial.transportation === 'object' ? initial.transportation : {};
-  const joining = initial?.joining && typeof initial.joining === 'object' ? initial.joining : {};
-  const preparation = initial?.preparation && typeof initial.preparation === 'object' ? initial.preparation : {};
-  const legacyFacilities = initial?.facilities && typeof initial.facilities === 'object' ? initial.facilities : {};
+  const transportation = initial?.transportation && typeof initial.transportation === 'object'
+    ? initial.transportation
+    : {} as Partial<MilitaryUnitInput['transportation']>;
+  const joining = initial?.joining && typeof initial.joining === 'object'
+    ? initial.joining
+    : {} as Partial<MilitaryUnitInput['joining']>;
+  const preparation = initial?.preparation && typeof initial.preparation === 'object'
+    ? initial.preparation
+    : {} as Partial<MilitaryUnitInput['preparation']>;
+  const legacyFacilities = initial?.facilities && typeof initial.facilities === 'object'
+    ? initial.facilities
+    : {} as Partial<MilitaryUnitInput['facilities']>;
   return {
     ...emptyUnit, ...initial,
     aliases: initial?.aliases ?? [], audiences: initial?.audiences ?? [], highlights: initial?.highlights ?? [], verifiedFacts: initial?.verifiedFacts ?? [],
@@ -112,7 +122,7 @@ function VerificationSelect({ value, onChange }: { value: MilitaryUnitFieldVerif
 }
 
 function VerifiedTextarea({ label, value, onChange, helper }: { label: string; value: MilitaryUnitContentField; onChange: (value: MilitaryUnitContentField) => void; helper?: string }) {
-  return <div className="admin-field-full rounded-2xl border border-border p-4"><label><span>{label}</span><textarea onChange={(event) => onChange({ ...value, text: event.target.value })} rows={3} value={value.text} />{helper ? <small>{helper}</small> : null}</label><div className="admin-form-grid mt-3"><label><span>Doğrulama</span><VerificationSelect onChange={(verificationStatus) => onChange({ ...value, verificationStatus })} value={value.verificationStatus} /></label><label><span>Alan kaynağı</span><input onChange={(event) => onChange({ ...value, sourceUrl: event.target.value })} placeholder="https://" type="url" value={value.sourceUrl} /></label></div></div>;
+  return <div className="admin-field-full rounded-2xl border border-border p-4"><label><span>{label}</span><textarea onChange={(event) => onChange({ ...value, text: event.target.value })} rows={3} value={value.text} />{helper ? <small>{helper}</small> : null}</label><div className="admin-form-grid mt-3"><div><span>Doğrulama</span><VerificationSelect onChange={(verificationStatus) => onChange({ ...value, verificationStatus })} value={value.verificationStatus} /></div><label><span>Alan kaynağı</span><input onChange={(event) => onChange({ ...value, sourceUrl: event.target.value })} placeholder="https://" type="url" value={value.sourceUrl} /></label></div></div>;
 }
 
 export function MilitaryUnitEditor({ unitId, initial, isNew, createdAt, updatedAt }: { unitId: string; initial?: Partial<MilitaryUnitInput>; isNew: boolean; createdAt?: string | null; updatedAt?: string | null }) {
@@ -163,7 +173,7 @@ export function MilitaryUnitEditor({ unitId, initial, isNew, createdAt, updatedA
       </Section>
 
       <Section description="Koordinat yoksa public sayfada harita üretilmez." eyebrow="B" id="unit-location" title="Konum">
-        <div className="admin-form-grid"><label className="admin-field-full"><span>Açık adres</span><textarea onChange={(event) => field('address', event.target.value)} rows={3} value={unit.address} /></label><label><span>Enlem</span><input inputMode="decimal" onChange={(event) => field('latitude', event.target.value ? Number(event.target.value) : null)} value={unit.latitude ?? ''} /></label><label><span>Boylam</span><input inputMode="decimal" onChange={(event) => field('longitude', event.target.value ? Number(event.target.value) : null)} value={unit.longitude ?? ''} /></label><label><span>Harita durumu</span><select onChange={(event) => field('mapStatus', event.target.value as MilitaryUnitInput['mapStatus'])} value={unit.mapStatus}><option value="query-only">Yalnızca sorgu</option><option value="candidate">Harita adayı</option><option value="verified">Doğrulanmış harita</option></select></label><label><span>Konum doğrulaması</span><VerificationSelect onChange={(value) => { field('locationVerificationStatus', value); field('coordinateVerificationStatus', value); }} value={unit.locationVerificationStatus} /></label><label className="admin-field-full"><span>Google Maps / harita URL</span><input onChange={(event) => field('mapSourceUrl', event.target.value)} placeholder="https://" type="url" value={unit.mapSourceUrl} /></label><label className="admin-field-full"><span>Konum açıklaması</span><textarea onChange={(event) => field('locationDescription', event.target.value)} rows={3} value={unit.locationDescription} /></label></div>
+        <div className="admin-form-grid"><label className="admin-field-full"><span>Açık adres</span><textarea onChange={(event) => field('address', event.target.value)} rows={3} value={unit.address} /></label><label><span>Enlem</span><input inputMode="decimal" onChange={(event) => field('latitude', event.target.value ? Number(event.target.value) : null)} value={unit.latitude ?? ''} /></label><label><span>Boylam</span><input inputMode="decimal" onChange={(event) => field('longitude', event.target.value ? Number(event.target.value) : null)} value={unit.longitude ?? ''} /></label><label><span>Harita durumu</span><select onChange={(event) => field('mapStatus', event.target.value as MilitaryUnitInput['mapStatus'])} value={unit.mapStatus}><option value="query-only">Yalnızca sorgu</option><option value="candidate">Harita adayı</option><option value="verified">Doğrulanmış harita</option></select></label><div><span>Konum doğrulaması</span><VerificationSelect onChange={(value) => { field('locationVerificationStatus', value); field('coordinateVerificationStatus', value); }} value={unit.locationVerificationStatus} /></div><label className="admin-field-full"><span>Google Maps / harita URL</span><input onChange={(event) => field('mapSourceUrl', event.target.value)} placeholder="https://" type="url" value={unit.mapSourceUrl} /></label><label className="admin-field-full"><span>Konum açıklaması</span><textarea onChange={(event) => field('locationDescription', event.target.value)} rows={3} value={unit.locationDescription} /></label></div>
       </Section>
 
       <Section description="Yalnızca doldurulan yöntemler public sayfada görünür." eyebrow="C" id="unit-transport" title="Ulaşım">
