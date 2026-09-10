@@ -16,7 +16,7 @@ export function MilitaryUnitDirectory({ units }: { units: PublicMilitaryUnit[] }
     const normalized = query.trim().toLocaleLowerCase('tr-TR');
     return units.filter((unit) => {
       const matchesForce = force === 'Tümü' || unit.force === force;
-      const haystack = `${unit.name} ${unit.shortName ?? ''} ${unit.city} ${unit.district ?? ''}`.toLocaleLowerCase('tr-TR');
+      const haystack = `${unit.name} ${unit.shortName ?? ''} ${unit.aliases.join(' ')} ${unit.city} ${unit.district ?? ''}`.toLocaleLowerCase('tr-TR');
       return matchesForce && (!normalized || haystack.includes(normalized));
     });
   }, [force, query, units]);

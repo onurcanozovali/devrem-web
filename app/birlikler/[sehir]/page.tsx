@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!result) return { robots: { index: false, follow: false } };
   const path = `/birlikler/${sehir}`;
   const title = `${result.city} Askerî Birlikleri ve Birlik Rehberi | Devrem`;
-  const description = `${result.city} ilindeki doğrulanmış askerî birliklerin konum, kuvvet ve ulaşım bilgilerini incele.`;
+  const description = `${result.city} ilindeki askerî birliklerin konum, kuvvet, doğrulama durumu ve ulaşım bilgilerini incele.`;
   return {
     ...createPageMetadata({ title, description, path, imageAlt: `${result.city} askerî birlikleri` }),
     title: { absolute: title },
@@ -31,7 +31,7 @@ export default async function MilitaryUnitCityPage({ params }: PageProps) {
   if (!result) notFound();
   const path = `/birlikler/${sehir}`;
   const title = `${result.city} Askerî Birlikleri ve Birlik Rehberi | Devrem`;
-  const description = `${result.city} ilindeki doğrulanmış askerî birliklerin konum, kuvvet ve ulaşım bilgilerini incele.`;
+  const description = `${result.city} ilindeki askerî birliklerin konum, kuvvet, doğrulama durumu ve ulaşım bilgilerini incele.`;
   const updatedAt = result.units.reduce(
     (latest, unit) => (unit.updatedAt > latest ? unit.updatedAt : latest),
     result.units[0].updatedAt,
@@ -64,7 +64,7 @@ export default async function MilitaryUnitCityPage({ params }: PageProps) {
             {result.city} askerî birlikleri
           </h1>
           <p className="mt-5 text-lg leading-8 text-secondary-foreground">
-            Yayın kriterlerini karşılayan {result.units.length} birlik için doğrulanmış bilgileri incele.
+            Yayın kriterlerini karşılayan {result.units.length} birlik için mevcut bilgileri ve doğrulama durumlarını incele.
           </p>
         </header>
         <section className="mt-10 grid gap-4 md:grid-cols-2" aria-label={`${result.city} birlikleri`}>

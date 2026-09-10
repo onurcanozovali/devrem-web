@@ -13,7 +13,7 @@ export const dynamic = 'force-dynamic';
 const path = '/birlikler';
 const title = 'Askerî Birlikler: Konum ve Ulaşım Rehberi | Devrem';
 const description =
-  'Devrem’in doğrulanmış askerî birlik kataloğunda şehir, kuvvet, konum ve ulaşım bilgilerini keşfet.';
+  'Devrem askerî birlik kataloğunda şehir, kuvvet, konum, doğrulama durumu ve ulaşım bilgilerini keşfet.';
 
 export async function generateMetadata(): Promise<Metadata> {
   const units = await listIndexableMilitaryUnits();
@@ -49,7 +49,7 @@ export default async function MilitaryUnitsPage() {
 
         <header className="mt-8 max-w-3xl">
           <p className="flex items-center gap-2 text-sm font-extrabold uppercase tracking-[0.14em] text-primary">
-            <ShieldCheck className="size-5" aria-hidden="true" /> Doğrulanmış katalog
+            <ShieldCheck className="size-5" aria-hidden="true" /> Kaynak durumlu katalog
           </p>
           <h1 className="mt-4 text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-6xl">
             Askerî birlikleri keşfet
@@ -65,7 +65,7 @@ export default async function MilitaryUnitsPage() {
           <section className="mt-10 rounded-3xl border border-border bg-surface p-8 shadow-sm">
             <h2 className="text-xl font-extrabold">Yayınlanmış birlik bulunmuyor</h2>
             <p className="mt-3 max-w-2xl leading-7 text-secondary-foreground">
-              Yalnızca kimliği doğrulanmış ve yeterli kaynak bilgisi bulunan birlikler burada yayınlanır.
+              Yayında ve arama motorlarına açık bir birlik kaydı henüz bulunmuyor.
             </p>
           </section>
         )}

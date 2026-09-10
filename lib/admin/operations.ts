@@ -3,6 +3,7 @@ import type { AdminSession } from '@/lib/admin/session';
 import {
   commitFirestoreWrites,
   getFirestoreDocument,
+  queryFirestoreDocuments,
 } from '@/lib/firebase/server';
 import { setFirebaseAdminRole } from '@/lib/firebase/auth-admin';
 import {
@@ -271,15 +272,37 @@ export async function updateGroupStatus({
   return { status: disabled ? 'disabled' : 'active' };
 }
 
-export type MilitaryUnitFacilityStatus = 'unknown' | 'reported' | 'verified';
+export type MilitaryUnitVerification =
+  | 'unverified'
+  | 'reviewing'
+  | 'partially_verified'
+  | 'verified';
+export type MilitaryUnitFieldVerification = 'unknown' | 'reported' | 'verified';
+export type MilitaryUnitContentField = {
+  text: string;
+  verificationStatus: MilitaryUnitFieldVerification;
+  sourceUrl: string;
+};
+export type MilitaryUnitFacilityStatus = 'available' | 'unavailable' | 'unknown';
 export type MilitaryUnitFacility = {
+  name: string;
   status: MilitaryUnitFacilityStatus;
+  verificationStatus: MilitaryUnitFieldVerification;
   note: string;
 };
 export type MilitaryUnitSource = {
   title: string;
   url: string;
+  type: 'official' | 'map' | 'institutional' | 'community' | 'other';
+  accessedAt: string;
   note: string;
+};
+export type MilitaryUnitFaq = {
+  id: string;
+  question: string;
+  answer: string;
+  verificationStatus: MilitaryUnitFieldVerification;
+  sourceUrl: string;
 };
 
 export type MilitaryUnitInput = {
@@ -291,27 +314,47 @@ export type MilitaryUnitInput = {
   force: string;
   unitType: string;
   audiences: string[];
-  verificationStatus: 'unverified' | 'reviewing' | 'verified';
+  verificationStatus: MilitaryUnitVerification;
   publicationStatus: 'draft' | 'published';
   latitude: number | null;
   longitude: number | null;
   mapStatus: 'query-only' | 'candidate' | 'verified';
-  coordinateVerificationStatus: 'unverified' | 'reviewing' | 'verified';
+  coordinateVerificationStatus: MilitaryUnitFieldVerification;
   mapSourceUrl: string;
   address: string;
+  locationDescription: string;
+  locationVerificationStatus: MilitaryUnitFieldVerification;
   transportation: {
-    busStation: string;
-    airport: string;
-    trainStation: string;
-    cityCenter: string;
-    general: string;
+    busStation: MilitaryUnitContentField;
+    airport: MilitaryUnitContentField;
+    trainStation: MilitaryUnitContentField;
+    cityCenter: MilitaryUnitContentField;
+    privateVehicle: MilitaryUnitContentField;
+    general: MilitaryUnitContentField;
   };
+  standfirst: string;
   introduction: string;
+  highlights: string[];
   verifiedFacts: string[];
-  joiningNotes: string;
-  preparationNotes: string;
-  facilities: Record<'canteen' | 'infirmary' | 'atm' | 'barber' | 'diningHall' | 'communication', MilitaryUnitFacility>;
+  joining: {
+    general: MilitaryUnitContentField;
+    gate: MilitaryUnitContentField;
+    dispatchReminder: MilitaryUnitContentField;
+    documentReminder: MilitaryUnitContentField;
+    importantNote: MilitaryUnitContentField;
+  };
+  preparation: {
+    notes: MilitaryUnitContentField;
+    importantFacts: string[];
+  };
+  facilities: Record<'canteen' | 'infirmary' | 'atm' | 'barber' | 'diningHall' | 'communication' | 'visitorArea' | 'parking', MilitaryUnitFacility>;
   otherFacilities: MilitaryUnitFacility[];
+  contact: {
+    officialPhone: string;
+    officialWebsite: string;
+    note: string;
+  };
+  faqs: MilitaryUnitFaq[];
   sources: MilitaryUnitSource[];
   verifiedAt: string;
   sourceNote: string;
@@ -319,6 +362,7 @@ export type MilitaryUnitInput = {
   slug: string;
   seoTitle: string;
   metaDescription: string;
+  ogImage: string;
   indexable: boolean;
 };
 
@@ -359,14 +403,52 @@ function safeUrl(value: unknown) {
   }
 }
 
-function facility(value: unknown): MilitaryUnitFacility {
+function fieldVerification(value: unknown): MilitaryUnitFieldVerification {
+  const status = text(value);
+  return ['unknown', 'reported', 'verified'].includes(status)
+    ? status as MilitaryUnitFieldVerification
+    : 'unknown';
+}
+
+function contentField(value: unknown, legacyText = ''): MilitaryUnitContentField {
+  if (typeof value === 'string') {
+    return { text: value.trim().slice(0, 2_000), verificationStatus: 'unknown', sourceUrl: '' };
+  }
+  const data = value && typeof value === 'object' ? value as RecordData : {};
+  return {
+    text: (text(data.text) || legacyText).trim().slice(0, 2_000),
+    verificationStatus: fieldVerification(data.verificationStatus),
+    sourceUrl: safeUrl(data.sourceUrl),
+  };
+}
+
+function facility(value: unknown, name: string): MilitaryUnitFacility {
   const data = value && typeof value === 'object' ? value as RecordData : {};
   const status = text(data.status);
+  const legacyVerification = status === 'verified' || status === 'reported' ? status : null;
   return {
-    status: ['unknown', 'reported', 'verified'].includes(status)
+    name: (text(data.name) || name).trim().slice(0, 120),
+    status: ['available', 'unavailable', 'unknown'].includes(status)
       ? status as MilitaryUnitFacilityStatus
+      : legacyVerification
+        ? 'available'
       : 'unknown',
+    verificationStatus: (legacyVerification ?? fieldVerification(data.verificationStatus)) as MilitaryUnitFieldVerification,
     note: text(data.note).trim().slice(0, 500),
+  };
+}
+
+function faq(value: unknown): MilitaryUnitFaq | null {
+  const data = value && typeof value === 'object' ? value as RecordData : {};
+  const question = text(data.question).trim().slice(0, 240);
+  const answer = text(data.answer).trim().slice(0, 3_000);
+  if (!question && !answer) return null;
+  return {
+    id: text(data.id).trim().slice(0, 80) || crypto.randomUUID(),
+    question,
+    answer,
+    verificationStatus: fieldVerification(data.verificationStatus),
+    sourceUrl: safeUrl(data.sourceUrl),
   };
 }
 
@@ -381,6 +463,15 @@ export function parseMilitaryUnitInput(value: unknown): MilitaryUnitInput {
   const transportation = input.transportation && typeof input.transportation === 'object'
     ? input.transportation as RecordData
     : {};
+  const joining = input.joining && typeof input.joining === 'object'
+    ? input.joining as RecordData
+    : {};
+  const preparation = input.preparation && typeof input.preparation === 'object'
+    ? input.preparation as RecordData
+    : {};
+  const contact = input.contact && typeof input.contact === 'object'
+    ? input.contact as RecordData
+    : {};
   const facilityInput = input.facilities && typeof input.facilities === 'object'
     ? input.facilities as RecordData
     : {};
@@ -390,15 +481,32 @@ export function parseMilitaryUnitInput(value: unknown): MilitaryUnitInput {
         const url = safeUrl(source.url);
         const title = text(source.title).trim().slice(0, 180);
         const note = text(source.note).trim().slice(0, 1_000);
-        return title || url ? [{ title, url, note }] : [];
+        const type = text(source.type);
+        return title || url ? [{
+          title,
+          url,
+          type: ['official', 'map', 'institutional', 'community', 'other'].includes(type)
+            ? type as MilitaryUnitSource['type']
+            : 'other' as const,
+          accessedAt: text(source.accessedAt).trim().slice(0, 40),
+          note,
+        }] : [];
       }).slice(0, 8)
     : safeUrl(input.sourceUrl) || text(input.sourceTitle).trim()
       ? [{
           title: text(input.sourceTitle).trim().slice(0, 180),
           url: safeUrl(input.sourceUrl),
+          type: 'other' as const,
+          accessedAt: '',
           note: '',
         }]
       : [];
+  const faqs = Array.isArray(input.faqs)
+    ? input.faqs.flatMap((item) => {
+        const parsed = faq(item);
+        return parsed ? [parsed] : [];
+      }).slice(0, 30)
+    : [];
   const defaultSlug = slug(input.name);
   const name = text(input.name).trim().slice(0, 180);
   const result: MilitaryUnitInput = {
@@ -410,7 +518,7 @@ export function parseMilitaryUnitInput(value: unknown): MilitaryUnitInput {
     force: text(input.force).trim().slice(0, 80),
     unitType: text(input.unitType).trim().slice(0, 120),
     audiences: list(input.audiences, 12, 80),
-    verificationStatus: ['unverified', 'reviewing', 'verified'].includes(verificationStatus)
+    verificationStatus: ['unverified', 'reviewing', 'partially_verified', 'verified'].includes(verificationStatus)
       ? (verificationStatus as MilitaryUnitInput['verificationStatus'])
       : 'unverified',
     publicationStatus: publicationStatus === 'published' ? 'published' : 'draft',
@@ -419,33 +527,55 @@ export function parseMilitaryUnitInput(value: unknown): MilitaryUnitInput {
     mapStatus: ['query-only', 'candidate', 'verified'].includes(mapStatus)
       ? (mapStatus as MilitaryUnitInput['mapStatus'])
       : 'query-only',
-    coordinateVerificationStatus: ['unverified', 'reviewing', 'verified'].includes(coordinateVerificationStatus)
+    coordinateVerificationStatus: ['unknown', 'reported', 'verified'].includes(coordinateVerificationStatus)
       ? coordinateVerificationStatus as MilitaryUnitInput['coordinateVerificationStatus']
-      : 'unverified',
+      : 'unknown',
     mapSourceUrl: safeUrl(input.mapSourceUrl),
     address: text(input.address).trim().slice(0, 1_000),
+    locationDescription: text(input.locationDescription).trim().slice(0, 2_000),
+    locationVerificationStatus: fieldVerification(input.locationVerificationStatus),
     transportation: {
-      busStation: text(transportation.busStation).trim().slice(0, 2_000),
-      airport: text(transportation.airport).trim().slice(0, 2_000),
-      trainStation: text(transportation.trainStation).trim().slice(0, 2_000),
-      cityCenter: text(transportation.cityCenter).trim().slice(0, 2_000),
-      general: text(transportation.general ?? input.transport).trim().slice(0, 2_000),
+      busStation: contentField(transportation.busStation),
+      airport: contentField(transportation.airport),
+      trainStation: contentField(transportation.trainStation),
+      cityCenter: contentField(transportation.cityCenter),
+      privateVehicle: contentField(transportation.privateVehicle),
+      general: contentField(transportation.general, text(input.transport)),
     },
+    standfirst: text(input.standfirst).trim().slice(0, 700),
     introduction: text(input.introduction ?? input.about).trim().slice(0, 3_000),
+    highlights: list(input.highlights, 12, 240),
     verifiedFacts: list(input.verifiedFacts, 30, 500),
-    joiningNotes: text(input.joiningNotes).trim().slice(0, 3_000),
-    preparationNotes: text(input.preparationNotes).trim().slice(0, 3_000),
+    joining: {
+      general: contentField(joining.general, text(input.joiningNotes)),
+      gate: contentField(joining.gate),
+      dispatchReminder: contentField(joining.dispatchReminder),
+      documentReminder: contentField(joining.documentReminder),
+      importantNote: contentField(joining.importantNote),
+    },
+    preparation: {
+      notes: contentField(preparation.notes, text(input.preparationNotes)),
+      importantFacts: list(preparation.importantFacts, 15, 300),
+    },
     facilities: {
-      canteen: facility(facilityInput.canteen),
-      infirmary: facility(facilityInput.infirmary),
-      atm: facility(facilityInput.atm),
-      barber: facility(facilityInput.barber),
-      diningHall: facility(facilityInput.diningHall),
-      communication: facility(facilityInput.communication),
+      canteen: facility(facilityInput.canteen, 'Kantin'),
+      infirmary: facility(facilityInput.infirmary, 'Revir'),
+      atm: facility(facilityInput.atm, 'ATM'),
+      barber: facility(facilityInput.barber, 'Berber'),
+      diningHall: facility(facilityInput.diningHall, 'Yemekhane'),
+      communication: facility(facilityInput.communication, 'Telefon / iletişim'),
+      visitorArea: facility(facilityInput.visitorArea, 'Ziyaretçi alanı'),
+      parking: facility(facilityInput.parking, 'Otopark'),
     },
     otherFacilities: Array.isArray(input.otherFacilities)
-      ? input.otherFacilities.map(facility).filter((item) => item.note).slice(0, 12)
+      ? input.otherFacilities.map((item) => facility(item, '')).filter((item) => item.name).slice(0, 12)
       : [],
+    contact: {
+      officialPhone: text(contact.officialPhone).trim().slice(0, 80),
+      officialWebsite: safeUrl(contact.officialWebsite),
+      note: text(contact.note).trim().slice(0, 1_000),
+    },
+    faqs,
     sources,
     verifiedAt: text(input.verifiedAt).trim().slice(0, 40),
     sourceNote: text(input.sourceNote).trim().slice(0, 2_000),
@@ -453,6 +583,7 @@ export function parseMilitaryUnitInput(value: unknown): MilitaryUnitInput {
     slug: slug(input.slug) || defaultSlug,
     seoTitle: text(input.seoTitle).trim().slice(0, 120) || `${name}: Konum, Ulaşım ve Birlik Bilgileri | Devrem`,
     metaDescription: text(input.metaDescription).trim().slice(0, 200) || `${name} için konum, kuvvet, doğrulanmış birlik bilgileri ve ulaşım rehberi.`,
+    ogImage: safeUrl(input.ogImage),
     indexable: input.indexable === true,
   };
   if (result.name.length < 3 || !result.city || !result.force) {
@@ -487,6 +618,9 @@ export function parseMilitaryUnitInput(value: unknown): MilitaryUnitInput {
       throw new Error('Doğrulanmış kayıt için en az bir kaynak URL zorunludur.');
     }
   }
+  if (result.faqs.some((item) => !item.question || !item.answer)) {
+    throw new Error('FAQ satırlarında soru ve cevap birlikte doldurulmalıdır.');
+  }
   return result;
 }
 
@@ -506,8 +640,29 @@ export async function saveMilitaryUnit({
   }
   const safeReason = assertReason(reason);
   const unit = parseMilitaryUnitInput(input);
-  const existing = await getFirestoreDocument('_adminMilitaryUnits', unitId);
+  const [existing, sameSlug, existingUnits] = await Promise.all([
+    getFirestoreDocument('_adminMilitaryUnits', unitId),
+    queryFirestoreDocuments({
+      collection: '_adminMilitaryUnits',
+      filters: [{ field: 'slug', op: 'EQUAL', value: unit.slug }],
+      limit: 5,
+    }),
+    queryFirestoreDocuments({ collection: '_adminMilitaryUnits', limit: 250 }),
+  ]);
+  const normalizedName = unit.name.toLocaleLowerCase('tr-TR');
+  const hasDuplicate = sameSlug.records.some((record) => record.id !== unitId) || existingUnits.records.some((record) => {
+    if (record.id === unitId) return false;
+    return text(record.data.normalizedName ?? record.data.name).trim().toLocaleLowerCase('tr-TR') === normalizedName;
+  });
+  if (hasDuplicate) {
+    throw new Error('Aynı birlik adı veya public slug ile başka bir kayıt zaten var.');
+  }
   const now = new Date().toISOString();
+  const previousSlug = text(existing?.data.slug).trim();
+  const slugHistory = Array.from(new Set([
+    ...list(existing?.data.slugHistory, 50, 160),
+    ...(previousSlug && previousSlug !== unit.slug ? [previousSlug] : []),
+  ])).slice(0, 50);
   await commitFirestoreWrites([
     {
       path: `_adminMilitaryUnits/${unitId}`,
@@ -516,6 +671,15 @@ export async function saveMilitaryUnit({
         status: unit.publicationStatus,
         isPublished: unit.publicationStatus === 'published',
         verified: unit.verificationStatus === 'verified',
+        slugHistory,
+        canonicalUnitId: existing?.data.canonicalUnitId ?? unitId,
+        canonicalIdentity: existing?.data.canonicalIdentity ?? null,
+        identitySource: existing?.data.identitySource ?? 'web_admin',
+        normalizedName,
+        publishedAt:
+          unit.publicationStatus === 'published'
+            ? existing?.data.publishedAt ?? now
+            : null,
         createdAt: existing?.data.createdAt ?? now,
         updatedAt: now,
         updatedBy: admin.uid,
