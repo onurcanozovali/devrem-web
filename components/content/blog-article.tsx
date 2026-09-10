@@ -14,40 +14,51 @@ export function BlogArticle({
   relatedPosts?: BlogPost[];
 }) {
   const toc = getArticleToc(post);
+  const showLastUpdated =
+    post.slug ===
+    '2027-bedelli-askerlik-ucreti-ne-kadar-olacak-guncel-tahmin';
 
   return (
-    <article className="article-shell">
+    <article className="article-shell !block">
       <div className="article-main-column">
-        <ArticleHeader post={post} toc={toc} />
-        <div className="article-layout">
-          <ArticleBody post={post} relatedPosts={relatedPosts} />
-        </div>
-      </div>
+        <ArticleHeader post={post} toc={[]} />
+        {showLastUpdated ? (
+          <p className="mt-3 text-sm text-secondary-foreground">
+            <time dateTime={post.updatedIso}>
+              Son güncelleme: {post.updatedAt}
+            </time>
+          </p>
+        ) : null}
+        <div className="grid items-start gap-8 xl:grid-cols-[minmax(0,1fr)_18rem]">
+          <aside
+            className="article-desktop-sidebar order-first !block xl:order-last"
+            aria-label="Yazı navigasyonu"
+          >
+            <div className="article-sidebar-panel">
+              <p className="article-sidebar-label">İçindekiler</p>
+              <ArticleToc items={toc} variant="desktop" />
 
-      <aside
-        className="article-desktop-sidebar"
-        aria-label="Yazı navigasyonu"
-      >
-        <div className="article-sidebar-panel">
-          <p className="article-sidebar-label">İçindekiler</p>
-          <ArticleToc items={toc} variant="desktop" />
+              {post.sources?.length ? (
+                <div className="article-desktop-sources !block">
+                  <ArticleSources sources={post.sources} />
+                </div>
+              ) : null}
 
-          {post.sources?.length ? (
-            <div className="article-desktop-sources">
-              <ArticleSources sources={post.sources} />
+              <div className="article-sidebar-cta">
+                <strong>Devrem’i indir</strong>
+                <StoreButtons
+                  className="article-sidebar-store-buttons"
+                  compact
+                  tone="light"
+                />
+              </div>
             </div>
-          ) : null}
-
-          <div className="article-sidebar-cta">
-            <strong>Devrem’i indir</strong>
-            <StoreButtons
-              className="article-sidebar-store-buttons"
-              compact
-              tone="light"
-            />
+          </aside>
+          <div className="article-layout order-last min-w-0 xl:order-first">
+            <ArticleBody post={post} relatedPosts={relatedPosts} />
           </div>
         </div>
-      </aside>
+      </div>
     </article>
   );
 }

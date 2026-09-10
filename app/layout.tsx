@@ -1,9 +1,7 @@
 import type { Metadata } from 'next';
 import { Poppins } from 'next/font/google';
-import { UserAuthProvider } from '@/components/auth/user-auth-provider';
 import { SiteFooter } from '@/components/site/site-footer';
 import { SiteHeader } from '@/components/site/site-header';
-import { getFirebasePublicClientConfig } from '@/lib/firebase/server';
 import { isIndexingEnabled, seoConfig } from '@/src/config/seo';
 import './globals.css';
 
@@ -67,8 +65,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const firebaseConfig = getFirebasePublicClientConfig();
-
   return (
     <html lang="tr">
       <body className={`${poppins.variable} antialiased`}>
@@ -81,11 +77,9 @@ export default function RootLayout({
         <a className="skip-link" href="#ana-icerik">
           Ana içeriğe geç
         </a>
-        <UserAuthProvider config={firebaseConfig}>
-          <SiteHeader />
-          {children}
-          <SiteFooter />
-        </UserAuthProvider>
+        <SiteHeader />
+        {children}
+        <SiteFooter />
       </body>
     </html>
   );

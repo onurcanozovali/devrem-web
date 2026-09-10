@@ -8,7 +8,6 @@ import {
   NotebookPen,
   TriangleAlert,
 } from 'lucide-react';
-import { ArticleSources } from '@/components/content/article-sources';
 import { SafeRichText } from '@/components/content/safe-rich-text';
 import {
   Table,
@@ -306,12 +305,6 @@ export function ArticleBody({
               </div>
             ))}
           </div>
-        </section>
-      ) : null}
-
-      {post.sources?.length ? (
-        <section className="article-mobile-sources" aria-label="Kaynaklar">
-          <ArticleSources sources={post.sources} />
         </section>
       ) : null}
 

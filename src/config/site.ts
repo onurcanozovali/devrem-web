@@ -54,9 +54,9 @@ export const mainNavigation = [
         description: 'Rütbe sıralamasını ve işaretlerini incele',
       },
       {
-        href: '/araclar',
-        label: 'Askerlik Araçları',
-        description: 'Devrem’in mevcut araçlarına ulaş',
+        href: '/birlikler',
+        label: 'Askerî Birlikler',
+        description: 'Doğrulanmış birlik bilgilerini incele',
       },
     ],
   },
@@ -66,8 +66,8 @@ export const mainNavigation = [
     description: 'Sorularını sor, deneyimini paylaş',
   },
   {
-    href: '/#uygulama',
-    label: 'Devrem Uygulaması',
-    description: 'Aynı dönem ve birlikteki devrelerini bul',
+    href: '/birlikler',
+    label: 'Birlikler',
+    description: 'Askerî birlik bilgilerini keşfet',
   },
 ] as const;

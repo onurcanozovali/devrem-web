@@ -2,8 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { ArrowRight, ChevronDown, LogOut, Menu, UserRound } from 'lucide-react';
-import { useUserAuth } from '@/components/auth/user-auth-provider';
+import { ArrowRight, ChevronDown, Menu } from 'lucide-react';
 import { BlogSearch } from '@/components/content/blog-search';
 import { mainNavigation } from '@/src/config/site';
 import { Container } from '@/components/site/container';
@@ -18,21 +17,16 @@ import {
 } from '@/components/ui/sheet';
 
 export function SiteHeader() {
-  const { ready: authReady, signOutUser, user } = useUserAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileSearching, setMobileSearching] = useState(false);
   const [desktopSearchOpen, setDesktopSearchOpen] = useState(false);
   const mobileScrollPosition = useRef(0);
   const mobileOpenLocation = useRef('');
   const desktopGuideMenu = useRef<HTMLDetailsElement>(null);
-  const desktopAccountMenu = useRef<HTMLDetailsElement>(null);
 
   useEffect(() => {
     const closeDesktopMenus = (event: PointerEvent) => {
-      for (const menu of [
-        desktopGuideMenu.current,
-        desktopAccountMenu.current,
-      ]) {
+      for (const menu of [desktopGuideMenu.current]) {
         if (
           menu?.open &&
           event.target instanceof Node &&
@@ -46,7 +40,6 @@ export function SiteHeader() {
     const closeDesktopMenusWithEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         desktopGuideMenu.current?.removeAttribute('open');
-        desktopAccountMenu.current?.removeAttribute('open');
       }
     };
 
@@ -121,40 +114,6 @@ export function SiteHeader() {
                 </Link>
               ),
             )}
-            {authReady ? (
-              user ? (
-                <details className="header-guide-menu" ref={desktopAccountMenu}>
-                  <summary
-                    aria-label="Profil menüsü"
-                    className="nav-link"
-                    tabIndex={desktopSearchOpen ? -1 : undefined}
-                  >
-                    <UserRound className="size-4" aria-hidden="true" />
-                  </summary>
-                  <div className="header-guide-dropdown">
-                    <Link href="/profil">
-                      <strong>Profilim</strong>
-                    </Link>
-                    <button
-                      className="flex w-full items-center gap-2 rounded-xl px-4 py-3 text-left text-sm font-bold text-foreground transition hover:bg-primary/8 hover:text-primary"
-                      onClick={() => void signOutUser()}
-                      type="button"
-                    >
-                      <LogOut className="size-4" aria-hidden="true" />
-                      Çıkış Yap
-                    </button>
-                  </div>
-                </details>
-              ) : (
-                <Link
-                  className="nav-link"
-                  href="/giris"
-                  tabIndex={desktopSearchOpen ? -1 : undefined}
-                >
-                  Giriş Yap
-                </Link>
-              )
-            ) : null}
           </nav>
           <BlogSearch
             headerExpanded={desktopSearchOpen}
@@ -262,55 +221,6 @@ export function SiteHeader() {
                         </Link>
                       ),
                     )}
-                    {authReady ? (
-                      user ? (
-                        <>
-                          <Link
-                            className="mobile-menu-link group"
-                            href="/profil"
-                            onClick={() => setMobileOpen(false)}
-                          >
-                            <span className="mobile-menu-index">
-                              0{mainNavigation.length + 1}
-                            </span>
-                            <span className="mobile-menu-link-copy">
-                              <strong>Profilim</strong>
-                            </span>
-                            <UserRound className="size-5" aria-hidden="true" />
-                          </Link>
-                          <button
-                            className="mobile-menu-link group w-full text-left"
-                            onClick={async () => {
-                              await signOutUser();
-                              setMobileOpen(false);
-                            }}
-                            type="button"
-                          >
-                            <span className="mobile-menu-index">
-                              0{mainNavigation.length + 2}
-                            </span>
-                            <span className="mobile-menu-link-copy">
-                              <strong>Çıkış Yap</strong>
-                            </span>
-                            <LogOut className="size-5" aria-hidden="true" />
-                          </button>
-                        </>
-                      ) : (
-                        <Link
-                          className="mobile-menu-link group"
-                          href="/giris"
-                          onClick={() => setMobileOpen(false)}
-                        >
-                          <span className="mobile-menu-index">
-                            0{mainNavigation.length + 1}
-                          </span>
-                          <span className="mobile-menu-link-copy">
-                            <strong>Giriş Yap</strong>
-                          </span>
-                          <UserRound className="size-5" aria-hidden="true" />
-                        </Link>
-                      )
-                    ) : null}
                   </nav>
                 </>
               ) : (

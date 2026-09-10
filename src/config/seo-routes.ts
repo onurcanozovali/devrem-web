@@ -10,7 +10,6 @@ export const pageSitemapEntries: SitemapEntry[] = [
   { path: '/blog', lastModified: '2026-09-03' },
   { path: '/asker-sozlugu', lastModified: '2026-09-07' },
   { path: '/asker-rutbeleri', lastModified: '2026-09-07' },
-  { path: '/araclar', lastModified: '2026-09-07' },
   { path: '/topluluk', lastModified: '2026-09-03' },
   ...legalDocuments.map((document) => ({
     path: `/${document.slug}`,

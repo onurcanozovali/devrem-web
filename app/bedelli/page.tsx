@@ -104,6 +104,13 @@ export default async function BedelliPage() {
                   <ArrowDown className="size-4" aria-hidden="true" />
                 </a>
               )}
+              <Link
+                className="is-secondary"
+                href="/blog/2027-bedelli-askerlik-ucreti-ne-kadar-olacak-guncel-tahmin"
+              >
+                2027 Bedelli Askerlik Ücreti Ne Kadar Olacak? Güncel Tahmini
+                Gör →
+              </Link>
             </div>
           </div>
           <aside className="bedelli-hero-source" aria-label="Veri kaynağı">
