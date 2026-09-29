@@ -10,6 +10,8 @@ import { createPageMetadata } from '@/src/config/seo';
 
 export const dynamic = 'force-dynamic';
 
+type PageProps = { searchParams: Promise<{ ara?: string }> };
+
 const path = '/birlikler';
 const title = 'Askerî Birlikler: Konum ve Ulaşım Rehberi | Devrem';
 const description =
@@ -24,7 +26,8 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function MilitaryUnitsPage() {
+export default async function MilitaryUnitsPage({ searchParams }: PageProps) {
+  const { ara = '' } = await searchParams;
   const units = await listIndexableMilitaryUnits();
   const updatedAt = units[0]?.updatedAt.slice(0, 10) ?? '2026-09-11';
   const structuredData = graphSchema(
@@ -60,7 +63,7 @@ export default async function MilitaryUnitsPage() {
         </header>
 
         {units.length ? (
-          <MilitaryUnitDirectory units={units} />
+          <MilitaryUnitDirectory initialQuery={ara} units={units} />
         ) : (
           <section className="mt-10 rounded-3xl border border-border bg-surface p-8 shadow-sm">
             <h2 className="text-xl font-extrabold">Yayınlanmış birlik bulunmuyor</h2>

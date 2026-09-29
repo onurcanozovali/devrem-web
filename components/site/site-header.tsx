@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { ArrowRight, ChevronDown, Menu } from 'lucide-react';
+import { ArrowRight, Menu } from 'lucide-react';
 import { BlogSearch } from '@/components/content/blog-search';
 import { mainNavigation } from '@/src/config/site';
 import { Container } from '@/components/site/container';
@@ -22,35 +22,6 @@ export function SiteHeader() {
   const [desktopSearchOpen, setDesktopSearchOpen] = useState(false);
   const mobileScrollPosition = useRef(0);
   const mobileOpenLocation = useRef('');
-  const desktopGuideMenu = useRef<HTMLDetailsElement>(null);
-
-  useEffect(() => {
-    const closeDesktopMenus = (event: PointerEvent) => {
-      for (const menu of [desktopGuideMenu.current]) {
-        if (
-          menu?.open &&
-          event.target instanceof Node &&
-          !menu.contains(event.target)
-        ) {
-          menu.removeAttribute('open');
-        }
-      }
-    };
-
-    const closeDesktopMenusWithEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        desktopGuideMenu.current?.removeAttribute('open');
-      }
-    };
-
-    document.addEventListener('pointerdown', closeDesktopMenus);
-    document.addEventListener('keydown', closeDesktopMenusWithEscape);
-
-    return () => {
-      document.removeEventListener('pointerdown', closeDesktopMenus);
-      document.removeEventListener('keydown', closeDesktopMenusWithEscape);
-    };
-  }, []);
 
   const rememberMobileScroll = () => {
     mobileScrollPosition.current = window.scrollY;
@@ -84,37 +55,24 @@ export function SiteHeader() {
             aria-label="Ana menü"
             className="header-desktop-nav"
           >
-            {mainNavigation.map((item) =>
-              'items' in item ? (
-                <details
-                  className="header-guide-menu"
-                  key={item.label}
-                  ref={desktopGuideMenu}
-                >
-                  <summary className="nav-link">
-                    {item.label} <ChevronDown aria-hidden="true" />
-                  </summary>
-                  <div className="header-guide-dropdown">
-                    {item.items.map((child) => (
-                      <Link href={child.href} key={child.href}>
-                        <strong>{child.label}</strong>
-                        <small>{child.description}</small>
-                      </Link>
-                    ))}
-                  </div>
-                </details>
-              ) : (
-                <Link
-                  className="nav-link"
-                  href={item.href}
-                  key={item.href}
-                  tabIndex={desktopSearchOpen ? -1 : undefined}
-                >
-                  {item.label}
-                </Link>
-              ),
-            )}
+            {mainNavigation.map((item) => (
+              <Link
+                className="nav-link"
+                href={item.href}
+                key={item.href}
+                tabIndex={desktopSearchOpen ? -1 : undefined}
+              >
+                {item.label}
+              </Link>
+            ))}
           </nav>
+          <Link
+            className="header-primary-cta"
+            href="/birlikler"
+            tabIndex={desktopSearchOpen ? -1 : undefined}
+          >
+            Birliğini Bul
+          </Link>
           <BlogSearch
             headerExpanded={desktopSearchOpen}
             onHeaderDismiss={() => setDesktopSearchOpen(false)}
@@ -160,8 +118,8 @@ export function SiteHeader() {
                 <div className="mobile-menu-intro">
                   <p>Devrem</p>
                   <strong>
-                    Hazırlan, bilgiye ulaş,
-                    <br /> devrelerinle tanış.
+                    Askere hazırlığın
+                    <br /> tek yolu.
                   </strong>
                 </div>
               ) : null}
@@ -175,52 +133,30 @@ export function SiteHeader() {
 
               {!mobileSearching ? (
                 <>
+                  <Link
+                    className="mobile-menu-primary-cta"
+                    href="/birlikler"
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    Birliğini Bul
+                  </Link>
                   <nav aria-label="Mobil menü" className="mobile-menu-nav">
-                    {mainNavigation.map((item, index) =>
-                      'items' in item ? (
-                        <details className="mobile-guide-menu" key={item.label}>
-                          <summary className="mobile-menu-link">
-                            <span className="mobile-menu-index">
-                              0{index + 1}
-                            </span>
-                            <span className="mobile-menu-link-copy">
-                              <strong>{item.label}</strong>
-                            </span>
-                            <ChevronDown
-                              className="size-5"
-                              aria-hidden="true"
-                            />
-                          </summary>
-                          <div>
-                            {item.items.map((child) => (
-                              <Link
-                                href={child.href}
-                                key={child.href}
-                                onClick={() => setMobileOpen(false)}
-                              >
-                                <strong>{child.label}</strong>
-                                <ArrowRight aria-hidden="true" />
-                              </Link>
-                            ))}
-                          </div>
-                        </details>
-                      ) : (
-                        <Link
-                          className="mobile-menu-link group"
-                          href={item.href}
-                          key={item.href}
-                          onClick={() => setMobileOpen(false)}
-                        >
-                          <span className="mobile-menu-index">
-                            0{index + 1}
-                          </span>
-                          <span className="mobile-menu-link-copy">
-                            <strong>{item.label}</strong>
-                          </span>
-                          <ArrowRight className="size-5" aria-hidden="true" />
-                        </Link>
-                      ),
-                    )}
+                    {mainNavigation.map((item, index) => (
+                      <Link
+                        className="mobile-menu-link group"
+                        href={item.href}
+                        key={item.href}
+                        onClick={() => setMobileOpen(false)}
+                      >
+                        <span className="mobile-menu-index">
+                          0{index + 1}
+                        </span>
+                        <span className="mobile-menu-link-copy">
+                          <strong>{item.label}</strong>
+                        </span>
+                        <ArrowRight className="size-5" aria-hidden="true" />
+                      </Link>
+                    ))}
                   </nav>
                 </>
               ) : (

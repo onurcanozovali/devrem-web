@@ -1,16 +1,14 @@
 import type { Metadata } from 'next';
-import { Suspense } from 'react';
-import { AppShowcase } from '@/components/home/app-showcase';
-import { BedelliTeaser } from '@/components/home/bedelli-teaser';
-import { CommunityDiscovery } from '@/components/home/community-discovery';
-import { CommunityForumTeaser } from '@/components/home/community-forum-teaser';
 import { CookieNotice } from '@/components/home/cookie-notice';
-import { EditorialGuides } from '@/components/home/editorial-guides';
-import { FinalCTA } from '@/components/home/final-cta';
 import { HomeHero } from '@/components/home/home-hero';
+import { HomePlatformSections } from '@/components/home/platform-sections';
 import { JsonLd } from '@/components/seo/json-ld';
+import { listPublishedBlogPosts } from '@/lib/blog/repository';
+import { listIndexableMilitaryUnits } from '@/lib/military-units';
 import { graphSchema, organizationSchema, websiteSchema } from '@/lib/seo/structured-data';
 import { createPageMetadata, seoConfig } from '@/src/config/seo';
+
+export const dynamic = 'force-dynamic';
 
 const homeMetadata = createPageMetadata({
   title: seoConfig.defaultTitle,
@@ -23,23 +21,17 @@ export const metadata: Metadata = {
   title: { absolute: seoConfig.defaultTitle },
 };
 
-export default function HomePage() {
+export default async function HomePage() {
+  const [posts, units] = await Promise.all([
+    listPublishedBlogPosts().catch(() => []),
+    listIndexableMilitaryUnits().catch(() => []),
+  ]);
+
   return (
     <main id="ana-icerik">
       <JsonLd data={graphSchema(organizationSchema(), websiteSchema())} />
       <HomeHero />
-      <CommunityDiscovery />
-      <Suspense fallback={null}>
-        <CommunityForumTeaser />
-      </Suspense>
-      <Suspense fallback={null}>
-        <BedelliTeaser />
-      </Suspense>
-      <Suspense fallback={null}>
-        <EditorialGuides />
-      </Suspense>
-      <AppShowcase />
-      <FinalCTA />
+      <HomePlatformSections posts={posts} units={units} />
       <CookieNotice />
     </main>
   );

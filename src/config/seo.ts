@@ -8,14 +8,14 @@ export const seoConfig = {
   origin: canonicalOrigin.origin,
   language: 'tr',
   locale: 'tr_TR',
-  defaultTitle: 'Devrem | Askere Gitmeden Önce Devrelerinle Tanış',
+  defaultTitle: 'Devrem | Askere Hazırlığın Tek Yolu',
   titleTemplate: '%s | Devrem',
   defaultDescription: siteConfig.description,
   defaultImage: {
     path: '/og.jpg',
     width: 1200,
     height: 630,
-    alt: 'Devrem — Askere gitmeden önce devrelerinle tanış',
+    alt: 'Devrem — Askere hazırlığın tek yolu',
   },
   logoPath: '/web-logo.png',
 } as const;

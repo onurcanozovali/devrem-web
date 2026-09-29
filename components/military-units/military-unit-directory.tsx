@@ -5,8 +5,8 @@ import Link from 'next/link';
 import { ArrowRight, MapPin, Search } from 'lucide-react';
 import type { PublicMilitaryUnit } from '@/lib/military-units';
 
-export function MilitaryUnitDirectory({ units }: { units: PublicMilitaryUnit[] }) {
-  const [query, setQuery] = useState('');
+export function MilitaryUnitDirectory({ units, initialQuery = '' }: { units: PublicMilitaryUnit[]; initialQuery?: string }) {
+  const [query, setQuery] = useState(initialQuery);
   const [force, setForce] = useState('Tümü');
   const forces = useMemo(
     () => ['Tümü', ...Array.from(new Set(units.map((unit) => unit.force))).sort((a, b) => a.localeCompare(b, 'tr'))],

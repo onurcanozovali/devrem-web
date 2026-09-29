@@ -2,7 +2,7 @@ export const siteConfig = {
   name: 'Devrem',
   url: 'https://devrem.co',
   description:
-    'Aynı celp döneminde aynı birliğe gidecek devrelerinle tanış; Bedelli verilerini karşılaştır ve sade askerlik rehberlerine ulaş.',
+    'Birlik bilgileri, celp ve sevk tarihleri, bedelli askerlik, hazırlık rehberleri ve askerlik araçları Devrem’de.',
   contactEmail: 'iletisim@devrem.co',
   operatorName: 'Onurcan Özovalı, Muhammet Şen ve Mertcan Uğurluel',
   dataControllerName: 'Onurcan Özovalı, Muhammet Şen ve Mertcan Uğurluel',
@@ -24,9 +24,14 @@ export const siteConfig = {
 
 export const mainNavigation = [
   {
-    href: '/',
-    label: 'Ana Sayfa',
-    description: "Devrem'i ve öne çıkan içerikleri keşfet",
+    href: '/birlikler',
+    label: 'Birlikler',
+    description: 'Askerî birlik bilgilerini keşfet',
+  },
+  {
+    href: '/blog/2026-askerlik-celp-sevk-tarihleri',
+    label: 'Celp & Sevk',
+    description: 'Güncel takvimi incele',
   },
   {
     href: '/bedelli',
@@ -35,39 +40,17 @@ export const mainNavigation = [
   },
   {
     href: '/blog',
-    label: 'Blog',
-    description: 'Güncel rehber ve analizleri oku',
+    label: 'Askerlik Rehberi',
+    description: 'Hazırlık rehberlerini oku',
   },
   {
-    href: '/asker-sozlugu',
-    label: 'Rehberler',
-    description: 'Sözlük, rütbeler ve askerlik araçları',
-    items: [
-      {
-        href: '/asker-sozlugu',
-        label: 'Asker Sözlüğü',
-        description: 'Askerlik terimlerini alfabetik keşfet',
-      },
-      {
-        href: '/asker-rutbeleri',
-        label: 'Askerî Rütbeler',
-        description: 'Rütbe sıralamasını ve işaretlerini incele',
-      },
-      {
-        href: '/birlikler',
-        label: 'Askerî Birlikler',
-        description: 'Doğrulanmış birlik bilgilerini incele',
-      },
-    ],
+    href: '/#araclar',
+    label: 'Araçlar',
+    description: 'Askerlik araçlarına ulaş',
   },
   {
-    href: '/topluluk',
-    label: 'Topluluk',
-    description: 'Sorularını sor, deneyimini paylaş',
-  },
-  {
-    href: '/birlikler',
-    label: 'Birlikler',
-    description: 'Askerî birlik bilgilerini keşfet',
+    href: '/#haberler',
+    label: 'Haberler',
+    description: 'Askerlik gündemini takip et',
   },
 ] as const;
