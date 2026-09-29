@@ -41,9 +41,9 @@ const footerGroups: { title: string; links: FooterLink[] }[] = [
   {
     title: 'Yasal',
     links: [
-      { label: 'Gizlilik', href: '/privacy' },
+      { label: 'Gizlilik Politikası', href: '/privacy' },
       { label: 'Kullanım Koşulları', href: '/terms' },
-      { label: 'Çerez Politikası', href: '/privacy' },
+      { label: 'Çerez Politikası', href: '/cerez-politikasi' },
     ],
   },
 ];

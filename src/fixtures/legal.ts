@@ -34,6 +34,7 @@ export type LegalDocument = {
 };
 
 const updatedAt = '1 Eylül 2026';
+const adsPrivacyUpdatedAt = '29 Eylül 2026';
 
 export const privacyDocument: LegalDocument = {
   slug: 'privacy',
@@ -41,7 +42,7 @@ export const privacyDocument: LegalDocument = {
   shortTitle: 'Gizlilik Politikası',
   description:
     "Devrem'in mobil uygulama, internet sitesi ve bağlantılı hizmetlerde kişisel verileri nasıl işlediğini öğrenin.",
-  updatedAt,
+  updatedAt: adsPrivacyUpdatedAt,
   intro: [
     'Devrem, askerlik sürecindeki kullanıcıların aynı celp dönemindeki, aynı askerlik şehrindeki veya aynı birlikteki diğer kullanıcılarla iletişim kurmasına ve askerlik sürecine hazırlanmasına yardımcı olan bağımsız bir platformdur.',
     'Devrem; Onurcan Özovalı, Muhammet Şen ve Mertcan Uğurluel tarafından işletilmektedir.',
@@ -285,8 +286,54 @@ export const privacyDocument: LegalDocument = {
       ],
     },
     {
+      id: 'reklamlar-google-adsense-ve-cerezler',
+      title: '11. Reklamlar, Google AdSense ve Çerezler',
+      blocks: [
+        {
+          type: 'paragraph',
+          content:
+            'Devrem.co gelecekte Google AdSense üzerinden reklam gösterebilir. Bu durumda Google dahil üçüncü taraf reklam sağlayıcıları; reklamların sunulması, ölçülmesi, güvenliğinin sağlanması ve performansının değerlendirilmesi amacıyla çerezler, cihaz tanımlayıcıları ve benzeri teknolojiler kullanabilir.',
+        },
+        {
+          type: 'paragraph',
+          content:
+            'Google ve reklam iş ortakları, kullanıcının Devrem.co ve/veya diğer internet sitelerine yaptığı ziyaretlere dayalı kişiselleştirilmiş reklamlar gösterebilir. Bu teknolojiler, kullanıcının tercihine ve uygulanabilir kurallara bağlı olarak kişiselleştirilmiş veya kişiselleştirilmemiş reklamların sunulması için kullanılabilir.',
+        },
+        {
+          type: 'paragraph',
+          content:
+            'Çerezler ve benzeri teknolojiler aracılığıyla elde edilen bilgiler; reklam seçimi ve sunumu, reklam sıklığının sınırlandırılması, reklam performansının ölçülmesi, kötüye kullanımın önlenmesi ve hizmetlerin geliştirilmesi amaçlarıyla işlenebilir.',
+        },
+        {
+          type: 'paragraph',
+          content:
+            'Kullanıcılar kişiselleştirilmiş reklam tercihlerini Google Reklam Ayarları üzerinden yönetebilir. Site üzerinde başka üçüncü taraf reklam sağlayıcılarının kullanılması halinde bu sağlayıcıların kendi gizlilik ve çerez politikaları da geçerli olabilir.',
+        },
+        {
+          type: 'links',
+          items: [
+            {
+              label: 'Google Reklam Ayarları',
+              href: 'https://adssettings.google.com/',
+              description: 'Google hesabınıza bağlı reklam tercihlerini yönetin.',
+            },
+            {
+              label: 'Çerez Politikası',
+              href: '/cerez-politikasi',
+              description: 'Devrem.co çerez uygulamaları hakkında ayrıntılı bilgi alın.',
+            },
+          ],
+        },
+        {
+          type: 'paragraph',
+          content:
+            'Bu açıklamalar genel bilgilendirme amacı taşır. Kullanılan reklam ve izin yönetimi teknolojileri devreye alındığında politika, uygulanan çözüm ve yürürlükteki gerekliliklere göre güncellenebilir.',
+        },
+      ],
+    },
+    {
       id: 'politika-degisiklikleri',
-      title: '11. Politika değişiklikleri',
+      title: '12. Politika değişiklikleri',
       blocks: [
         {
           type: 'paragraph',
@@ -297,7 +344,154 @@ export const privacyDocument: LegalDocument = {
     },
     {
       id: 'iletisim',
-      title: '12. İletişim',
+      title: '13. İletişim',
+      blocks: [
+        { type: 'contact', includeOperators: true, includeAddress: true },
+      ],
+    },
+  ],
+};
+
+export const cookiePolicyDocument: LegalDocument = {
+  slug: 'cerez-politikasi',
+  title: 'Çerez Politikası',
+  shortTitle: 'Çerez Politikası',
+  description:
+    'Devrem.co üzerinde kullanılabilen çerez türleri, kullanım amaçları ve tercihlerin nasıl yönetilebileceği hakkında bilgi.',
+  updatedAt: adsPrivacyUpdatedAt,
+  intro: [
+    'Bu Çerez Politikası, Devrem.co internet sitesinde kullanılabilen çerezler ve benzeri teknolojiler hakkında genel bilgi verir.',
+    'Kullanılan teknolojiler sunulan özelliklere, kullanıcının konumuna ve tercihlerine göre değişebilir.',
+  ],
+  sections: [
+    {
+      id: 'cerez-nedir',
+      title: '1. Çerez nedir?',
+      blocks: [
+        {
+          type: 'paragraph',
+          content:
+            'Çerezler, bir internet sitesi ziyaret edildiğinde tarayıcıda saklanabilen küçük metin dosyalarıdır. Benzeri teknolojiler de cihaz veya tarayıcı üzerinden sınırlı teknik bilgilerin hatırlanması ve işlenmesi için kullanılabilir.',
+        },
+      ],
+    },
+    {
+      id: 'kullanilabilecek-cerez-turleri',
+      title: '2. Devrem.co hangi tür çerezleri kullanabilir?',
+      blocks: [
+        {
+          type: 'paragraph',
+          content:
+            'Devrem.co; sitenin çalışması, güvenliğinin sağlanması, tercihlerin hatırlanması, kullanımın anlaşılması ve gelecekte reklam sunulması amaçlarıyla zorunlu, analitik, tercih ve reklam çerezleri kullanabilir.',
+        },
+      ],
+    },
+    {
+      id: 'zorunlu-cerezler',
+      title: '3. Zorunlu çerezler',
+      blocks: [
+        {
+          type: 'paragraph',
+          content:
+            'Zorunlu çerezler; güvenlik, oturum yönetimi, temel navigasyon ve kullanıcının açıkça talep ettiği işlevlerin sağlanması gibi sitenin çalışması için gerekli amaçlarla kullanılabilir. Bu çerezler olmadan bazı temel özellikler doğru çalışmayabilir.',
+        },
+      ],
+    },
+    {
+      id: 'analitik-cerezler',
+      title: '4. Analitik çerezler',
+      blocks: [
+        {
+          type: 'paragraph',
+          content:
+            'Analitik çerezler ve benzeri teknolojiler, ziyaretçilerin siteyi nasıl kullandığını toplu biçimde anlamaya, performans sorunlarını belirlemeye ve kullanıcı deneyimini geliştirmeye yardımcı olabilir.',
+        },
+      ],
+    },
+    {
+      id: 'tercih-cerezleri',
+      title: '5. Tercih çerezleri',
+      blocks: [
+        {
+          type: 'paragraph',
+          content:
+            'Tercih çerezleri dil, görünüm veya daha önce kapatılan bilgilendirmeler gibi seçimlerin hatırlanması için kullanılabilir.',
+        },
+      ],
+    },
+    {
+      id: 'reklam-ve-kisisellestirme-cerezleri',
+      title: '6. Reklam ve kişiselleştirme çerezleri',
+      blocks: [
+        {
+          type: 'paragraph',
+          content:
+            'Reklam çerezleri; reklamların seçilmesi ve sunulması, aynı reklamın gösterim sıklığının sınırlandırılması, reklam performansının ölçülmesi ve uygun olduğunda kişiselleştirilmiş reklamların sunulması için kullanılabilir. Kullanıcının tercihine veya uygulanabilir gerekliliklere göre kişiselleştirilmemiş reklamlar da gösterilebilir.',
+        },
+      ],
+    },
+    {
+      id: 'google-adsense-ve-ucuncu-taraf-cerezleri',
+      title: '7. Google AdSense ve üçüncü taraf reklam çerezleri',
+      blocks: [
+        {
+          type: 'paragraph',
+          content:
+            'Devrem.co gelecekte Google AdSense kullanırsa Google ve reklam iş ortakları, reklam sunumu için çerezler ve benzeri teknolojiler kullanabilir. Reklam çerezleri, kullanıcının Devrem.co ve/veya diğer internet sitelerine yaptığı ziyaretlere dayalı kişiselleştirilmiş reklamların sunulmasında kullanılabilir.',
+        },
+        {
+          type: 'paragraph',
+          content:
+            'Site üzerinde başka üçüncü taraf reklam sağlayıcıları kullanılması halinde bu sağlayıcıların kendi gizlilik ve çerez politikaları bulunabilir.',
+        },
+        {
+          type: 'links',
+          items: [
+            {
+              label: 'Google Reklam Ayarları',
+              href: 'https://adssettings.google.com/',
+              description: 'Kişiselleştirilmiş reklam tercihlerinizi yönetin.',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'cerez-tercihleri',
+      title: '8. Çerez tercihleri nasıl yönetilir?',
+      blocks: [
+        {
+          type: 'paragraph',
+          content:
+            'Kullanıcılar sunulan tercih veya izin yönetimi arayüzü üzerinden zorunlu olmayan çerezlere ilişkin seçimlerini yönetebilir. Reklam teknolojileri devreye alındığında, ilgili bölgelerde uygulanabilir izin gerekliliklerine uygun bir tercih yönetimi çözümü kullanılacaktır.',
+        },
+      ],
+    },
+    {
+      id: 'tarayici-ayarlari',
+      title: '9. Tarayıcı ayarları',
+      blocks: [
+        {
+          type: 'paragraph',
+          content:
+            'Çoğu tarayıcı çerezleri görüntüleme, silme veya engelleme seçenekleri sunar. Tarayıcı ayarlarından çerezlerin silinmesi ya da engellenmesi bazı site özelliklerinin beklendiği gibi çalışmamasına neden olabilir.',
+        },
+      ],
+    },
+    {
+      id: 'politikanin-guncellenmesi',
+      title: '10. Politikanın güncellenmesi',
+      blocks: [
+        {
+          type: 'paragraph',
+          content:
+            'Bu politika kullanılan teknolojilerde, hizmetlerde veya uygulanabilir gerekliliklerde değişiklik olması halinde güncellenebilir. Güncel sürüm ve son güncelleme tarihi bu sayfada yayımlanır.',
+        },
+      ],
+    },
+    {
+      id: 'iletisim',
+      title: '11. İletişim',
       blocks: [
         { type: 'contact', includeOperators: true, includeAddress: true },
       ],
@@ -1144,6 +1338,7 @@ export const supportDocument: LegalDocument = {
 
 export const legalDocuments = [
   privacyDocument,
+  cookiePolicyDocument,
   kvkkDocument,
   termsDocument,
   accountDeletionDocument,

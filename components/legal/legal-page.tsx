@@ -38,8 +38,15 @@ function LegalLinkItem({
   );
   const className = 'legal-link-card';
 
-  return href.startsWith('mailto:') ? (
-    <a className={className} href={href}>
+  const isExternal = href.startsWith('mailto:') || /^https?:\/\//.test(href);
+
+  return isExternal ? (
+    <a
+      className={className}
+      href={href}
+      rel={href.startsWith('http') ? 'noreferrer' : undefined}
+      target={href.startsWith('http') ? '_blank' : undefined}
+    >
       {content}
     </a>
   ) : (

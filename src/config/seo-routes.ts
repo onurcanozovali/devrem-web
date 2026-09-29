@@ -4,6 +4,7 @@ import { legalDocuments } from '@/src/fixtures/legal';
 export type SitemapEntry = { path: string; lastModified: string };
 
 const legalLastModified = '2026-09-01';
+const updatedLegalRoutes = new Set(['privacy', 'cerez-politikasi']);
 
 export const pageSitemapEntries: SitemapEntry[] = [
   { path: '/', lastModified: '2026-09-03' },
@@ -13,7 +14,9 @@ export const pageSitemapEntries: SitemapEntry[] = [
   { path: '/topluluk', lastModified: '2026-09-03' },
   ...legalDocuments.map((document) => ({
     path: `/${document.slug}`,
-    lastModified: legalLastModified,
+    lastModified: updatedLegalRoutes.has(document.slug)
+      ? '2026-09-29'
+      : legalLastModified,
   })),
   ...vlogPosts.map((post) => ({
     path: `/vlog/${post.slug}`,
