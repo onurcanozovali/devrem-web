@@ -67,6 +67,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="tr">
+      <head>
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4066143839655891"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body className={`${poppins.variable} antialiased`}>
         <script
           dangerouslySetInnerHTML={{
