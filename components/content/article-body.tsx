@@ -203,15 +203,21 @@ export function ArticleBody({
   relatedPosts?: BlogPost[];
 }) {
   const relatedPosts = suppliedRelatedPosts ?? getRelatedPosts(post);
-  const cta =
-    post.endCta ??
-    ({
+  const platformCta = {
       title: 'Bir sonraki sorunun cevabı hazır',
       description:
         'Devrem Blog’daki diğer rehberlerle hazırlık sürecini adım adım netleştir.',
       label: 'Tüm rehberleri gör',
       href: '/blog',
-    } as const);
+    } as const;
+  const hasLegacyAppCta = Boolean(
+    post.endCta &&
+      (post.endCta.href.includes('#uygulama') ||
+        /uygulama|indir|devrem ile devam et|devrelerin/i.test(
+          `${post.endCta.label} ${post.endCta.title} ${post.endCta.description}`,
+        )),
+  );
+  const cta = !post.endCta || hasLegacyAppCta ? platformCta : post.endCta;
 
   return (
     <div className="article-body">
@@ -325,7 +331,7 @@ export function ArticleBody({
 
       <section className="article-end-cta">
         <div>
-          <p className="article-section-kicker">Devrem ile devam et</p>
+          <p className="article-section-kicker">Devrem rehberleri</p>
           <h2>{cta.title}</h2>
           <p>{cta.description}</p>
         </div>

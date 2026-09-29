@@ -28,9 +28,7 @@ const currency = new Intl.NumberFormat('tr-TR', {
   maximumFractionDigits: 2,
 });
 
-const popularCities = ['Kütahya', 'Amasya', 'Manisa', 'Tokat', 'Sivas', 'İzmir', 'Ankara'] as const;
-
-const toolCards = [
+export const platformToolCards = [
   {
     title: 'Bedelli hesaplama',
     description: 'Güncel resmî tutarı ve alım gücü karşılıklarını incele.',
@@ -167,6 +165,19 @@ export function HomePlatformSections({ posts, units }: { posts: BlogPost[]; unit
   const celpPost = findPost(posts, ['celp', 'sevk tarih']);
   const estimatePost = findPost(posts, ['2027 bedelli']);
   const visibleUnits = units.slice(0, 6);
+  const publishedCities = Array.from(
+    units.reduce((cities, unit) => {
+      const current = cities.get(unit.citySlug);
+      cities.set(unit.citySlug, {
+        city: unit.city,
+        citySlug: unit.citySlug,
+        count: (current?.count ?? 0) + 1,
+      });
+      return cities;
+    }, new Map<string, { city: string; citySlug: string; count: number }>()),
+  )
+    .map(([, city]) => city)
+    .sort((a, b) => b.count - a.count || a.city.localeCompare(b.city, 'tr-TR'));
 
   return (
     <>
@@ -234,24 +245,27 @@ export function HomePlatformSections({ posts, units }: { posts: BlogPost[]; unit
               Yayın kriterlerini karşılayan birlikler katalogda görünür. Arama alanından güncel kataloğu kontrol edebilirsin.
             </div>
           )}
-          <div className="mt-6 flex flex-wrap gap-2" aria-label="Popüler birlik şehirleri">
-            {popularCities.slice(0, 5).map((city) => (
-              <Link className="platform-city-chip" href={`/birlikler?ara=${encodeURIComponent(city)}`} key={city}>{city}</Link>
+          {publishedCities.length ? <div className="mt-6 flex flex-wrap gap-2" aria-label="Yayınlanmış birlik şehirleri">
+            {publishedCities.slice(0, 5).map((city) => (
+              <Link className="platform-city-chip" href={`/birlikler?ara=${encodeURIComponent(city.city)}`} key={city.citySlug}>{city.city}</Link>
             ))}
-          </div>
+          </div> : null}
         </Container>
       </section>
 
       <section className="platform-section bg-surface" id="araclar" aria-labelledby="tools-title">
         <Container>
-          <SectionHeading
-            id="tools-title"
-            eyebrow="Devrem araçları"
-            title="İşine yarayacak askerlik araçları"
-            description="Ücretleri karşılaştır, tarihleri kontrol et ve hazırlığını gerçek içeriklerle planla."
-          />
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+            <SectionHeading
+              id="tools-title"
+              eyebrow="Devrem araçları"
+              title="İşine yarayacak askerlik araçları"
+              description="Ücretleri karşılaştır, tarihleri kontrol et ve hazırlığını gerçek içeriklerle planla."
+            />
+            <Link className="platform-text-link" href="/araclar">Tüm araçlar</Link>
+          </div>
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {toolCards.map((tool) => {
+            {platformToolCards.map((tool) => {
               const Icon = tool.icon;
               return (
                 <Link className="platform-tool-card" href={tool.href} key={tool.title}>
@@ -321,25 +335,25 @@ export function HomePlatformSections({ posts, units }: { posts: BlogPost[]; unit
         </section>
       ) : null}
 
-      <section className="platform-section" id="populer-birlikler" aria-labelledby="cities-title">
+      {units.length >= 3 ? <section className="platform-section" id="populer-birlikler" aria-labelledby="cities-title">
         <Container>
           <SectionHeading
             id="cities-title"
             eyebrow="Şehirlere göre birlikler"
-            title="Popüler askerî birlik şehirleri"
-            description="En çok araştırılan şehirlerdeki yayınlanmış birlik kayıtlarına hızlıca ulaş."
+            title="Yayınlanmış askerî birlik şehirleri"
+            description="Güncel birlik rehberi bulunan şehirlerdeki yayınlanmış kayıtlara hızlıca ulaş."
           />
           <div className="mt-9 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {popularCities.map((city) => (
-              <Link className="platform-city-card" href={`/birlikler?ara=${encodeURIComponent(city)}`} key={city}>
+            {publishedCities.map((city) => (
+              <Link className="platform-city-card" href={`/birlikler?ara=${encodeURIComponent(city.city)}`} key={city.citySlug}>
                 <MapPin className="size-5" aria-hidden="true" />
-                <strong>{city}</strong>
-                <small>Birlikleri incele</small>
+                <strong>{city.city}</strong>
+                <small>{city.count} birlik rehberi</small>
               </Link>
             ))}
           </div>
         </Container>
-      </section>
+      </section> : null}
 
       {posts.length ? (
         <section className="platform-section bg-surface" id="haberler" aria-labelledby="news-title">
@@ -366,7 +380,7 @@ export function HomePlatformSections({ posts, units }: { posts: BlogPost[]; unit
               <div className="hidden lg:block"><AdPlaceholder compact /></div>
             </div>
             <div className="mt-7 flex flex-wrap items-center gap-4">
-              <Link className="platform-secondary-button" href="/blog">Tüm haber ve rehberler</Link>
+              <Link className="platform-secondary-button" href="/haberler">Tüm haberler</Link>
               {estimatePost ? <Link className="platform-text-link" href={`/blog/${estimatePost.slug}`}>2027 bedelli tahminini incele</Link> : null}
             </div>
           </Container>

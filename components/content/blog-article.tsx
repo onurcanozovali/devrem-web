@@ -1,8 +1,9 @@
+import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
 import { ArticleBody } from '@/components/content/article-body';
 import { ArticleHeader } from '@/components/content/article-header';
 import { ArticleSources } from '@/components/content/article-sources';
 import { ArticleToc } from '@/components/content/article-toc';
-import { StoreButtons } from '@/components/site/store-buttons';
 import { getArticleToc } from '@/lib/content';
 import type { BlogPost } from '@/src/fixtures/content';
 
@@ -45,12 +46,13 @@ export function BlogArticle({
               ) : null}
 
               <div className="article-sidebar-cta">
-                <strong>Devrem’i indir</strong>
-                <StoreButtons
-                  className="article-sidebar-store-buttons"
-                  compact
-                  tone="light"
-                />
+                <strong>Askerlik rehberlerini keşfet</strong>
+                <p className="mt-2 text-xs leading-5 text-white/65">
+                  Birlik, sevk, hazırlık ve bedelli içeriklerine tek yerden ulaş.
+                </p>
+                <Link className="mt-4 inline-flex items-center gap-2 text-sm font-extrabold text-primary" href="/blog">
+                  Tüm rehberler <ArrowRight className="size-4" aria-hidden="true" />
+                </Link>
               </div>
             </div>
           </aside>

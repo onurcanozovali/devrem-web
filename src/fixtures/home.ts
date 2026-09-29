@@ -52,9 +52,9 @@ export const conscriptionCommunity = {
 } as const;
 
 export const tools: ToolFixture[] = [
-  { title: 'Askerlik Geri Sayacı', description: 'Teslim tarihine kaç gün kaldığını hesapla.', href: '#uygulama', icon: 'countdown', accent: 'mint' },
+  { title: 'Askerlik Geri Sayacı', description: 'Teslim tarihine kaç gün kaldığını planla.', href: '/blog/2026-askerlik-celp-sevk-tarihleri', icon: 'countdown', accent: 'mint' },
   { title: 'Bedelli Hesaplama', description: 'Güncel ve geçmiş bedelli ücretlerini karşılaştır.', href: '/bedelli', icon: 'calculator', accent: 'amber' },
-  { title: 'Hazırlık Listesi', description: 'Askere gitmeden önce gerekenleri tamamla.', href: '#uygulama', icon: 'checklist', accent: 'sage' },
+  { title: 'Hazırlık Listesi', description: 'Askere gitmeden önce gerekenleri planla.', href: '/blog/askere-giderken-canta-nasil-sadelesir', icon: 'checklist', accent: 'sage' },
   { title: 'Birlik Bul', description: 'Birliğini bul ve hakkında bilgi edin.', href: '#birlikler', icon: 'unit', accent: 'slate' },
 ];
 

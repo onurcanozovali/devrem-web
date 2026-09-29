@@ -44,12 +44,12 @@ export const mainNavigation = [
     description: 'Hazırlık rehberlerini oku',
   },
   {
-    href: '/#araclar',
+    href: '/araclar',
     label: 'Araçlar',
     description: 'Askerlik araçlarına ulaş',
   },
   {
-    href: '/#haberler',
+    href: '/haberler',
     label: 'Haberler',
     description: 'Askerlik gündemini takip et',
   },

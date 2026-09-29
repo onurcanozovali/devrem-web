@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 const links = [
   { href: '/', label: 'Ana Sayfa', icon: Home },
   { href: '/blog', label: 'Blog', icon: Search },
-  { href: '/#uygulama', label: 'Devrem nasıl çalışır?', icon: ArrowRight },
+  { href: '/hakkimizda', label: 'Devrem hakkında', icon: ArrowRight },
 ];
 
 export default function NotFoundPage() {

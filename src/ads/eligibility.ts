@@ -1,6 +1,8 @@
 const eligiblePublicRoutes = [
   '/',
   '/bedelli',
+  '/araclar',
+  '/haberler',
   '/blog',
   '/asker-sozlugu',
   '/asker-rutbeleri',

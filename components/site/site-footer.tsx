@@ -10,7 +10,7 @@ const footerGroups: { title: string; links: FooterLink[] }[] = [
     title: 'Birlikler',
     links: [
       { label: 'Tüm Birlikler', href: '/birlikler' },
-      { label: 'Şehirlere Göre Birlikler', href: '/#populer-birlikler' },
+      { label: 'Şehirlere Göre Birlikler', href: '/birlikler' },
     ],
   },
   {
@@ -19,21 +19,21 @@ const footerGroups: { title: string; links: FooterLink[] }[] = [
       { label: 'Celp & Sevk', href: '/blog/2026-askerlik-celp-sevk-tarihleri' },
       { label: 'Bedelli Askerlik', href: '/bedelli' },
       { label: 'Askerlik Rehberi', href: '/blog' },
-      { label: 'Askerlik Araçları', href: '/#araclar' },
+      { label: 'Askerlik Araçları', href: '/araclar' },
     ],
   },
   {
     title: 'İçerik',
     links: [
-      { label: 'Haberler', href: '/#haberler' },
+      { label: 'Haberler', href: '/haberler' },
       { label: 'Blog', href: '/blog' },
-      { label: 'Rehberler', href: '/#rehberler' },
+      { label: 'Rehberler', href: '/blog' },
     ],
   },
   {
     title: 'Devrem',
     links: [
-      { label: 'Hakkımızda', href: '/#hakkimizda' },
+      { label: 'Hakkımızda', href: '/hakkimizda' },
       { label: 'İletişim', href: '/support' },
       { label: 'Reklam & İş Birlikleri', href: 'mailto:iletisim@devrem.co?subject=Reklam%20ve%20iş%20birliği' },
     ],

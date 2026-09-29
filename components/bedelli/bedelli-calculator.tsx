@@ -761,15 +761,15 @@ export function BedelliCalculator({ snapshot }: { snapshot: MarketSnapshot }) {
 
       <section className="bedelli-final-cta" aria-labelledby="final-cta-title">
         <div>
-          <p className="bedelli-kicker">Devrem uygulaması</p>
-          <h2 id="final-cta-title">Kaç gün kaldı?</h2>
+          <p className="bedelli-kicker">Askerlik araçları</p>
+          <h2 id="final-cta-title">Hazırlığını tek yerden planla</h2>
           <p>
-            Sevk tarihini Devrem’e ekle; geri sayımını, hazırlığını ve aynı
-            birlikteki devrelerini tek yerde takip et.
+            Celp ve sevk takvimini incele, hazırlık rehberlerine ulaş ve güncel
+            bedelli verilerini karşılaştır.
           </p>
         </div>
-        <Link href="/#uygulama">
-          Devrem’i keşfet <ArrowRight className="size-4" aria-hidden="true" />
+        <Link href="/araclar">
+          Tüm araçları incele <ArrowRight className="size-4" aria-hidden="true" />
         </Link>
       </section>
     </>

@@ -340,11 +340,11 @@ export const blogPosts: BlogPost[] = [
       'acemi-birliginde-ilk-gun',
     ],
     endCta: {
-      title: 'Aynı dönemdeki devrelerinle yola çıkmadan tanış',
+      title: 'Birliğini gitmeden önce araştır',
       description:
-        'Devrem’de aynı celp dönemindeki, aynı askerlik şehrine veya birliğe gidecek kişileri bul ve teslim öncesi iletişim kur.',
-      label: 'Devrem uygulamasını keşfet',
-      href: '/#uygulama',
+        'Yayınlanmış birlik rehberlerinde konum, ulaşım ve hazırlık bilgilerini incele.',
+      label: 'Birlik rehberlerini incele',
+      href: '/birlikler',
     },
   },
   {
@@ -501,9 +501,9 @@ export const blogPosts: BlogPost[] = [
     endCta: {
       title: 'Hazırlık sürecini sadeleştir',
       description:
-        'Devrem’de rehberleri oku, güncel verileri takip et ve aynı dönemdeki devrelerinle tanış.',
-      label: 'Devrem uygulamasını keşfet',
-      href: '/#uygulama',
+        'Devrem’de rehberleri oku, güncel verileri takip et ve teslim öncesi hazırlığını planla.',
+      label: 'Hazırlık rehberlerini keşfet',
+      href: '/blog',
     },
   },
   {

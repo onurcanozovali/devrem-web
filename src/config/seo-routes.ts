@@ -9,6 +9,8 @@ const updatedLegalRoutes = new Set(['privacy', 'cerez-politikasi']);
 export const pageSitemapEntries: SitemapEntry[] = [
   { path: '/', lastModified: '2026-09-03' },
   { path: '/blog', lastModified: '2026-09-03' },
+  { path: '/haberler', lastModified: '2026-09-29' },
+  { path: '/hakkimizda', lastModified: '2026-09-29' },
   { path: '/asker-sozlugu', lastModified: '2026-09-07' },
   { path: '/asker-rutbeleri', lastModified: '2026-09-07' },
   { path: '/topluluk', lastModified: '2026-09-03' },
@@ -26,6 +28,7 @@ export const pageSitemapEntries: SitemapEntry[] = [
 
 export const toolSitemapEntries: SitemapEntry[] = [
   { path: '/bedelli', lastModified: '2026-09-02' },
+  { path: '/araclar', lastModified: '2026-09-29' },
 ];
 
 export const sitemapGroups = [
