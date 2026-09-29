@@ -36,9 +36,20 @@ export class FirebaseConfigurationError extends Error {
 
 function getConfig(): FirebaseServerConfig {
   return {
-    projectId: process.env.FIREBASE_PROJECT_ID?.trim() ?? '',
-    storageBucket: process.env.FIREBASE_STORAGE_BUCKET?.trim() ?? '',
-    webApiKey: process.env.FIREBASE_WEB_API_KEY?.trim() ?? '',
+    projectId:
+      process.env.FIREBASE_PROJECT_ID?.trim() ||
+      process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID?.trim() ||
+      '',
+    storageBucket:
+      process.env.FIREBASE_STORAGE_BUCKET?.trim() ||
+      process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET?.trim() ||
+      '',
+    webApiKey:
+      process.env.FIREBASE_WEB_API_KEY?.trim() ||
+      process.env.NEXT_PUBLIC_FIREBASE_API_KEY?.trim() ||
+      process.env.VITE_FIREBASE_API_KEY?.trim() ||
+      process.env.EXPO_PUBLIC_FIREBASE_API_KEY?.trim() ||
+      '',
     clientEmail: process.env.FIREBASE_CLIENT_EMAIL?.trim() || null,
     privateKey:
       process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n').trim() || null,

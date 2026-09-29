@@ -35,6 +35,11 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     const status = error instanceof CommunityAuthError ? error.status : 500;
+    console.error('[community-session] Session creation failed', {
+      status,
+      code:
+        error instanceof CommunityAuthError ? error.code : 'UNEXPECTED_ERROR',
+    });
     const message =
       error instanceof CommunityAuthError
         ? error.message
